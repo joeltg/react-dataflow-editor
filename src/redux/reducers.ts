@@ -7,13 +7,13 @@ import {
 
 import { SystemAction } from "./actions.js"
 
-export const rootReducer = <K extends string, V extends Values<K>>(
-	schema: Schema<K, V>,
-	initialState: SystemState<K, V> = initialSystemState()
+export const rootReducer = <V extends Values>(
+	schema: Schema<V>,
+	initialState: SystemState<V> = initialSystemState()
 ) => (
-	state: SystemState<K, V> = initialState,
-	action: SystemAction<K, V>
-): SystemState<K, V> => {
+	state: SystemState<V> = initialState,
+	action: SystemAction<V>
+): SystemState<V> => {
 	if (action.type === "node/update") {
 		const { id, value } = action
 		const nodes = new Map(state.nodes)

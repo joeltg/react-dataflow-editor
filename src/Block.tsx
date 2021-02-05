@@ -8,21 +8,19 @@ import { Node, Schema, SystemState, Values } from "./interfaces.js"
 import { defaultBackgroundColor } from "./utils.js"
 import { StyleContext } from "./styles.js"
 
-export interface BlockContentProps<K extends string, V extends Values<K>> {
+export interface BlockContentProps<V extends Values> {
 	id: number
-	schema: Schema<K, V>
+	schema: Schema<V>
 }
 
-export function BlockContent<K extends string, V extends Values<K>>({
+export function BlockContent<V extends Values>({
 	id,
 	schema,
-}: BlockContentProps<K, V>) {
-	const node = useSelector<SystemState<K, V>, Node<K, V> | null>(
-		({ nodes }) => {
-			const node = nodes.get(id)
-			return node === undefined ? null : node
-		}
-	)
+}: BlockContentProps<V>) {
+	const node = useSelector<SystemState<V>, Node<V> | null>(({ nodes }) => {
+		const node = nodes.get(id)
+		return node === undefined ? null : node
+	})
 
 	if (node === null) {
 		return null
@@ -31,19 +29,19 @@ export function BlockContent<K extends string, V extends Values<K>>({
 	}
 }
 
-interface InnerBlockContentProps<K extends string, V extends Values<K>> {
-	node: Node<K, V>
-	schema: Schema<K, V>
+interface InnerBlockContentProps<V extends Values> {
+	node: Node<V>
+	schema: Schema<V>
 }
 
-function InnerBlockContent<K extends string, V extends Values<K>>({
+function InnerBlockContent<V extends Values>({
 	node: { id, kind, value },
 	schema,
-}: InnerBlockContentProps<K, V>) {
+}: InnerBlockContentProps<V>) {
 	const dispatch = useDispatch()
 
 	const setValue = useCallback(
-		(value: V[K]) => dispatch(actions.updateNode(id, value)),
+		(value: V[keyof V]) => dispatch(actions.updateNode(id, value)),
 		[id]
 	)
 

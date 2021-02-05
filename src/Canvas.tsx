@@ -60,27 +60,27 @@ g.preview > circle {
 }
 `
 
-export interface CanvasProps<K extends string, V extends Values<K>> {
+export interface CanvasProps<V extends Values> {
 	unit: number
 	dimensions: [number, number]
-	schema: Schema<K, V>
-	onChange: (nodes: Map<number, Node<K, V>>, edges: Map<number, Edge>) => void
+	schema: Schema<V>
+	onChange: (nodes: Map<number, Node<V>>, edges: Map<number, Edge>) => void
 }
 
-export function Canvas<K extends string, V extends Values<K>>({
+export function Canvas<V extends Values>({
 	unit,
 	dimensions,
 	schema,
 	onChange,
-}: CanvasProps<K, V>) {
-	const dispatch = useDispatch<Dispatch<actions.SystemAction<K, V>>>()
+}: CanvasProps<V>) {
+	const dispatch = useDispatch<Dispatch<actions.SystemAction<V>>>()
 
-	const nodes = useSelector(({ nodes }: SystemState<K, V>) => nodes)
-	const edges = useSelector(({ edges }: SystemState<K, V>) => edges)
+	const nodes = useSelector(({ nodes }: SystemState<V>) => nodes)
+	const edges = useSelector(({ edges }: SystemState<V>) => edges)
 
 	const [X, Y] = dimensions
 
-	const ref = useMemo<CanvasRef<K, V>>(
+	const ref = useMemo<CanvasRef<V>>(
 		() => ({
 			svg: select<SVGSVGElement | null, unknown>(null),
 			contentDimensions: new Map(),
@@ -116,7 +116,7 @@ export function Canvas<K extends string, V extends Values<K>>({
 
 	useLayoutEffect(() => {
 		const children: [number, HTMLDivElement][] = []
-		update.nodes().each(function (this: HTMLDivElement, { id }: Node<K, V>) {
+		update.nodes().each(function (this: HTMLDivElement, { id }: Node<V>) {
 			children.push([id, this])
 		})
 		setChildren(children)
@@ -128,7 +128,7 @@ export function Canvas<K extends string, V extends Values<K>>({
 
 	const height = unit * Y
 
-	const [{}, drop] = useDrop<{ type: "block"; kind: K }, void, {}>({
+	const [{}, drop] = useDrop<{ type: "block"; kind: keyof V }, void, {}>({
 		accept: ["block"],
 		drop({ kind }, monitor) {
 			const { x, y } = monitor.getSourceClientOffset()!
@@ -164,17 +164,17 @@ export function Canvas<K extends string, V extends Values<K>>({
 	)
 }
 
-interface PortalProps<K extends string, V extends Values<K>> {
+interface PortalProps<V extends Values> {
 	container: HTMLDivElement
 	id: number
-	schema: Schema<K, V>
+	schema: Schema<V>
 }
 
-const portal = <K extends string, V extends Values<K>>({
+const portal = <K extends string, V extends Values>({
 	container,
 	id,
 	schema,
-}: PortalProps<K, V>) => {
+}: PortalProps<V>) => {
 	return createPortal(<BlockContent id={id} schema={schema} />, container)
 }
 

@@ -1,39 +1,39 @@
 import { Port, Values } from "../interfaces.js"
 
-export type SystemAction<K extends string, V extends Values<K>> =
-	| UpdateNodeAction<K, V>
-	| CreateNodeAction<K>
+export type SystemAction<V extends Values> =
+	| UpdateNodeAction<V>
+	| CreateNodeAction<V>
 	| MoveNodeAction
 	| DeleteNodeAction
 	| CreateEdgeAction
 	| MoveEdgeAction
 	| DeleteEdgeAction
 
-export interface UpdateNodeAction<K extends string, V extends Values<K>> {
+export interface UpdateNodeAction<V extends Values> {
 	type: "node/update"
 	id: number
-	value: V[K]
+	value: V[keyof V]
 }
 
-export const updateNode = <K extends string, V extends Values<K>>(
+export const updateNode = <V extends Values>(
 	id: number,
-	value: V[K]
-): UpdateNodeAction<K, V> => ({
+	value: V[keyof V]
+): UpdateNodeAction<V> => ({
 	type: "node/update",
 	id,
 	value,
 })
 
-export interface CreateNodeAction<K extends string> {
+export interface CreateNodeAction<V extends Values> {
 	type: "node/create"
-	kind: K
+	kind: keyof V
 	position: [number, number]
 }
 
-export const createNode = <K extends string>(
-	kind: K,
+export const createNode = <V extends Values>(
+	kind: keyof V,
 	position: [number, number]
-): CreateNodeAction<K> => ({ type: "node/create", kind, position })
+): CreateNodeAction<V> => ({ type: "node/create", kind, position })
 
 export interface MoveNodeAction {
 	type: "node/move"

@@ -33,8 +33,8 @@ type InputDragSubject = {
 
 type InputDragEvent = D3DragEvent<SVGCircleElement, Input, InputDragSubject>
 
-const inputDragBehavior = <K extends string, V extends Values<K>>(
-	ref: CanvasRef<K, V>
+const inputDragBehavior = <V extends Values>(
+	ref: CanvasRef<V>
 ): DragBehavior<SVGCircleElement, Input, InputDragSubject> =>
 	drag<SVGCircleElement, Input>()
 		.on("start", function onStart(event: InputDragEvent) {
@@ -100,12 +100,12 @@ const inputDragBehavior = <K extends string, V extends Values<K>>(
 
 const getInputKey = ({ target: [_, input] }: Input) => input as string
 
-export const updateInputPorts = <K extends string, V extends Values<K>>(
-	ref: CanvasRef<K, V>
-) => (inputs: Selection<SVGCircleElement, Input, BaseType, Node<K, V>>) => {
+export const updateInputPorts = <K extends string, V extends Values>(
+	ref: CanvasRef<V>
+) => (inputs: Selection<SVGCircleElement, Input, BaseType, Node<V>>) => {
 	const dragBehavior = inputDragBehavior(ref)
 	return inputs
-		.data<Input>((node: Node<K, V>): Input[] => {
+		.data<Input>((node: Node<V>): Input[] => {
 			const inputs: Input[] = []
 			for (const [index, input] of ref.schema[node.kind].inputs.entries()) {
 				const value = node.inputs[input]

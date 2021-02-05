@@ -40,8 +40,8 @@ export const positionEqual = (
 	[x2, y2]: [number, number]
 ): boolean => x1 === x2 && y1 === y2
 
-export function getSourcePosition<K extends string, V extends Values<K>>(
-	ref: CanvasRef<K, V>,
+export function getSourcePosition<V extends Values>(
+	ref: CanvasRef<V>,
 	{ source: [id, output] }: Edge
 ): [number, number] {
 	const {
@@ -54,8 +54,8 @@ export function getSourcePosition<K extends string, V extends Values<K>>(
 	return [x * ref.unit + offsetX + 2 * portRadius, y * ref.unit + offsetY]
 }
 
-export function getTargetPosition<K extends string, V extends Values<K>>(
-	ref: CanvasRef<K, V>,
+export function getTargetPosition<V extends Values>(
+	ref: CanvasRef<V>,
 	{ target: [id, input] }: Edge
 ): [number, number] {
 	const {
@@ -70,10 +70,9 @@ export function getTargetPosition<K extends string, V extends Values<K>>(
 export const getPortOffsetY = (index: number) =>
 	index * portHeight + portMargin + portRadius
 
-export const getBackgroundColor = <K extends string, V extends Values<K>>(
-	schema: Schema<K, V>
-) => ({ kind }: Node<K, V>) =>
-	schema[kind].backgroundColor || defaultBackgroundColor
+export const getBackgroundColor = <V extends Values>(schema: Schema<V>) => ({
+	kind,
+}: Node<V>) => schema[kind].backgroundColor || defaultBackgroundColor
 
 export type Target = {
 	x: number
@@ -84,8 +83,8 @@ export type Target = {
 export const getX = ({ x }: Target) => x
 export const getY = ({ y }: Target) => y
 
-export function getTargets<K extends string, V extends Values<K>>(
-	ref: CanvasRef<K, V>,
+export function getTargets<V extends Values>(
+	ref: CanvasRef<V>,
 	sourceId: number
 ) {
 	const targets: Target[] = []

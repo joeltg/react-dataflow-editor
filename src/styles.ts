@@ -10,8 +10,8 @@ export const defaultBlockHeaderStyle: React.CSSProperties = {
 	borderBottom: `1px solid ${defaultBorderColor}`,
 }
 
-export type getBlockHeaderStyle = <K extends string, V extends Values<K>>(
-	block: Schema<K, V>[K]
+export type getBlockHeaderStyle = <V extends Values>(
+	block: Schema<V>[keyof V]
 ) => React.CSSProperties
 
 interface StyleContext {

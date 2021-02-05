@@ -3,9 +3,7 @@ import { makeCurvePath } from "./curve.js"
 import { CanvasRef, Edge, Values } from "./interfaces.js"
 import { getKey, getSourcePosition, getTargetPosition } from "./utils.js"
 
-export const updateEdges = <K extends string, V extends Values<K>>(
-	ref: CanvasRef<K, V>
-) => {
+export const updateEdges = <V extends Values>(ref: CanvasRef<V>) => {
 	function updateEdgePathPositions(this: SVGPathElement, edge: Edge) {
 		const sourcePosition = getSourcePosition(ref, edge)
 		const targetPosition = getTargetPosition(ref, edge)

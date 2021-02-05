@@ -21,15 +21,15 @@ const portStyle: React.CSSProperties = {
 	boxSizing: "border-box",
 }
 
-export interface AbstractBlockViewProps<K extends string, V extends Values<K>> {
-	kind: K
-	schema: Schema<K, V>
+export interface AbstractBlockViewProps<V extends Values> {
+	kind: keyof V
+	schema: Schema<V>
 }
 
-export function AbstractBlockView<K extends string, V extends Values<K>>({
+export function AbstractBlockView<V extends Values>({
 	kind,
 	schema,
-}: AbstractBlockViewProps<K, V>) {
+}: AbstractBlockViewProps<V>) {
 	const block = schema[kind]
 	const [_, drag] = useDrag({ item: { type: "block", kind } })
 	return (
@@ -60,18 +60,16 @@ export function AbstractBlockView<K extends string, V extends Values<K>>({
 	)
 }
 
-export interface ToolboxProps<K extends string, V extends Values<K>> {
-	schema: Schema<K, V>
+export interface ToolboxProps<V extends Values> {
+	schema: Schema<V>
 }
 
-export function Toolbox<K extends string, V extends Values<K>>({
-	schema,
-}: ToolboxProps<K, V>) {
+export function Toolbox<V extends Values>({ schema }: ToolboxProps<V>) {
 	return (
 		<div style={{ display: "flex" }} className="toolbox">
 			{Object.keys(schema).map((key) => {
-				const kind = key as K
-				return <AbstractBlockView key={kind} kind={kind} schema={schema} />
+				const kind = key as keyof V
+				return <AbstractBlockView key={key} kind={kind} schema={schema} />
 			})}
 		</div>
 	)

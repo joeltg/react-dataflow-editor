@@ -1,17 +1,17 @@
 import { Port, Values } from "../interfaces.js";
-export declare type SystemAction<K extends string, V extends Values<K>> = UpdateNodeAction<K, V> | CreateNodeAction<K> | MoveNodeAction | DeleteNodeAction | CreateEdgeAction | MoveEdgeAction | DeleteEdgeAction;
-export interface UpdateNodeAction<K extends string, V extends Values<K>> {
+export declare type SystemAction<V extends Values> = UpdateNodeAction<V> | CreateNodeAction<V> | MoveNodeAction | DeleteNodeAction | CreateEdgeAction | MoveEdgeAction | DeleteEdgeAction;
+export interface UpdateNodeAction<V extends Values> {
     type: "node/update";
     id: number;
-    value: V[K];
+    value: V[keyof V];
 }
-export declare const updateNode: <K extends string, V extends Values<K>>(id: number, value: V[K]) => UpdateNodeAction<K, V>;
-export interface CreateNodeAction<K extends string> {
+export declare const updateNode: <V extends Record<string, any>>(id: number, value: V[keyof V]) => UpdateNodeAction<V>;
+export interface CreateNodeAction<V extends Values> {
     type: "node/create";
-    kind: K;
+    kind: keyof V;
     position: [number, number];
 }
-export declare const createNode: <K extends string>(kind: K, position: [number, number]) => CreateNodeAction<K>;
+export declare const createNode: <V extends Record<string, any>>(kind: keyof V, position: [number, number]) => CreateNodeAction<V>;
 export interface MoveNodeAction {
     type: "node/move";
     id: number;

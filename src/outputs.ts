@@ -29,8 +29,8 @@ type OutputDragSubject = {
 
 type OutputDragEvent = D3DragEvent<SVGCircleElement, Output, OutputDragSubject>
 
-const outputDragBehavior = <K extends string, V extends Values<K>>(
-	ref: CanvasRef<K, V>
+const outputDragBehavior = <K extends string, V extends Values>(
+	ref: CanvasRef<V>
 ): DragBehavior<SVGCircleElement, Output, OutputDragSubject> =>
 	drag<SVGCircleElement, Output>()
 		.on("start", function onStart(event: OutputDragEvent) {
@@ -79,13 +79,13 @@ const outputDragBehavior = <K extends string, V extends Values<K>>(
 
 const getOutputKey = ({ source: [_, output] }: Output) => output as string
 
-export const updateOutputPorts = <K extends string, V extends Values<K>>(
-	ref: CanvasRef<K, V>
-) => (outputs: Selection<SVGCircleElement, Output, BaseType, Node<K, V>>) => {
+export const updateOutputPorts = <V extends Values>(ref: CanvasRef<V>) => (
+	outputs: Selection<SVGCircleElement, Output, BaseType, Node<V>>
+) => {
 	const dragBehavior = outputDragBehavior(ref)
 	return outputs
 		.data<Output>(
-			({ kind, id, outputs }: Node<K, V>): Output[] =>
+			({ kind, id, outputs }: Node<V>): Output[] =>
 				ref.schema[kind].outputs.map((output, index) => ({
 					index,
 					source: [id, output],

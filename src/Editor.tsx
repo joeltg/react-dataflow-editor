@@ -8,52 +8,28 @@ import { HTML5Backend } from "react-dnd-html5-backend"
 
 import { Toolbox } from "./Toolbox.js"
 
-import {
-	Block,
-	Edge,
-	GetNode,
-	GetValues,
-	Node,
-	Schema,
-	SystemState,
-	Values,
-} from "./interfaces.js"
+import { Edge, Node, Schema, SystemState, Values } from "./interfaces.js"
 import { defaultCanvasUnit } from "./utils.js"
 
 import { rootReducer } from "./redux/reducers.js"
 
 import { Canvas } from "./Canvas.js"
 
-export interface EditorProps<
-	K extends string,
-	V extends Values<K>
-	// S extends { [k in K]: Block<any> }
-> {
+export interface EditorProps<V extends Values> {
 	unit?: number
 	dimensions: [number, number]
-	// schema: Schema<K, GetValues<K, S>>
-	schema: Schema<K, V>
-	// initialState?: SystemState<K, GetValues<K, S>>
-	initialState?: SystemState<K, V>
-	onChange: (
-		// nodes: Map<number, GetNode<K, S>>,
-		nodes: Map<number, Node<K, V>>,
-		edges: Map<number, Edge>
-	) => void
+	schema: Schema<V>
+	initialState?: SystemState<V>
+	onChange: (nodes: Map<number, Node<V>>, edges: Map<number, Edge>) => void
 }
 
-export function Editor<
-	K extends string,
-	V extends Values<K>
-	// S extends { [k in K]: Block<any> }
->({
+export function Editor<V extends Values>({
 	unit = defaultCanvasUnit,
 	dimensions,
 	schema,
 	initialState,
 	onChange,
-}: // }: EditorProps<K, S>) {
-EditorProps<K, V>) {
+}: EditorProps<V>) {
 	const store = useMemo(
 		() => createStore(rootReducer(schema, initialState)),
 		[]

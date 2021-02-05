@@ -1,3 +1,3 @@
-import { SystemState, Schema, Values } from "../interfaces.js";
+import { SystemState, Schema } from "../interfaces.js";
 import { SystemAction } from "./actions.js";
-export declare const rootReducer: <K extends string, V extends Values<K>>(schema: Schema<K, V>, initialState?: SystemState<K, V>) => (state: SystemState<K, V> | undefined, action: SystemAction<K, V>) => SystemState<K, V>;
+export declare const rootReducer: <V extends Record<string, any>>(schema: Schema<V>, initialState?: SystemState<V>) => (state: SystemState<V> | undefined, action: SystemAction<V>) => SystemState<V>;

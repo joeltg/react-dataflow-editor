@@ -8,19 +8,14 @@ import { SystemAction } from "./redux/actions.js"
 
 export const Factory = {
 	block: <T>(block: Block<T>) => block,
-	schema: <K extends string, S extends { [k in K]: Block<any> }>(
+	schema: <S extends Record<string, Block<any>>>(
 		schema: S
-	): Schema<K, GetValues<K, S>> => schema,
+	): Schema<
+		{
+			[k in keyof S]: S[k] extends Block<infer T> ? T : never
+		}
+	> => schema,
 }
-
-export type GetValues<K extends string, S extends { [k in K]: Block<any> }> = {
-	[k in K]: S[k] extends Block<infer T> ? T : never
-}
-
-export type GetNode<
-	K extends string,
-	S extends { [k in K]: Block<any> }
-> = Node<K, GetValues<K, S>>
 
 export type Block<T> = {
 	name: string
@@ -31,18 +26,18 @@ export type Block<T> = {
 	component: React.FC<{ value: T; setValue(value: T): void }>
 }
 
-export type Values<K extends string> = { [k in K]: any }
+export type Values = Record<string, any>
 
-export type Schema<K extends string, V extends Values<K>> = {
-	[k in K]: Block<V[k]>
+export type Schema<V extends Values> = {
+	[k in keyof V]: Block<V[k]>
 }
 
-export type Node<K extends string, V extends Values<K>> = {
+export type Node<V extends Values> = {
 	id: number
 	position: [number, number]
 	inputs: Record<string, null | number>
 	outputs: Record<string, Set<number>>
-} & { [k in K]: { kind: k; value: V[k] } }[K]
+} & { [k in keyof V]: { kind: k; value: V[k] } }[keyof V]
 
 export type Port = [number, string]
 
@@ -52,29 +47,26 @@ export type Edge = {
 	target: Port
 }
 
-export interface SystemState<K extends string, V extends Values<K>> {
+export interface SystemState<V extends Values> {
 	id: number
-	nodes: Map<number, Node<K, V>>
+	nodes: Map<number, Node<V>>
 	edges: Map<number, Edge>
 }
 
-export const initialSystemState = <
-	K extends string,
-	V extends Values<K>
->(): SystemState<K, V> => ({
+export const initialSystemState = <V extends Values>(): SystemState<V> => ({
 	id: 0,
 	nodes: new Map(),
 	edges: new Map(),
 })
 
-export interface CanvasRef<K extends string, V extends Values<K>> {
+export interface CanvasRef<V extends Values> {
 	svg: Selection<SVGSVGElement | null, unknown, null, undefined>
 	contentDimensions: Map<number, [number, number]>
 	canvasDimensions: [number, number]
-	nodes: SystemState<K, V>["nodes"]
-	edges: SystemState<K, V>["edges"]
+	nodes: SystemState<V>["nodes"]
+	edges: SystemState<V>["edges"]
 	unit: number
-	schema: Schema<K, V>
+	schema: Schema<V>
 	dimensions: [number, number]
-	dispatch: Dispatch<SystemAction<K, V>>
+	dispatch: Dispatch<SystemAction<V>>
 }

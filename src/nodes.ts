@@ -25,14 +25,14 @@ import {
 	positionEqual,
 } from "./utils.js"
 
-type BlockDragEvent<K extends string, V extends Values<K>> = D3DragEvent<
+type BlockDragEvent<V extends Values> = D3DragEvent<
 	SVGForeignObjectElement,
-	Node<K, V>,
+	Node<V>,
 	{ x: number; y: number }
 >
 
-const handleResize = <K extends string, V extends Values<K>>(
-	ref: CanvasRef<K, V>
+const handleResize = <K extends string, V extends Values>(
+	ref: CanvasRef<V>
 ) => (entries: readonly ResizeObserverEntry[]) => {
 	for (const { target, contentRect } of entries) {
 		const { width, height } = contentRect
@@ -41,7 +41,7 @@ const handleResize = <K extends string, V extends Values<K>>(
 		foreignObject.setAttribute("width", width.toString())
 		foreignObject.setAttribute("height", height.toString())
 
-		const g = select<BaseType, Node<K, V>>(foreignObject.parentElement)
+		const g = select<BaseType, Node<V>>(foreignObject.parentElement)
 		const node = g.datum()
 
 		ref.contentDimensions.set(node.id, [width, height])
@@ -72,21 +72,19 @@ const handleResize = <K extends string, V extends Values<K>>(
 	}
 }
 
-const getBlockPosition = <K extends string, V extends Values<K>>(
-	ref: CanvasRef<K, V>
-) => ({
-	foreignObjectPositionX: ({ position: [x, y] }: Node<K, V>) =>
+const getBlockPosition = <V extends Values>(ref: CanvasRef<V>) => ({
+	foreignObjectPositionX: ({ position: [x, y] }: Node<V>) =>
 		x * ref.unit + portRadius,
-	foreignObjectPositionY: ({ position: [x, y] }: Node<K, V>) => y * ref.unit,
-	frameTransform: ({ position: [x, y] }: Node<K, V>) =>
+	foreignObjectPositionY: ({ position: [x, y] }: Node<V>) => y * ref.unit,
+	frameTransform: ({ position: [x, y] }: Node<V>) =>
 		toTranslate(x * ref.unit, y * ref.unit),
 })
 
-function setNodePosition<K extends string, V extends Values<K>>(
-	ref: CanvasRef<K, V>,
+function setNodePosition<V extends Values>(
+	ref: CanvasRef<V>,
 	g: Selection<SVGGElement, unknown, null, undefined>,
 	[x, y]: [number, number],
-	node: Node<K, V>
+	node: Node<V>
 ) {
 	g.select("g.node > foreignObject")
 		.attr("x", x + portRadius)
@@ -118,15 +116,13 @@ function setNodePosition<K extends string, V extends Values<K>>(
 	}
 }
 
-const nodeDragBehavior = <K extends string, V extends Values<K>>(
-	ref: CanvasRef<K, V>
-) =>
-	drag<SVGGElement, Node<K, V>>()
-		.on("start", function onStart(event: BlockDragEvent<K, V>, node) {})
-		.on("drag", function onDrag(event: BlockDragEvent<K, V>, node) {
+const nodeDragBehavior = <V extends Values>(ref: CanvasRef<V>) =>
+	drag<SVGGElement, Node<V>>()
+		.on("start", function onStart(event: BlockDragEvent<V>, node) {})
+		.on("drag", function onDrag(event: BlockDragEvent<V>, node) {
 			setNodePosition(ref, select(this), [event.x, event.y], node)
 		})
-		.on("end", function onEnd(event: BlockDragEvent<K, V>, node) {
+		.on("end", function onEnd(event: BlockDragEvent<V>, node) {
 			const position = snap([event.x, event.y], ref.unit, ref.dimensions)
 			if (positionEqual(position, node.position)) {
 				const { x, y } = event.subject
@@ -135,15 +131,13 @@ const nodeDragBehavior = <K extends string, V extends Values<K>>(
 				ref.dispatch(actions.moveNode(node.id, position))
 			}
 		})
-		.subject(function (event: BlockDragEvent<K, V>, { position: [x, y] }) {
+		.subject(function (event: BlockDragEvent<V>, { position: [x, y] }) {
 			return { x: ref.unit * x, y: ref.unit * y }
 		})
 		.filter(({ target }) => target.classList.contains("header"))
 
-const nodeClickBehavior = <K extends string, V extends Values<K>>(
-	ref: CanvasRef<K, V>
-) =>
-	function clicked(this: SVGGElement, event: MouseEvent, node: Node<K, V>) {
+const nodeClickBehavior = <V extends Values>(ref: CanvasRef<V>) =>
+	function clicked(this: SVGGElement, event: MouseEvent, node: Node<V>) {
 		if (event.defaultPrevented) {
 			return
 		} else {
@@ -151,10 +145,8 @@ const nodeClickBehavior = <K extends string, V extends Values<K>>(
 		}
 	}
 
-const nodeKeyDownBehavior = <K extends string, V extends Values<K>>(
-	ref: CanvasRef<K, V>
-) =>
-	function keydown(this: SVGGElement, event: KeyboardEvent, node: Node<K, V>) {
+const nodeKeyDownBehavior = <V extends Values>(ref: CanvasRef<V>) =>
+	function keydown(this: SVGGElement, event: KeyboardEvent, node: Node<V>) {
 		if (event.key === "ArrowDown") {
 			event.preventDefault()
 			const [x, y] = node.position
@@ -187,9 +179,7 @@ const nodeKeyDownBehavior = <K extends string, V extends Values<K>>(
 		}
 	}
 
-export const updateNodes = <K extends string, V extends Values<K>>(
-	ref: CanvasRef<K, V>
-) => {
+export const updateNodes = <V extends Values>(ref: CanvasRef<V>) => {
 	const {
 		foreignObjectPositionX,
 		foreignObjectPositionY,
@@ -208,8 +198,8 @@ export const updateNodes = <K extends string, V extends Values<K>>(
 	return () => {
 		const nodes = ref.svg
 			.select("g.nodes")
-			.selectAll<SVGGElement, Node<K, V>>("g.node")
-			.data<Node<K, V>>(ref.nodes.values(), function (node, index, groups) {
+			.selectAll<SVGGElement, Node<V>>("g.node")
+			.data<Node<V>>(ref.nodes.values(), function (node, index, groups) {
 				return node.id.toString()
 			})
 			.join(

@@ -1,16 +1,7 @@
 import React, { useCallback, useState } from "react"
 import ReactDOM from "react-dom"
 
-import {
-	Editor,
-	Edge,
-	Factory,
-	SystemState,
-	GetValues,
-	Values,
-	Schema,
-	Node,
-} from ".."
+import { Editor, Edge, Factory, SystemState, Values, Schema, Node } from ".."
 
 const main = document.querySelector("main")
 
@@ -57,19 +48,19 @@ const s = {
 	}),
 }
 
-function Index<K extends string, V extends Values<K>>({
+function Index<V extends Values>({
 	schema,
 	initialState,
 }: {
-	schema: Schema<K, V>
-	initialState: SystemState<K, V>
+	schema: Schema<V>
+	initialState: SystemState<V>
 }) {
-	const [nodes, setNodes] = useState(new Map<number, Node<K, V>>())
+	const [nodes, setNodes] = useState(new Map<number, Node<V>>())
 
 	const [edges, setEdges] = useState(new Map<number, Edge>())
 
 	const handleChange = useCallback(
-		(nodes: Map<number, Node<K, V>>, edges: Map<number, Edge>) => {
+		(nodes: Map<number, Node<V>>, edges: Map<number, Edge>) => {
 			setNodes(nodes)
 			setEdges(edges)
 		},
@@ -77,7 +68,7 @@ function Index<K extends string, V extends Values<K>>({
 	)
 
 	return (
-		<Editor<K, V>
+		<Editor<V>
 			dimensions={[12, 12]}
 			unit={54}
 			schema={schema}
@@ -88,7 +79,7 @@ function Index<K extends string, V extends Values<K>>({
 }
 
 ReactDOM.render(
-	<Index<keyof typeof s, GetValues<keyof typeof s, typeof s>>
+	<Index
 		schema={s}
 		initialState={{
 			nodes: new Map([
