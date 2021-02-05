@@ -1,8 +1,12 @@
 import { BaseType, Selection } from "d3-selection";
-import { CanvasRef, Node, Port } from "./interfaces.js";
-export declare type Output = {
+import { CanvasRef, Node, Schema, Source } from "./interfaces.js";
+export declare type Output<S extends Schema> = {
     index: number;
-    source: Port;
+    source: Source<S, keyof S>;
     value: Set<number>;
 };
-export declare const updateOutputPorts: <V extends Record<string, any>>(ref: CanvasRef<V>) => (outputs: Selection<SVGCircleElement, Output, BaseType, Node<V>>) => Selection<SVGCircleElement, Output, BaseType, Node<V>>;
+export declare const updateOutputPorts: <S extends Record<string, {
+    value: any;
+    inputs: readonly string[];
+    outputs: readonly string[];
+}>>(ref: CanvasRef<S>) => (outputs: Selection<SVGCircleElement, Output<S>, BaseType, Node<S>>) => Selection<SVGCircleElement, Output<S>, BaseType, Node<S>>;

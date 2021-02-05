@@ -1,15 +1,24 @@
 import React, { useCallback, useState } from "react"
 import ReactDOM from "react-dom"
 
-import { Editor, Edge, Factory, SystemState, Values, Schema, Node } from ".."
+import {
+	Editor,
+	Edge,
+	Factory,
+	SystemState,
+	Schema,
+	Node,
+	Blocks,
+	GetSchema,
+} from ".."
 
 const main = document.querySelector("main")
 
-const s = {
+const blocks = {
 	source: Factory.block({
 		name: "Title",
-		inputs: ["a", "b"],
-		outputs: ["outA", "outB"],
+		inputs: ["a", "b"] as const,
+		outputs: ["outA", "outB"] as const,
 		initialValue: { foo: "cool" },
 		backgroundColor: "lavender",
 		component(props) {
@@ -24,8 +33,8 @@ const s = {
 	}),
 	fdjsalfj: Factory.block({
 		name: "ANOTHER BOX",
-		inputs: ["a"],
-		outputs: ["outA", "outB", "outC"],
+		inputs: ["a"] as const,
+		outputs: ["outA", "outB", "outC"] as const,
 		initialValue: { checked: false, counter: 0 },
 		backgroundColor: "darksalmon",
 		component(props) {
@@ -48,19 +57,19 @@ const s = {
 	}),
 }
 
-function Index<V extends Values>({
-	schema,
+function Index<S extends Schema>({
+	blocks,
 	initialState,
 }: {
-	schema: Schema<V>
-	initialState: SystemState<V>
+	blocks: Blocks<S>
+	initialState: SystemState<S>
 }) {
-	const [nodes, setNodes] = useState(new Map<number, Node<V>>())
+	const [nodes, setNodes] = useState(new Map<number, Node<S>>())
 
-	const [edges, setEdges] = useState(new Map<number, Edge>())
+	const [edges, setEdges] = useState(new Map<number, Edge<S>>())
 
 	const handleChange = useCallback(
-		(nodes: Map<number, Node<V>>, edges: Map<number, Edge>) => {
+		(nodes: Map<number, Node<S>>, edges: Map<number, Edge<S>>) => {
 			setNodes(nodes)
 			setEdges(edges)
 		},
@@ -68,19 +77,21 @@ function Index<V extends Values>({
 	)
 
 	return (
-		<Editor<V>
+		<Editor<S>
 			dimensions={[12, 12]}
 			unit={54}
-			schema={schema}
+			blocks={blocks}
 			onChange={handleChange}
 			initialState={initialState}
 		/>
 	)
 }
 
+type S = GetSchema<typeof blocks>
+
 ReactDOM.render(
-	<Index
-		schema={s}
+	<Index<S>
+		blocks={blocks}
 		initialState={{
 			nodes: new Map([
 				[

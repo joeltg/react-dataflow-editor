@@ -1,19 +1,24 @@
 import {
 	initialSystemState,
 	SystemState,
+	Blocks,
 	Schema,
-	Values,
+	forInputs,
+	forOutputs,
+	Node,
+	GetInputs,
+	GetOutputs,
 } from "../interfaces.js"
 
 import { SystemAction } from "./actions.js"
 
-export const rootReducer = <V extends Values>(
-	schema: Schema<V>,
-	initialState: SystemState<V> = initialSystemState()
+export const rootReducer = <S extends Schema>(
+	blocks: Blocks<S>,
+	initialState: SystemState<S> = initialSystemState()
 ) => (
-	state: SystemState<V> = initialState,
-	action: SystemAction<V>
-): SystemState<V> => {
+	state: SystemState<S> = initialState,
+	action: SystemAction<S>
+): SystemState<S> => {
 	if (action.type === "node/update") {
 		const { id, value } = action
 		const nodes = new Map(state.nodes)
@@ -23,15 +28,7 @@ export const rootReducer = <V extends Values>(
 	} else if (action.type === "node/create") {
 		const { kind, position } = action
 		const nodes = new Map(state.nodes)
-		const { inputs, outputs, initialValue } = schema[kind]
-		nodes.set(state.id, {
-			id: state.id,
-			kind,
-			position,
-			inputs: Object.fromEntries(inputs.map((input) => [input, null])),
-			outputs: Object.fromEntries(outputs.map((output) => [output, new Set()])),
-			value: initialValue,
-		})
+		nodes.set(state.id, createInitialNode(blocks, kind, position, state.id))
 		return { ...state, id: state.id + 1, nodes }
 	} else if (action.type === "node/move") {
 		const { id, position } = action
@@ -43,8 +40,8 @@ export const rootReducer = <V extends Values>(
 		const { kind, inputs, outputs } = state.nodes.get(id)!
 		const nodes = new Map(state.nodes)
 		const edges = new Map(state.edges)
-		for (const input of schema[kind].inputs) {
-			const edgeId = inputs[input]
+		for (const [_, input] of forInputs(blocks, kind)) {
+			const edgeId: null | number = inputs[input]
 			if (edgeId !== null) {
 				const {
 					source: [sourceId, output],
@@ -59,7 +56,8 @@ export const rootReducer = <V extends Values>(
 				})
 			}
 		}
-		for (const output of schema[kind].outputs) {
+
+		for (const [_, output] of forOutputs(blocks, kind)) {
 			for (const edgeId of outputs[output]) {
 				const {
 					target: [targetId, input],
@@ -72,6 +70,7 @@ export const rootReducer = <V extends Values>(
 				})
 			}
 		}
+
 		nodes.delete(id)
 		return { ...state, nodes, edges }
 	} else if (action.type === "edge/create") {
@@ -146,4 +145,27 @@ export const rootReducer = <V extends Values>(
 	} else {
 		return state
 	}
+}
+
+function createInitialNode<S extends Schema, K extends keyof S>(
+	blocks: Blocks<S>,
+	kind: K,
+	position: [number, number],
+	id: number
+): Node<S> {
+	const inputs = Object.fromEntries(
+		blocks[kind].inputs.map((input) => [input, null])
+	) as {
+		[k in GetInputs<S, K>[number]]: null | number
+	}
+
+	const outputs = Object.fromEntries(
+		blocks[kind].outputs.map((output) => [output, new Set()])
+	) as {
+		[k in GetOutputs<S, K>[number]]: Set<number>
+	}
+
+	const value = blocks[kind].initialValue
+
+	return { id, kind, position, inputs, outputs, value }
 }

@@ -1,11 +1,11 @@
 /// <reference types="react" />
-import { Schema, Values } from "./interfaces.js";
-export interface AbstractBlockViewProps<V extends Values> {
-    kind: keyof V;
-    schema: Schema<V>;
+import { Blocks, Schema } from "./interfaces.js";
+export interface AbstractBlockViewProps<S extends Schema> {
+    kind: keyof S;
+    blocks: Blocks<S>;
 }
-export declare function AbstractBlockView<V extends Values>({ kind, schema, }: AbstractBlockViewProps<V>): JSX.Element;
-export interface ToolboxProps<V extends Values> {
-    schema: Schema<V>;
+export declare function AbstractBlockView<S extends Schema>({ kind, blocks, }: AbstractBlockViewProps<S>): JSX.Element;
+export interface ToolboxProps<S extends Schema> {
+    blocks: Blocks<S>;
 }
-export declare function Toolbox<V extends Values>({ schema }: ToolboxProps<V>): JSX.Element;
+export declare function Toolbox<S extends Schema>({ blocks }: ToolboxProps<S>): JSX.Element;

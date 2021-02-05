@@ -8,30 +8,30 @@ import { HTML5Backend } from "react-dnd-html5-backend"
 
 import { Toolbox } from "./Toolbox.js"
 
-import { Edge, Node, Schema, SystemState, Values } from "./interfaces.js"
+import { Edge, Node, Blocks, SystemState, Schema } from "./interfaces.js"
 import { defaultCanvasUnit } from "./utils.js"
 
 import { rootReducer } from "./redux/reducers.js"
 
 import { Canvas } from "./Canvas.js"
 
-export interface EditorProps<V extends Values> {
+export interface EditorProps<S extends Schema> {
 	unit?: number
 	dimensions: [number, number]
-	schema: Schema<V>
-	initialState?: SystemState<V>
-	onChange: (nodes: Map<number, Node<V>>, edges: Map<number, Edge>) => void
+	blocks: Blocks<S>
+	initialState?: SystemState<S>
+	onChange: (nodes: Map<number, Node<S>>, edges: Map<number, Edge<S>>) => void
 }
 
-export function Editor<V extends Values>({
+export function Editor<S extends Schema>({
 	unit = defaultCanvasUnit,
 	dimensions,
-	schema,
+	blocks,
 	initialState,
 	onChange,
-}: EditorProps<V>) {
+}: EditorProps<S>) {
 	const store = useMemo(
-		() => createStore(rootReducer(schema, initialState)),
+		() => createStore(rootReducer(blocks, initialState)),
 		[]
 	)
 
@@ -42,9 +42,9 @@ export function Editor<V extends Values>({
 					className="editor"
 					style={{ display: "flex", flexDirection: "column" }}
 				>
-					<Toolbox schema={schema} />
+					<Toolbox blocks={blocks} />
 					<Canvas
-						schema={schema}
+						blocks={blocks}
 						dimensions={dimensions}
 						unit={unit}
 						onChange={onChange}

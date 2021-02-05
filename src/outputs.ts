@@ -2,7 +2,7 @@ import { D3DragEvent, drag, DragBehavior } from "d3-drag"
 import { Quadtree } from "d3-quadtree"
 import { BaseType, Selection } from "d3-selection"
 
-import { CanvasRef, Node, Port, Values } from "./interfaces.js"
+import { CanvasRef, GetOutputs, Node, Schema, Source } from "./interfaces.js"
 import { startPreview, stopPreview, updatePreview } from "./preview.js"
 import * as actions from "./redux/actions.js"
 import {
@@ -11,34 +11,38 @@ import {
 	getPortOffsetY,
 	getTargets,
 	portRadius,
-	Target,
+	DropTarget,
 } from "./utils.js"
 
-export type Output = {
+export type Output<S extends Schema> = {
 	index: number
-	source: Port
+	source: Source<S, keyof S>
 	value: Set<number>
 }
 
-type OutputDragSubject = {
+type OutputDragSubject<S extends Schema> = {
 	x: number
 	y: number
-	targets: Quadtree<Target>
+	targets: Quadtree<DropTarget<S>>
 	preview: Selection<SVGGElement, unknown, null, undefined>
 }
 
-type OutputDragEvent = D3DragEvent<SVGCircleElement, Output, OutputDragSubject>
+type OutputDragEvent<S extends Schema> = D3DragEvent<
+	SVGCircleElement,
+	Output<S>,
+	OutputDragSubject<S>
+>
 
-const outputDragBehavior = <K extends string, V extends Values>(
-	ref: CanvasRef<V>
-): DragBehavior<SVGCircleElement, Output, OutputDragSubject> =>
-	drag<SVGCircleElement, Output>()
-		.on("start", function onStart(event: OutputDragEvent) {
+const outputDragBehavior = <S extends Schema>(
+	ref: CanvasRef<S>
+): DragBehavior<SVGCircleElement, Output<S>, OutputDragSubject<S>> =>
+	drag<SVGCircleElement, Output<S>>()
+		.on("start", function onStart(event: OutputDragEvent<S>) {
 			this.classList.add("dragging")
 			const { x, y, preview } = event.subject
 			preview.call(startPreview, [x, y], [x, y])
 		})
-		.on("drag", function onDrag(event: OutputDragEvent) {
+		.on("drag", function onDrag(event: OutputDragEvent<S>) {
 			const { x, y, targets, preview } = event.subject
 			const source = [x, y]
 			const result = targets.find(event.x, event.y, 2 * portRadius)
@@ -46,20 +50,23 @@ const outputDragBehavior = <K extends string, V extends Values>(
 				result !== undefined ? [result.x, result.y] : [event.x, event.y]
 			preview.call(updatePreview, source, target, result !== undefined)
 		})
-		.on("end", function onEnd(event: OutputDragEvent, { source }: Output) {
-			this.classList.remove("dragging")
-			const { targets, preview } = event.subject
-			preview.call(stopPreview, false)
-			const result = targets.find(event.x, event.y, 2 * portRadius)
-			if (result !== undefined) {
-				const { target } = result
-				ref.dispatch(actions.createEdge(source, target))
+		.on(
+			"end",
+			function onEnd(event: OutputDragEvent<S>, { source }: Output<S>) {
+				this.classList.remove("dragging")
+				const { targets, preview } = event.subject
+				preview.call(stopPreview, false)
+				const result = targets.find(event.x, event.y, 2 * portRadius)
+				if (result !== undefined) {
+					const { target } = result
+					ref.dispatch(actions.createEdge(source, target))
+				}
 			}
-		})
+		)
 		.subject(function (
-			event: OutputDragEvent,
-			{ index, source: [id] }: Output
-		): OutputDragSubject {
+			event: OutputDragEvent<S>,
+			{ index, source: [id] }: Output<S>
+		): OutputDragSubject<S> {
 			const {
 				position: [x, y],
 			} = ref.nodes.get(id)!
@@ -77,20 +84,24 @@ const outputDragBehavior = <K extends string, V extends Values>(
 			}
 		}) as any
 
-const getOutputKey = ({ source: [_, output] }: Output) => output as string
+const getOutputKey = <S extends Schema>({
+	source: [_, output],
+}: Output<S>): string => output
 
-export const updateOutputPorts = <V extends Values>(ref: CanvasRef<V>) => (
-	outputs: Selection<SVGCircleElement, Output, BaseType, Node<V>>
+export const updateOutputPorts = <S extends Schema>(ref: CanvasRef<S>) => (
+	outputs: Selection<SVGCircleElement, Output<S>, BaseType, Node<S>>
 ) => {
 	const dragBehavior = outputDragBehavior(ref)
 	return outputs
-		.data<Output>(
-			({ kind, id, outputs }: Node<V>): Output[] =>
-				ref.schema[kind].outputs.map((output, index) => ({
-					index,
-					source: [id, output],
-					value: outputs[output],
-				})),
+		.data<Output<S>>(
+			({ kind, id, outputs }: Node<S>): Output<S>[] =>
+				ref.blocks[kind].outputs.map(
+					(output: GetOutputs<S, keyof S>[number], index) => ({
+						index,
+						source: [id, output],
+						value: outputs[output],
+					})
+				),
 			getOutputKey
 		)
 		.join((enter) => {

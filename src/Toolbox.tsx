@@ -1,7 +1,7 @@
 import React from "react"
 import { useDrag } from "react-dnd"
 
-import { Schema, Values } from "./interfaces.js"
+import { Blocks, Schema } from "./interfaces.js"
 import {
 	defaultBackgroundColor,
 	defaultBorderColor,
@@ -21,16 +21,16 @@ const portStyle: React.CSSProperties = {
 	boxSizing: "border-box",
 }
 
-export interface AbstractBlockViewProps<V extends Values> {
-	kind: keyof V
-	schema: Schema<V>
+export interface AbstractBlockViewProps<S extends Schema> {
+	kind: keyof S
+	blocks: Blocks<S>
 }
 
-export function AbstractBlockView<V extends Values>({
+export function AbstractBlockView<S extends Schema>({
 	kind,
-	schema,
-}: AbstractBlockViewProps<V>) {
-	const block = schema[kind]
+	blocks,
+}: AbstractBlockViewProps<S>) {
+	const block = blocks[kind]
 	const [_, drag] = useDrag({ item: { type: "block", kind } })
 	return (
 		<div
@@ -60,16 +60,16 @@ export function AbstractBlockView<V extends Values>({
 	)
 }
 
-export interface ToolboxProps<V extends Values> {
-	schema: Schema<V>
+export interface ToolboxProps<S extends Schema> {
+	blocks: Blocks<S>
 }
 
-export function Toolbox<V extends Values>({ schema }: ToolboxProps<V>) {
+export function Toolbox<S extends Schema>({ blocks }: ToolboxProps<S>) {
 	return (
 		<div style={{ display: "flex" }} className="toolbox">
-			{Object.keys(schema).map((key) => {
-				const kind = key as keyof V
-				return <AbstractBlockView key={key} kind={kind} schema={schema} />
+			{Object.keys(blocks).map((key) => {
+				const kind = key as keyof S
+				return <AbstractBlockView key={key} kind={kind} blocks={blocks} />
 			})}
 		</div>
 	)

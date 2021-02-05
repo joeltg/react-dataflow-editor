@@ -1,10 +1,10 @@
 import { select } from "d3-selection"
 import { makeCurvePath } from "./curve.js"
-import { CanvasRef, Edge, Values } from "./interfaces.js"
+import { CanvasRef, Edge, Schema } from "./interfaces.js"
 import { getKey, getSourcePosition, getTargetPosition } from "./utils.js"
 
-export const updateEdges = <V extends Values>(ref: CanvasRef<V>) => {
-	function updateEdgePathPositions(this: SVGPathElement, edge: Edge) {
+export const updateEdges = <S extends Schema>(ref: CanvasRef<S>) => {
+	function updateEdgePathPositions(this: SVGPathElement, edge: Edge<S>) {
 		const sourcePosition = getSourcePosition(ref, edge)
 		const targetPosition = getTargetPosition(ref, edge)
 		select(this).attr("d", makeCurvePath(sourcePosition, targetPosition))
@@ -13,8 +13,8 @@ export const updateEdges = <V extends Values>(ref: CanvasRef<V>) => {
 	return () =>
 		ref.svg
 			.select("g.edges")
-			.selectAll<SVGGElement, Edge>("g.edge")
-			.data<Edge>(ref.edges.values(), getKey)
+			.selectAll<SVGGElement, Edge<S>>("g.edge")
+			.data<Edge<S>>(ref.edges.values(), getKey)
 			.join(
 				(enter) => {
 					const edges = enter

@@ -1,7 +1,7 @@
 /// <reference types="react" />
-import { Schema, Values } from "./interfaces.js";
-export interface BlockContentProps<V extends Values> {
+import { Blocks, Schema } from "./interfaces.js";
+export interface BlockContentProps<S extends Schema> {
     id: number;
-    schema: Schema<V>;
+    blocks: Blocks<S>;
 }
-export declare function BlockContent<V extends Values>({ id, schema, }: BlockContentProps<V>): JSX.Element | null;
+export declare function BlockContent<S extends Schema>({ id, blocks, }: BlockContentProps<S>): JSX.Element | null;

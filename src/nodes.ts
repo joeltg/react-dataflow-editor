@@ -5,7 +5,7 @@ import { BaseType, select, Selection } from "d3-selection"
 import { Input, updateInputPorts } from "./inputs.js"
 
 import * as actions from "./redux/actions.js"
-import { CanvasRef, Node, Values } from "./interfaces.js"
+import { CanvasRef, forInputs, forOutputs, Node, Schema } from "./interfaces.js"
 import { Output, updateOutputPorts } from "./outputs.js"
 import { makeCurvePath } from "./curve.js"
 import {
@@ -25,15 +25,15 @@ import {
 	positionEqual,
 } from "./utils.js"
 
-type BlockDragEvent<V extends Values> = D3DragEvent<
+type BlockDragEvent<S extends Schema> = D3DragEvent<
 	SVGForeignObjectElement,
-	Node<V>,
+	Node<S>,
 	{ x: number; y: number }
 >
 
-const handleResize = <K extends string, V extends Values>(
-	ref: CanvasRef<V>
-) => (entries: readonly ResizeObserverEntry[]) => {
+const handleResize = <S extends Schema>(ref: CanvasRef<S>) => (
+	entries: readonly ResizeObserverEntry[]
+) => {
 	for (const { target, contentRect } of entries) {
 		const { width, height } = contentRect
 
@@ -41,27 +41,30 @@ const handleResize = <K extends string, V extends Values>(
 		foreignObject.setAttribute("width", width.toString())
 		foreignObject.setAttribute("height", height.toString())
 
-		const g = select<BaseType, Node<V>>(foreignObject.parentElement)
+		const g = select<BaseType, Node<S>>(foreignObject.parentElement)
 		const node = g.datum()
 
 		ref.contentDimensions.set(node.id, [width, height])
 
-		const { inputs, outputs } = ref.schema[node.kind]
+		const {
+			inputs: { length: inputCount },
+			outputs: { length: outputCount },
+		} = ref.blocks[node.kind]
 
 		const w = Math.max(width, minWidth) + 2 * portRadius
 		const h = Math.max(
 			height,
 			minHeight,
-			inputs.length * portHeight,
-			outputs.length * portHeight
+			inputCount * portHeight,
+			outputCount * portHeight
 		)
 
 		g.select("g.frame > g.outputs").attr("transform", toTranslate(w, 0))
-		g.select("g.frame > path").attr("d", makeClipPath(inputs.length, [w, h]))
+		g.select("g.frame > path").attr("d", makeClipPath(inputCount, [w, h]))
 
 		const [x, y] = node.position
 		const x1 = x * ref.unit + width + 2 * portRadius
-		for (const [index, output] of outputs.entries()) {
+		for (const [index, output] of forOutputs(ref.blocks, node.kind)) {
 			const y1 = y * ref.unit + getPortOffsetY(index)
 			for (const id of node.outputs[output]) {
 				const targetPosition = getTargetPosition(ref, ref.edges.get(id)!)
@@ -72,19 +75,19 @@ const handleResize = <K extends string, V extends Values>(
 	}
 }
 
-const getBlockPosition = <V extends Values>(ref: CanvasRef<V>) => ({
-	foreignObjectPositionX: ({ position: [x, y] }: Node<V>) =>
+const getBlockPosition = <S extends Schema>(ref: CanvasRef<S>) => ({
+	foreignObjectPositionX: ({ position: [x, y] }: Node<S>) =>
 		x * ref.unit + portRadius,
-	foreignObjectPositionY: ({ position: [x, y] }: Node<V>) => y * ref.unit,
-	frameTransform: ({ position: [x, y] }: Node<V>) =>
+	foreignObjectPositionY: ({ position: [x, y] }: Node<S>) => y * ref.unit,
+	frameTransform: ({ position: [x, y] }: Node<S>) =>
 		toTranslate(x * ref.unit, y * ref.unit),
 })
 
-function setNodePosition<V extends Values>(
-	ref: CanvasRef<V>,
+function setNodePosition<S extends Schema>(
+	ref: CanvasRef<S>,
 	g: Selection<SVGGElement, unknown, null, undefined>,
 	[x, y]: [number, number],
-	node: Node<V>
+	node: Node<S>
 ) {
 	g.select("g.node > foreignObject")
 		.attr("x", x + portRadius)
@@ -93,8 +96,7 @@ function setNodePosition<V extends Values>(
 	g.select("g.node > g.frame").attr("transform", toTranslate(x, y))
 
 	const edges = ref.svg.select("svg > g.edges")
-	const { inputs } = ref.schema[node.kind]
-	for (const [index, input] of inputs.entries()) {
+	for (const [index, input] of forInputs(ref.blocks, node.kind)) {
 		const id: null | number = node.inputs[input]
 		if (id !== null) {
 			const sourcePosition = getSourcePosition(ref, ref.edges.get(id)!)
@@ -104,8 +106,8 @@ function setNodePosition<V extends Values>(
 	}
 
 	const [offsetX] = ref.contentDimensions.get(node.id)!
-	const { outputs } = ref.schema[node.kind]
-	for (const [index, output] of outputs.entries()) {
+	const { outputs } = ref.blocks[node.kind]
+	for (const [index, output] of forOutputs(ref.blocks, node.kind)) {
 		const x1 = x + offsetX + 2 * portRadius
 		const y1 = y + getPortOffsetY(index)
 		for (const id of node.outputs[output]) {
@@ -116,13 +118,13 @@ function setNodePosition<V extends Values>(
 	}
 }
 
-const nodeDragBehavior = <V extends Values>(ref: CanvasRef<V>) =>
-	drag<SVGGElement, Node<V>>()
-		.on("start", function onStart(event: BlockDragEvent<V>, node) {})
-		.on("drag", function onDrag(event: BlockDragEvent<V>, node) {
+const nodeDragBehavior = <S extends Schema>(ref: CanvasRef<S>) =>
+	drag<SVGGElement, Node<S>>()
+		.on("start", function onStart(event: BlockDragEvent<S>, node) {})
+		.on("drag", function onDrag(event: BlockDragEvent<S>, node) {
 			setNodePosition(ref, select(this), [event.x, event.y], node)
 		})
-		.on("end", function onEnd(event: BlockDragEvent<V>, node) {
+		.on("end", function onEnd(event: BlockDragEvent<S>, node) {
 			const position = snap([event.x, event.y], ref.unit, ref.dimensions)
 			if (positionEqual(position, node.position)) {
 				const { x, y } = event.subject
@@ -131,13 +133,13 @@ const nodeDragBehavior = <V extends Values>(ref: CanvasRef<V>) =>
 				ref.dispatch(actions.moveNode(node.id, position))
 			}
 		})
-		.subject(function (event: BlockDragEvent<V>, { position: [x, y] }) {
+		.subject(function (event: BlockDragEvent<S>, { position: [x, y] }) {
 			return { x: ref.unit * x, y: ref.unit * y }
 		})
 		.filter(({ target }) => target.classList.contains("header"))
 
-const nodeClickBehavior = <V extends Values>(ref: CanvasRef<V>) =>
-	function clicked(this: SVGGElement, event: MouseEvent, node: Node<V>) {
+const nodeClickBehavior = <S extends Schema>(ref: CanvasRef<S>) =>
+	function clicked(this: SVGGElement, event: MouseEvent, node: Node<S>) {
 		if (event.defaultPrevented) {
 			return
 		} else {
@@ -145,8 +147,8 @@ const nodeClickBehavior = <V extends Values>(ref: CanvasRef<V>) =>
 		}
 	}
 
-const nodeKeyDownBehavior = <V extends Values>(ref: CanvasRef<V>) =>
-	function keydown(this: SVGGElement, event: KeyboardEvent, node: Node<V>) {
+const nodeKeyDownBehavior = <S extends Schema>(ref: CanvasRef<S>) =>
+	function keydown(this: SVGGElement, event: KeyboardEvent, node: Node<S>) {
 		if (event.key === "ArrowDown") {
 			event.preventDefault()
 			const [x, y] = node.position
@@ -179,7 +181,7 @@ const nodeKeyDownBehavior = <V extends Values>(ref: CanvasRef<V>) =>
 		}
 	}
 
-export const updateNodes = <V extends Values>(ref: CanvasRef<V>) => {
+export const updateNodes = <S extends Schema>(ref: CanvasRef<S>) => {
 	const {
 		foreignObjectPositionX,
 		foreignObjectPositionY,
@@ -198,8 +200,8 @@ export const updateNodes = <V extends Values>(ref: CanvasRef<V>) => {
 	return () => {
 		const nodes = ref.svg
 			.select("g.nodes")
-			.selectAll<SVGGElement, Node<V>>("g.node")
-			.data<Node<V>>(ref.nodes.values(), function (node, index, groups) {
+			.selectAll<SVGGElement, Node<S>>("g.node")
+			.data<Node<S>>(ref.nodes.values(), function (node, index, groups) {
 				return node.id.toString()
 			})
 			.join(
@@ -224,19 +226,19 @@ export const updateNodes = <V extends Values>(ref: CanvasRef<V>) => {
 					const paths = frames
 						.append("path")
 						.attr("stroke", defaultBorderColor)
-						.attr("fill", getBackgroundColor(ref.schema))
+						.attr("fill", getBackgroundColor(ref.blocks))
 						.attr("stroke-width", 1)
 
 					const inputs = frames.append("g").classed("inputs", true)
 
 					const inputPorts = inputs
-						.selectAll<SVGCircleElement, Input>("circle.port")
+						.selectAll<SVGCircleElement, Input<S>>("circle.port")
 						.call(updateInputs)
 
 					const outputs = frames.append("g").classed("outputs", true)
 
 					const outputPorts = outputs
-						.selectAll<SVGCircleElement, Output>("circle.port")
+						.selectAll<SVGCircleElement, Output<S>>("circle.port")
 						.call(updateOutputs)
 
 					const foreignObjects = groups
@@ -263,12 +265,12 @@ export const updateNodes = <V extends Values>(ref: CanvasRef<V>) => {
 
 					frames
 						.select("g.inputs")
-						.selectAll<SVGCircleElement, Input>("circle.port")
+						.selectAll<SVGCircleElement, Input<S>>("circle.port")
 						.call(updateInputs)
 
 					frames
 						.select("g.outputs")
-						.selectAll<SVGCircleElement, Output>("circle.port")
+						.selectAll<SVGCircleElement, Output<S>>("circle.port")
 						.call(updateOutputs)
 
 					update

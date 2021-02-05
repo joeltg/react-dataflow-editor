@@ -1,7 +1,7 @@
 import React from "react";
-import { Schema, Values } from "./interfaces.js";
+import { Blocks, Schema } from "./interfaces.js";
 export declare const defaultBlockHeaderStyle: React.CSSProperties;
-export declare type getBlockHeaderStyle = <V extends Values>(block: Schema<V>[keyof V]) => React.CSSProperties;
+export declare type getBlockHeaderStyle = <S extends Schema>(block: Blocks<S>[keyof S]) => React.CSSProperties;
 interface StyleContext {
     getBlockHeaderStyle: getBlockHeaderStyle;
 }

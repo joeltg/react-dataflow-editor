@@ -1,5 +1,13 @@
 import { quadtree } from "d3-quadtree"
-import { CanvasRef, Edge, Node, Port, Schema, Values } from "./interfaces"
+import {
+	CanvasRef,
+	Edge,
+	Node,
+	Blocks,
+	Schema,
+	forInputs,
+	Target,
+} from "./interfaces"
 
 export const portRadius = 12
 export const portMargin = 12
@@ -40,29 +48,29 @@ export const positionEqual = (
 	[x2, y2]: [number, number]
 ): boolean => x1 === x2 && y1 === y2
 
-export function getSourcePosition<V extends Values>(
-	ref: CanvasRef<V>,
-	{ source: [id, output] }: Edge
+export function getSourcePosition<S extends Schema>(
+	ref: CanvasRef<S>,
+	{ source: [id, output] }: Edge<S>
 ): [number, number] {
 	const {
 		kind,
 		position: [x, y],
 	} = ref.nodes.get(id)!
-	const index = ref.schema[kind].outputs.indexOf(output as string)
+	const index = ref.blocks[kind].outputs.indexOf(output as string)
 	const offsetY = getPortOffsetY(index)
 	const [offsetX] = ref.contentDimensions.get(id)!
 	return [x * ref.unit + offsetX + 2 * portRadius, y * ref.unit + offsetY]
 }
 
-export function getTargetPosition<V extends Values>(
-	ref: CanvasRef<V>,
-	{ target: [id, input] }: Edge
+export function getTargetPosition<S extends Schema>(
+	ref: CanvasRef<S>,
+	{ target: [id, input] }: Edge<S>
 ): [number, number] {
 	const {
 		kind,
 		position: [x, y],
 	} = ref.nodes.get(id)!
-	const index = ref.schema[kind].inputs.indexOf(input as string)
+	const index = ref.blocks[kind].inputs.indexOf(input as string)
 	const offsetY = getPortOffsetY(index)
 	return [x * ref.unit, y * ref.unit + offsetY]
 }
@@ -70,31 +78,30 @@ export function getTargetPosition<V extends Values>(
 export const getPortOffsetY = (index: number) =>
 	index * portHeight + portMargin + portRadius
 
-export const getBackgroundColor = <V extends Values>(schema: Schema<V>) => ({
+export const getBackgroundColor = <S extends Schema>(blocks: Blocks<S>) => ({
 	kind,
-}: Node<V>) => schema[kind].backgroundColor || defaultBackgroundColor
+}: Node<S>) => blocks[kind].backgroundColor || defaultBackgroundColor
 
-export type Target = {
+export type DropTarget<S extends Schema> = {
 	x: number
 	y: number
-	target: Port
+	target: Target<S, keyof S>
 }
 
-export const getX = ({ x }: Target) => x
-export const getY = ({ y }: Target) => y
+export const getX = <S extends Schema>({ x }: DropTarget<S>) => x
+export const getY = <S extends Schema>({ y }: DropTarget<S>) => y
 
-export function getTargets<V extends Values>(
-	ref: CanvasRef<V>,
+export function getTargets<S extends Schema>(
+	ref: CanvasRef<S>,
 	sourceId: number
 ) {
-	const targets: Target[] = []
+	const targets: DropTarget<S>[] = []
 	for (const node of ref.nodes.values()) {
 		if (node.id === sourceId) {
 			continue
 		} else {
 			const [x, y] = node.position
-			const { inputs } = ref.schema[node.kind]
-			for (const [index, input] of inputs.entries()) {
+			for (const [index, input] of forInputs(ref.blocks, node.kind)) {
 				if (node.inputs[input] === null) {
 					targets.push({
 						target: [node.id, input],

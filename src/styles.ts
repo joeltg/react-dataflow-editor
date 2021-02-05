@@ -1,5 +1,5 @@
 import React from "react"
-import { Block, Schema, Values } from "./interfaces.js"
+import { Block, Blocks, Schema } from "./interfaces.js"
 import { defaultBorderColor } from "./utils.js"
 
 export const defaultBlockHeaderStyle: React.CSSProperties = {
@@ -10,8 +10,8 @@ export const defaultBlockHeaderStyle: React.CSSProperties = {
 	borderBottom: `1px solid ${defaultBorderColor}`,
 }
 
-export type getBlockHeaderStyle = <V extends Values>(
-	block: Schema<V>[keyof V]
+export type getBlockHeaderStyle = <S extends Schema>(
+	block: Blocks<S>[keyof S]
 ) => React.CSSProperties
 
 interface StyleContext {

@@ -1,17 +1,25 @@
-import { Port, Values } from "../interfaces.js";
-export declare type SystemAction<V extends Values> = UpdateNodeAction<V> | CreateNodeAction<V> | MoveNodeAction | DeleteNodeAction | CreateEdgeAction | MoveEdgeAction | DeleteEdgeAction;
-export interface UpdateNodeAction<V extends Values> {
+import { GetValue, Schema, Source, Target } from "../interfaces.js";
+export declare type SystemAction<S extends Schema> = UpdateNodeAction<S> | CreateNodeAction<S> | MoveNodeAction | DeleteNodeAction | CreateEdgeAction<S> | MoveEdgeAction<S> | DeleteEdgeAction;
+export interface UpdateNodeAction<S extends Schema> {
     type: "node/update";
     id: number;
-    value: V[keyof V];
+    value: GetValue<S, keyof S>;
 }
-export declare const updateNode: <V extends Record<string, any>>(id: number, value: V[keyof V]) => UpdateNodeAction<V>;
-export interface CreateNodeAction<V extends Values> {
+export declare const updateNode: <S extends Record<string, {
+    value: any;
+    inputs: readonly string[];
+    outputs: readonly string[];
+}>>(id: number, value: GetValue<S, keyof S>) => UpdateNodeAction<S>;
+export interface CreateNodeAction<S extends Schema> {
     type: "node/create";
-    kind: keyof V;
+    kind: keyof S;
     position: [number, number];
 }
-export declare const createNode: <V extends Record<string, any>>(kind: keyof V, position: [number, number]) => CreateNodeAction<V>;
+export declare const createNode: <S extends Record<string, {
+    value: any;
+    inputs: readonly string[];
+    outputs: readonly string[];
+}>>(kind: keyof S, position: [number, number]) => CreateNodeAction<S>;
 export interface MoveNodeAction {
     type: "node/move";
     id: number;
@@ -23,18 +31,26 @@ export interface DeleteNodeAction {
     id: number;
 }
 export declare const deleteNode: (id: number) => DeleteNodeAction;
-export interface CreateEdgeAction {
+export interface CreateEdgeAction<S extends Schema> {
     type: "edge/create";
-    source: Port;
-    target: Port;
+    source: Source<S, keyof S>;
+    target: Target<S, keyof S>;
 }
-export declare const createEdge: (source: Port, target: Port) => CreateEdgeAction;
-export interface MoveEdgeAction {
+export declare const createEdge: <S extends Record<string, {
+    value: any;
+    inputs: readonly string[];
+    outputs: readonly string[];
+}>>(source: Source<S, keyof S>, target: Target<S, keyof S>) => CreateEdgeAction<S>;
+export interface MoveEdgeAction<S extends Schema> {
     type: "edge/move";
     id: number;
-    target: Port;
+    target: Target<S, keyof S>;
 }
-export declare const moveEdge: (id: number, target: Port) => MoveEdgeAction;
+export declare const moveEdge: <S extends Record<string, {
+    value: any;
+    inputs: readonly string[];
+    outputs: readonly string[];
+}>>(id: number, target: Target<S, keyof S>) => MoveEdgeAction<S>;
 export interface DeleteEdgeAction {
     type: "edge/delete";
     id: number;

@@ -1,2 +1,6 @@
 import { CanvasRef, Edge } from "./interfaces.js";
-export declare const updateEdges: <V extends Record<string, any>>(ref: CanvasRef<V>) => () => import("d3-selection").Selection<SVGGElement, Edge, import("d3-selection").BaseType, unknown>;
+export declare const updateEdges: <S extends Record<string, {
+    value: any;
+    inputs: readonly string[];
+    outputs: readonly string[];
+}>>(ref: CanvasRef<S>) => () => import("d3-selection").Selection<SVGGElement, Edge<S, keyof S, keyof S>, import("d3-selection").BaseType, unknown>;

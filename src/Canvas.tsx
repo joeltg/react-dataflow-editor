@@ -20,10 +20,10 @@ import * as actions from "./redux/actions.js"
 import {
 	SystemState,
 	CanvasRef,
-	Schema,
+	Blocks,
 	Node,
 	Edge,
-	Values,
+	Schema,
 } from "./interfaces.js"
 
 import { BlockContent } from "./Block.js"
@@ -60,39 +60,39 @@ g.preview > circle {
 }
 `
 
-export interface CanvasProps<V extends Values> {
+export interface CanvasProps<S extends Schema> {
 	unit: number
 	dimensions: [number, number]
-	schema: Schema<V>
-	onChange: (nodes: Map<number, Node<V>>, edges: Map<number, Edge>) => void
+	blocks: Blocks<S>
+	onChange: (nodes: Map<number, Node<S>>, edges: Map<number, Edge<S>>) => void
 }
 
-export function Canvas<V extends Values>({
+export function Canvas<S extends Schema>({
 	unit,
 	dimensions,
-	schema,
+	blocks,
 	onChange,
-}: CanvasProps<V>) {
-	const dispatch = useDispatch<Dispatch<actions.SystemAction<V>>>()
+}: CanvasProps<S>) {
+	const dispatch = useDispatch<Dispatch<actions.SystemAction<S>>>()
 
-	const nodes = useSelector(({ nodes }: SystemState<V>) => nodes)
-	const edges = useSelector(({ edges }: SystemState<V>) => edges)
+	const nodes = useSelector(({ nodes }: SystemState<S>) => nodes)
+	const edges = useSelector(({ edges }: SystemState<S>) => edges)
 
 	const [X, Y] = dimensions
 
-	const ref = useMemo<CanvasRef<V>>(
+	const ref = useMemo<CanvasRef<S>>(
 		() => ({
 			svg: select<SVGSVGElement | null, unknown>(null),
 			contentDimensions: new Map(),
 			canvasDimensions: [0, 0],
 			unit,
 			dimensions: [X, Y],
-			schema,
+			blocks: blocks,
 			nodes,
 			edges,
 			dispatch,
 		}),
-		[unit, X, Y, schema, dispatch]
+		[unit, X, Y, blocks, dispatch]
 	)
 
 	ref.nodes = nodes
@@ -116,7 +116,7 @@ export function Canvas<V extends Values>({
 
 	useLayoutEffect(() => {
 		const children: [number, HTMLDivElement][] = []
-		update.nodes().each(function (this: HTMLDivElement, { id }: Node<V>) {
+		update.nodes().each(function (this: HTMLDivElement, { id }: Node<S>) {
 			children.push([id, this])
 		})
 		setChildren(children)
@@ -128,7 +128,7 @@ export function Canvas<V extends Values>({
 
 	const height = unit * Y
 
-	const [{}, drop] = useDrop<{ type: "block"; kind: keyof V }, void, {}>({
+	const [{}, drop] = useDrop<{ type: "block"; kind: keyof S }, void, {}>({
 		accept: ["block"],
 		drop({ kind }, monitor) {
 			const { x, y } = monitor.getSourceClientOffset()!
@@ -157,25 +157,25 @@ export function Canvas<V extends Values>({
 				<g className="nodes"></g>
 				<g className="preview"></g>
 				{children.map(([id, container]) => (
-					<Portal key={id} id={id} schema={schema} container={container} />
+					<Portal key={id} id={id} blocks={blocks} container={container} />
 				))}
 			</svg>
 		</div>
 	)
 }
 
-interface PortalProps<V extends Values> {
+interface PortalProps<S extends Schema> {
 	container: HTMLDivElement
 	id: number
-	schema: Schema<V>
+	blocks: Blocks<S>
 }
 
-const portal = <K extends string, V extends Values>({
+const portal = <S extends Schema>({
 	container,
 	id,
-	schema,
-}: PortalProps<V>) => {
-	return createPortal(<BlockContent id={id} schema={schema} />, container)
+	blocks,
+}: PortalProps<S>) => {
+	return createPortal(<BlockContent id={id} blocks={blocks} />, container)
 }
 
 const Portal = (memo(portal) as unknown) as typeof portal

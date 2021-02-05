@@ -1,9 +1,9 @@
 /// <reference types="react" />
-import { Schema, Node, Edge, Values } from "./interfaces.js";
-export interface CanvasProps<V extends Values> {
+import { Blocks, Node, Edge, Schema } from "./interfaces.js";
+export interface CanvasProps<S extends Schema> {
     unit: number;
     dimensions: [number, number];
-    schema: Schema<V>;
-    onChange: (nodes: Map<number, Node<V>>, edges: Map<number, Edge>) => void;
+    blocks: Blocks<S>;
+    onChange: (nodes: Map<number, Node<S>>, edges: Map<number, Edge<S>>) => void;
 }
-export declare function Canvas<V extends Values>({ unit, dimensions, schema, onChange, }: CanvasProps<V>): JSX.Element;
+export declare function Canvas<S extends Schema>({ unit, dimensions, blocks, onChange, }: CanvasProps<S>): JSX.Element;
