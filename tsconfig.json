@@ -1,0 +1,16 @@
+{
+	"include": ["src/*", "src/redux/*"],
+	"exclude": ["demo/*"],
+	"compilerOptions": {
+		"outDir": "lib",
+		"strict": true,
+		"module": "CommonJS",
+		"target": "ES2020",
+		"sourceMap": true,
+		"declaration": true,
+		"alwaysStrict": true,
+		"jsx": "react",
+		"moduleResolution": "node",
+		"esModuleInterop": true
+	}
+}
