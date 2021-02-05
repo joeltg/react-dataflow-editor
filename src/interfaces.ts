@@ -7,7 +7,7 @@ import { Dispatch } from "redux"
 import { SystemAction } from "./redux/actions.js"
 
 export const Factory = {
-	block: <T extends { [prop in string]: any }>(block: Block<T>) => block,
+	block: <T>(block: Block<T>) => block,
 	schema: <K extends string, S extends { [k in K]: Block<any> }>(
 		schema: S
 	): Schema<K, GetValues<K, S>> => schema,
@@ -22,7 +22,7 @@ export type GetNode<
 	S extends { [k in K]: Block<any> }
 > = Node<K, GetValues<K, S>>
 
-export type Block<T extends { [prop in string]: any }> = {
+export type Block<T> = {
 	name: string
 	inputs: string[]
 	outputs: string[]
@@ -31,7 +31,7 @@ export type Block<T extends { [prop in string]: any }> = {
 	component: React.FC<{ value: T; setValue(value: T): void }>
 }
 
-export type Values<K extends string> = { [k in K]: Record<string, any> }
+export type Values<K extends string> = { [k in K]: any }
 
 export type Schema<K extends string, V extends Values<K>> = {
 	[k in K]: Block<V[k]>

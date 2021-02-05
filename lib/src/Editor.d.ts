@@ -1,14 +1,10 @@
 /// <reference types="react" />
-import { Block, Edge, GetNode, GetValues, Schema, SystemState } from "./interfaces.js";
-export interface EditorProps<K extends string, S extends {
-    [k in K]: Block<any>;
-}> {
+import { Edge, Node, Schema, SystemState, Values } from "./interfaces.js";
+export interface EditorProps<K extends string, V extends Values<K>> {
     unit?: number;
     dimensions: [number, number];
-    schema: Schema<K, GetValues<K, S>>;
-    initialState?: SystemState<K, GetValues<K, S>>;
-    onChange: (nodes: Map<number, GetNode<K, S>>, edges: Map<number, Edge>) => void;
+    schema: Schema<K, V>;
+    initialState?: SystemState<K, V>;
+    onChange: (nodes: Map<number, Node<K, V>>, edges: Map<number, Edge>) => void;
 }
-export declare function Editor<K extends string, S extends {
-    [k in K]: Block<any>;
-}>({ unit, dimensions, schema, initialState, onChange, }: EditorProps<K, S>): JSX.Element;
+export declare function Editor<K extends string, V extends Values<K>>({ unit, dimensions, schema, initialState, onChange, }: EditorProps<K, V>): JSX.Element;

@@ -3,21 +3,18 @@ import { Selection } from "d3-selection";
 import { Dispatch } from "redux";
 import { SystemAction } from "./redux/actions.js";
 export declare const Factory: {
-    block: <T extends {
-        [x: string]: any;
-    }>(block: Block<T>) => Block<T>;
+    block: <T>(block: Block<T>) => Block<T>;
+    schema: <K extends string, S extends { [k in K]: Block<any>; }>(schema: S) => Schema<K, GetValues<K, S>>;
 };
 export declare type GetValues<K extends string, S extends {
-    [k in string]: Block<any>;
+    [k in K]: Block<any>;
 }> = {
     [k in K]: S[k] extends Block<infer T> ? T : never;
 };
 export declare type GetNode<K extends string, S extends {
     [k in K]: Block<any>;
 }> = Node<K, GetValues<K, S>>;
-export declare type Block<T extends {
-    [k in string]: any;
-}> = {
+export declare type Block<T> = {
     name: string;
     inputs: string[];
     outputs: string[];
@@ -29,7 +26,7 @@ export declare type Block<T extends {
     }>;
 };
 export declare type Values<K extends string> = {
-    [k in K]: Record<string, any>;
+    [k in K]: any;
 };
 export declare type Schema<K extends string, V extends Values<K>> = {
     [k in K]: Block<V[k]>;
