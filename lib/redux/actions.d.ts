@@ -1,58 +1,58 @@
-import { GetValue, Schema, Source, Target } from "../interfaces.js";
+import { GetValue, ID, Schema, Source, Target } from "../interfaces.js";
 export declare type SystemAction<S extends Schema> = UpdateNodeAction<S> | CreateNodeAction<S> | MoveNodeAction | DeleteNodeAction | CreateEdgeAction<S> | MoveEdgeAction<S> | DeleteEdgeAction;
-export interface UpdateNodeAction<S extends Schema> {
+export declare type UpdateNodeAction<S extends Schema> = {
     type: "node/update";
-    id: number;
+    id: ID;
     value: GetValue<S, keyof S>;
-}
+};
 export declare const updateNode: <S extends Record<string, {
     value: any;
-    inputs: readonly string[];
-    outputs: readonly string[];
-}>>(id: number, value: GetValue<S, keyof S>) => UpdateNodeAction<S>;
-export interface CreateNodeAction<S extends Schema> {
+    inputs: string;
+    outputs: string;
+}>>(id: ID, value: GetValue<S, keyof S>) => UpdateNodeAction<S>;
+export declare type CreateNodeAction<S extends Schema> = {
     type: "node/create";
     kind: keyof S;
     position: [number, number];
-}
+};
 export declare const createNode: <S extends Record<string, {
     value: any;
-    inputs: readonly string[];
-    outputs: readonly string[];
+    inputs: string;
+    outputs: string;
 }>>(kind: keyof S, position: [number, number]) => CreateNodeAction<S>;
-export interface MoveNodeAction {
+export declare type MoveNodeAction = {
     type: "node/move";
-    id: number;
+    id: ID;
     position: [number, number];
-}
-export declare const moveNode: (id: number, position: [number, number]) => MoveNodeAction;
-export interface DeleteNodeAction {
+};
+export declare const moveNode: (id: ID, position: [number, number]) => MoveNodeAction;
+export declare type DeleteNodeAction = {
     type: "node/delete";
-    id: number;
-}
-export declare const deleteNode: (id: number) => DeleteNodeAction;
-export interface CreateEdgeAction<S extends Schema> {
+    id: ID;
+};
+export declare const deleteNode: (id: ID) => DeleteNodeAction;
+export declare type CreateEdgeAction<S extends Schema> = {
     type: "edge/create";
     source: Source<S, keyof S>;
     target: Target<S, keyof S>;
-}
+};
 export declare const createEdge: <S extends Record<string, {
     value: any;
-    inputs: readonly string[];
-    outputs: readonly string[];
+    inputs: string;
+    outputs: string;
 }>>(source: Source<S, keyof S>, target: Target<S, keyof S>) => CreateEdgeAction<S>;
-export interface MoveEdgeAction<S extends Schema> {
+export declare type MoveEdgeAction<S extends Schema> = {
     type: "edge/move";
-    id: number;
+    id: ID;
     target: Target<S, keyof S>;
-}
+};
 export declare const moveEdge: <S extends Record<string, {
     value: any;
-    inputs: readonly string[];
-    outputs: readonly string[];
-}>>(id: number, target: Target<S, keyof S>) => MoveEdgeAction<S>;
-export interface DeleteEdgeAction {
+    inputs: string;
+    outputs: string;
+}>>(id: ID, target: Target<S, keyof S>) => MoveEdgeAction<S>;
+export declare type DeleteEdgeAction = {
     type: "edge/delete";
-    id: number;
-}
-export declare const deleteEdge: (id: number) => DeleteEdgeAction;
+    id: ID;
+};
+export declare const deleteEdge: (id: ID) => DeleteEdgeAction;

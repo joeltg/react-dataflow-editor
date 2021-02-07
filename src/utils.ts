@@ -56,7 +56,7 @@ export function getSourcePosition<S extends Schema>(
 		kind,
 		position: [x, y],
 	} = ref.nodes.get(id)!
-	const index = ref.blocks[kind].outputs.indexOf(output as string)
+	const index = Object.keys(ref.blocks[kind].outputs).indexOf(output as string)
 	const offsetY = getPortOffsetY(index)
 	const [offsetX] = ref.contentDimensions.get(id)!
 	return [x * ref.unit + offsetX + 2 * portRadius, y * ref.unit + offsetY]
@@ -70,7 +70,7 @@ export function getTargetPosition<S extends Schema>(
 		kind,
 		position: [x, y],
 	} = ref.nodes.get(id)!
-	const index = ref.blocks[kind].inputs.indexOf(input as string)
+	const index = Object.keys(ref.blocks[kind].inputs).indexOf(input as string)
 	const offsetY = getPortOffsetY(index)
 	return [x * ref.unit, y * ref.unit + offsetY]
 }

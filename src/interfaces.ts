@@ -6,21 +6,18 @@ import { Dispatch } from "redux"
 
 import { SystemAction } from "./redux/actions.js"
 
+export type ID = number
+
 export const Factory = {
-	block: <T, I extends readonly string[], O extends readonly string[]>(
-		block: Block<T, I, O>
-	) => block,
+	block: <T, I extends string, O extends string>(block: Block<T, I, O>) =>
+		block,
 	blocks: <B extends Blocks<Schema>>(blocks: B): Blocks<GetSchema<B>> => blocks,
 }
 
-export type Block<
-	T,
-	I extends readonly string[],
-	O extends readonly string[]
-> = {
+export type Block<T, I extends string, O extends string> = {
 	name: string
-	inputs: I
-	outputs: O
+	inputs: { [i in I]: null }
+	outputs: { [o in O]: null }
 	initialValue: T
 	backgroundColor: string
 	component: React.FC<{ value: T; setValue(value: T): void }>
@@ -28,7 +25,7 @@ export type Block<
 
 export type Schema = Record<
 	string,
-	{ value: any; inputs: readonly string[]; outputs: readonly string[] }
+	{ value: any; inputs: string; outputs: string }
 >
 
 export type GetValue<S extends Schema, K extends keyof S> = S[K]["value"]
@@ -38,8 +35,8 @@ export type GetOutputs<S extends Schema, K extends keyof S> = S[K]["outputs"]
 export function* forInputs<S extends Schema, K extends keyof S>(
 	blocks: Blocks<S>,
 	kind: keyof S
-): Generator<[number, GetInputs<S, K>[number]]> {
-	for (const entry of blocks[kind].inputs.entries()) {
+): Generator<[number, GetInputs<S, K>]> {
+	for (const entry of Object.keys(blocks[kind].inputs).entries()) {
 		yield entry
 	}
 }
@@ -47,8 +44,8 @@ export function* forInputs<S extends Schema, K extends keyof S>(
 export function* forOutputs<S extends Schema, K extends keyof S>(
 	blocks: Blocks<S>,
 	kind: keyof S
-): Generator<[number, GetOutputs<S, K>[number]]> {
-	for (const entry of blocks[kind].outputs.entries()) {
+): Generator<[number, GetOutputs<S, K>]> {
+	for (const entry of Object.keys(blocks[kind].outputs).entries()) {
 		yield entry
 	}
 }
@@ -63,42 +60,36 @@ export type GetSchema<B extends Blocks<Schema>> = {
 		: never
 }
 
-export type Node<S extends Schema> = {
-	id: number
+export type Node<S extends Schema, K extends keyof S = keyof S> = {
+	id: ID
 	position: [number, number]
 } & {
-	[k in keyof S]: {
+	[k in K]: {
 		kind: k
 		value: GetValue<S, k>
-		inputs: { [input in GetInputs<S, k>[number]]: null | number }
-		outputs: { [output in GetOutputs<S, k>[number]]: Set<number> }
+		inputs: Record<GetInputs<S, k>, null | ID>
+		outputs: Record<GetOutputs<S, k>, Set<ID>>
 	}
-}[keyof S]
+}[K]
 
-export type Source<S extends Schema, K extends keyof S> = [
-	number,
-	GetOutputs<S, K>[number]
-]
+export type Source<S extends Schema, K extends keyof S> = [ID, GetOutputs<S, K>]
 
-export type Target<S extends Schema, K extends keyof S> = [
-	number,
-	GetInputs<S, K>[number]
-]
+export type Target<S extends Schema, K extends keyof S> = [ID, GetInputs<S, K>]
 
 export type Edge<
 	S extends Schema,
 	SK extends keyof S = keyof S,
 	TK extends keyof S = keyof S
 > = {
-	id: number
+	id: ID
 	source: Source<S, SK>
 	target: Target<S, TK>
 }
 
-export interface SystemState<S extends Schema> {
-	id: number
+export type SystemState<S extends Schema> = {
+	id: ID
 	nodes: Map<number, Node<S>>
-	edges: Map<number, Edge<S, keyof S, keyof S>>
+	edges: Map<number, Edge<S>>
 }
 
 export const initialSystemState = <S extends Schema>(): SystemState<S> => ({

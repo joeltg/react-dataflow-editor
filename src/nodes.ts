@@ -46,10 +46,9 @@ const handleResize = <S extends Schema>(ref: CanvasRef<S>) => (
 
 		ref.contentDimensions.set(node.id, [width, height])
 
-		const {
-			inputs: { length: inputCount },
-			outputs: { length: outputCount },
-		} = ref.blocks[node.kind]
+		const { inputs, outputs } = ref.blocks[node.kind]
+		const { length: inputCount } = Object.keys(inputs)
+		const { length: outputCount } = Object.keys(outputs)
 
 		const w = Math.max(width, minWidth) + 2 * portRadius
 		const h = Math.max(

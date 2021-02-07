@@ -8,6 +8,7 @@ import {
 	Node,
 	GetInputs,
 	GetOutputs,
+	ID,
 } from "../interfaces.js"
 
 import { SystemAction } from "./actions.js"
@@ -154,16 +155,12 @@ function createInitialNode<S extends Schema, K extends keyof S>(
 	id: number
 ): Node<S> {
 	const inputs = Object.fromEntries(
-		blocks[kind].inputs.map((input) => [input, null])
-	) as {
-		[k in GetInputs<S, K>[number]]: null | number
-	}
+		Object.keys(blocks[kind].inputs).map((input) => [input, null])
+	) as Record<GetInputs<S, K>, null | ID>
 
 	const outputs = Object.fromEntries(
-		blocks[kind].outputs.map((output) => [output, new Set()])
-	) as {
-		[k in GetOutputs<S, K>[number]]: Set<number>
-	}
+		Object.keys(blocks[kind].outputs).map((output) => [output, new Set()])
+	) as Record<GetOutputs<S, K>, Set<ID>>
 
 	const value = blocks[kind].initialValue
 

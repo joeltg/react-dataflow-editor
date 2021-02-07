@@ -17,8 +17,8 @@ const main = document.querySelector("main")
 const blocks = {
 	source: Factory.block({
 		name: "Title",
-		inputs: ["a", "b"] as const,
-		outputs: ["outA", "outB"] as const,
+		inputs: { a: null, b: null },
+		outputs: { outA: null, outB: null },
 		initialValue: { foo: "cool" },
 		backgroundColor: "lavender",
 		component(props) {
@@ -33,8 +33,8 @@ const blocks = {
 	}),
 	fdjsalfj: Factory.block({
 		name: "ANOTHER BOX",
-		inputs: ["a"] as const,
-		outputs: ["outA", "outB", "outC"] as const,
+		inputs: { a: null },
+		outputs: { outA: null, outB: null, outC: null },
 		initialValue: { checked: false, counter: 0 },
 		backgroundColor: "darksalmon",
 		component(props) {

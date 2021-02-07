@@ -18,9 +18,9 @@ export declare function getTargetPosition<S extends Schema>(ref: CanvasRef<S>, {
 export declare const getPortOffsetY: (index: number) => number;
 export declare const getBackgroundColor: <S extends Record<string, {
     value: any;
-    inputs: readonly string[];
-    outputs: readonly string[];
-}>>(blocks: Blocks<S>) => ({ kind, }: Node<S>) => string;
+    inputs: string;
+    outputs: string;
+}>>(blocks: Blocks<S>) => ({ kind, }: Node<S, keyof S>) => string;
 export declare type DropTarget<S extends Schema> = {
     x: number;
     y: number;
@@ -28,13 +28,13 @@ export declare type DropTarget<S extends Schema> = {
 };
 export declare const getX: <S extends Record<string, {
     value: any;
-    inputs: readonly string[];
-    outputs: readonly string[];
+    inputs: string;
+    outputs: string;
 }>>({ x }: DropTarget<S>) => number;
 export declare const getY: <S extends Record<string, {
     value: any;
-    inputs: readonly string[];
-    outputs: readonly string[];
+    inputs: string;
+    outputs: string;
 }>>({ y }: DropTarget<S>) => number;
 export declare function getTargets<S extends Schema>(ref: CanvasRef<S>, sourceId: number): import("d3-quadtree").Quadtree<DropTarget<S>>;
 export declare const snap: ([x, y]: [number, number], unit: number, [X, Y]: [number, number]) => [number, number];

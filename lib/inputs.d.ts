@@ -7,6 +7,6 @@ export declare type Input<S extends Schema> = {
 };
 export declare const updateInputPorts: <S extends Record<string, {
     value: any;
-    inputs: readonly string[];
-    outputs: readonly string[];
-}>>(ref: CanvasRef<S>) => (inputs: Selection<SVGCircleElement, Input<S>, BaseType, Node<S>>) => Selection<SVGCircleElement, Input<S>, BaseType, Node<S>>;
+    inputs: string;
+    outputs: string;
+}>>(ref: CanvasRef<S>) => (inputs: Selection<SVGCircleElement, Input<S>, BaseType, Node<S, keyof S>>) => Selection<SVGCircleElement, Input<S>, BaseType, Node<S, keyof S>>;

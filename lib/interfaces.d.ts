@@ -2,18 +2,23 @@ import React from "react";
 import { Selection } from "d3-selection";
 import { Dispatch } from "redux";
 import { SystemAction } from "./redux/actions.js";
+export declare type ID = number;
 export declare const Factory: {
-    block: <T, I extends readonly string[], O extends readonly string[]>(block: Block<T, I, O>) => Block<T, I, O>;
+    block: <T, I extends string, O extends string>(block: Block<T, I, O>) => Block<T, I, O>;
     blocks: <B extends Blocks<Record<string, {
         value: any;
-        inputs: readonly string[];
-        outputs: readonly string[];
+        inputs: string;
+        outputs: string;
     }>>>(blocks: B) => Blocks<GetSchema<B>>;
 };
-export declare type Block<T, I extends readonly string[], O extends readonly string[]> = {
+export declare type Block<T, I extends string, O extends string> = {
     name: string;
-    inputs: I;
-    outputs: O;
+    inputs: {
+        [i in I]: null;
+    };
+    outputs: {
+        [o in O]: null;
+    };
     initialValue: T;
     backgroundColor: string;
     component: React.FC<{
@@ -23,14 +28,14 @@ export declare type Block<T, I extends readonly string[], O extends readonly str
 };
 export declare type Schema = Record<string, {
     value: any;
-    inputs: readonly string[];
-    outputs: readonly string[];
+    inputs: string;
+    outputs: string;
 }>;
 export declare type GetValue<S extends Schema, K extends keyof S> = S[K]["value"];
 export declare type GetInputs<S extends Schema, K extends keyof S> = S[K]["inputs"];
 export declare type GetOutputs<S extends Schema, K extends keyof S> = S[K]["outputs"];
-export declare function forInputs<S extends Schema, K extends keyof S>(blocks: Blocks<S>, kind: keyof S): Generator<[number, GetInputs<S, K>[number]]>;
-export declare function forOutputs<S extends Schema, K extends keyof S>(blocks: Blocks<S>, kind: keyof S): Generator<[number, GetOutputs<S, K>[number]]>;
+export declare function forInputs<S extends Schema, K extends keyof S>(blocks: Blocks<S>, kind: keyof S): Generator<[number, GetInputs<S, K>]>;
+export declare function forOutputs<S extends Schema, K extends keyof S>(blocks: Blocks<S>, kind: keyof S): Generator<[number, GetOutputs<S, K>]>;
 export declare type Blocks<S extends Schema> = {
     [k in keyof S]: Block<GetValue<S, k>, GetInputs<S, k>, GetOutputs<S, k>>;
 };
@@ -41,43 +46,33 @@ export declare type GetSchema<B extends Blocks<Schema>> = {
         outputs: O;
     } : never;
 };
-export declare type Node<S extends Schema> = {
-    id: number;
+export declare type Node<S extends Schema, K extends keyof S = keyof S> = {
+    id: ID;
     position: [number, number];
 } & {
-    [k in keyof S]: {
+    [k in K]: {
         kind: k;
         value: GetValue<S, k>;
-        inputs: {
-            [input in GetInputs<S, k>[number]]: null | number;
-        };
-        outputs: {
-            [output in GetOutputs<S, k>[number]]: Set<number>;
-        };
+        inputs: Record<GetInputs<S, k>, null | ID>;
+        outputs: Record<GetOutputs<S, k>, Set<ID>>;
     };
-}[keyof S];
-export declare type Source<S extends Schema, K extends keyof S> = [
-    number,
-    GetOutputs<S, K>[number]
-];
-export declare type Target<S extends Schema, K extends keyof S> = [
-    number,
-    GetInputs<S, K>[number]
-];
+}[K];
+export declare type Source<S extends Schema, K extends keyof S> = [ID, GetOutputs<S, K>];
+export declare type Target<S extends Schema, K extends keyof S> = [ID, GetInputs<S, K>];
 export declare type Edge<S extends Schema, SK extends keyof S = keyof S, TK extends keyof S = keyof S> = {
-    id: number;
+    id: ID;
     source: Source<S, SK>;
     target: Target<S, TK>;
 };
-export interface SystemState<S extends Schema> {
-    id: number;
+export declare type SystemState<S extends Schema> = {
+    id: ID;
     nodes: Map<number, Node<S>>;
-    edges: Map<number, Edge<S, keyof S, keyof S>>;
-}
+    edges: Map<number, Edge<S>>;
+};
 export declare const initialSystemState: <S extends Record<string, {
     value: any;
-    inputs: readonly string[];
-    outputs: readonly string[];
+    inputs: string;
+    outputs: string;
 }>>() => SystemState<S>;
 export interface CanvasRef<S extends Schema> {
     svg: Selection<SVGSVGElement | null, unknown, null, undefined>;

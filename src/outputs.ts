@@ -95,8 +95,8 @@ export const updateOutputPorts = <S extends Schema>(ref: CanvasRef<S>) => (
 	return outputs
 		.data<Output<S>>(
 			({ kind, id, outputs }: Node<S>): Output<S>[] =>
-				ref.blocks[kind].outputs.map(
-					(output: GetOutputs<S, keyof S>[number], index) => ({
+				Object.keys(ref.blocks[kind].outputs).map(
+					(output: GetOutputs<S, keyof S>, index) => ({
 						index,
 						source: [id, output],
 						value: outputs[output],

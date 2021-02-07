@@ -1,4 +1,4 @@
-import { GetValue, Schema, Source, Target } from "../interfaces.js"
+import { GetValue, ID, Schema, Source, Target } from "../interfaces.js"
 
 export type SystemAction<S extends Schema> =
 	| UpdateNodeAction<S>
@@ -9,14 +9,14 @@ export type SystemAction<S extends Schema> =
 	| MoveEdgeAction<S>
 	| DeleteEdgeAction
 
-export interface UpdateNodeAction<S extends Schema> {
+export type UpdateNodeAction<S extends Schema> = {
 	type: "node/update"
-	id: number
+	id: ID
 	value: GetValue<S, keyof S>
 }
 
 export const updateNode = <S extends Schema>(
-	id: number,
+	id: ID,
 	value: GetValue<S, keyof S>
 ): UpdateNodeAction<S> => ({
 	type: "node/update",
@@ -24,7 +24,7 @@ export const updateNode = <S extends Schema>(
 	value,
 })
 
-export interface CreateNodeAction<S extends Schema> {
+export type CreateNodeAction<S extends Schema> = {
 	type: "node/create"
 	kind: keyof S
 	position: [number, number]
@@ -35,28 +35,25 @@ export const createNode = <S extends Schema>(
 	position: [number, number]
 ): CreateNodeAction<S> => ({ type: "node/create", kind, position })
 
-export interface MoveNodeAction {
+export type MoveNodeAction = {
 	type: "node/move"
-	id: number
+	id: ID
 	position: [number, number]
 }
 
 export const moveNode = (
-	id: number,
+	id: ID,
 	position: [number, number]
 ): MoveNodeAction => ({ type: "node/move", id, position })
 
-export interface DeleteNodeAction {
-	type: "node/delete"
-	id: number
-}
+export type DeleteNodeAction = { type: "node/delete"; id: ID }
 
-export const deleteNode = (id: number): DeleteNodeAction => ({
+export const deleteNode = (id: ID): DeleteNodeAction => ({
 	type: "node/delete",
 	id,
 })
 
-export interface CreateEdgeAction<S extends Schema> {
+export type CreateEdgeAction<S extends Schema> = {
 	type: "edge/create"
 	source: Source<S, keyof S>
 	target: Target<S, keyof S>
@@ -71,14 +68,14 @@ export const createEdge = <S extends Schema>(
 	target,
 })
 
-export interface MoveEdgeAction<S extends Schema> {
+export type MoveEdgeAction<S extends Schema> = {
 	type: "edge/move"
-	id: number
+	id: ID
 	target: Target<S, keyof S>
 }
 
 export const moveEdge = <S extends Schema>(
-	id: number,
+	id: ID,
 	target: Target<S, keyof S>
 ): MoveEdgeAction<S> => ({
 	type: "edge/move",
@@ -86,12 +83,9 @@ export const moveEdge = <S extends Schema>(
 	target,
 })
 
-export interface DeleteEdgeAction {
-	type: "edge/delete"
-	id: number
-}
+export type DeleteEdgeAction = { type: "edge/delete"; id: ID }
 
-export const deleteEdge = (id: number): DeleteEdgeAction => ({
+export const deleteEdge = (id: ID): DeleteEdgeAction => ({
 	type: "edge/delete",
 	id,
 })
