@@ -1,13 +1,14 @@
 import React, {
 	memo,
 	useCallback,
+	useContext,
 	useEffect,
 	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
 } from "react"
-import { createPortal } from "react-dom"
+
 import { useDispatch, useSelector } from "react-redux"
 import { Dispatch } from "redux"
 
@@ -18,12 +19,13 @@ import { select } from "d3-selection"
 import * as actions from "./redux/actions.js"
 
 import {
-	SystemState,
+	EditorState,
 	CanvasRef,
 	Blocks,
 	Node,
 	Edge,
 	Schema,
+	ID,
 } from "./interfaces.js"
 
 import { BlockContent } from "./Block.js"
@@ -31,7 +33,8 @@ import { BlockContent } from "./Block.js"
 import { attachPreview } from "./preview.js"
 import { updateNodes } from "./nodes.js"
 import { updateEdges } from "./edges.js"
-import { defaultBackgroundColor, defaultBorderColor, snap } from "./utils.js"
+import { EditorContext, snap } from "./utils.js"
+import { defaultBackgroundColor, defaultBorderColor } from "./styles.js"
 
 const svgStyle = `
 g.node > foreignObject { overflow: visible }
@@ -61,23 +64,17 @@ g.preview > circle {
 `
 
 export interface CanvasProps<S extends Schema> {
-	unit: number
-	dimensions: [number, number]
 	blocks: Blocks<S>
 	onChange: (nodes: Map<number, Node<S>>, edges: Map<number, Edge<S>>) => void
 }
 
-export function Canvas<S extends Schema>({
-	unit,
-	dimensions,
-	blocks,
-	onChange,
-}: CanvasProps<S>) {
-	const dispatch = useDispatch<Dispatch<actions.SystemAction<S>>>()
+export function Canvas<S extends Schema>({ blocks, onChange }: CanvasProps<S>) {
+	const dispatch = useDispatch<Dispatch<actions.EditorAction<S>>>()
 
-	const nodes = useSelector(({ nodes }: SystemState<S>) => nodes)
-	const edges = useSelector(({ edges }: SystemState<S>) => edges)
+	const nodes = useSelector(({ nodes }: EditorState<S>) => nodes)
+	const edges = useSelector(({ edges }: EditorState<S>) => edges)
 
+	const { unit, dimensions } = useContext(EditorContext)
 	const [X, Y] = dimensions
 
 	const ref = useMemo<CanvasRef<S>>(
@@ -112,19 +109,19 @@ export function Canvas<S extends Schema>({
 		[]
 	)
 
-	const [children, setChildren] = useState<[number, HTMLDivElement][]>([])
+	const [children, setChildren] = useState<
+		{ id: ID; container: HTMLDivElement }[]
+	>([])
 
 	useLayoutEffect(() => {
-		const children: [number, HTMLDivElement][] = []
+		const children: { id: ID; container: HTMLDivElement }[] = []
 		update.nodes().each(function (this: HTMLDivElement, { id }: Node<S>) {
-			children.push([id, this])
+			children.push({ id, container: this })
 		})
 		setChildren(children)
 	}, [nodes])
 
-	useLayoutEffect(() => {
-		update.edges()
-	}, [edges, nodes])
+	useLayoutEffect(() => void update.edges(), [edges, nodes])
 
 	const height = unit * Y
 
@@ -156,26 +153,10 @@ export function Canvas<S extends Schema>({
 				<g className="edges"></g>
 				<g className="nodes"></g>
 				<g className="preview"></g>
-				{children.map(([id, container]) => (
-					<Portal key={id} id={id} blocks={blocks} container={container} />
+				{children.map((props) => (
+					<BlockContent key={props.id} blocks={blocks} {...props} />
 				))}
 			</svg>
 		</div>
 	)
 }
-
-interface PortalProps<S extends Schema> {
-	container: HTMLDivElement
-	id: number
-	blocks: Blocks<S>
-}
-
-const portal = <S extends Schema>({
-	container,
-	id,
-	blocks,
-}: PortalProps<S>) => {
-	return createPortal(<BlockContent id={id} blocks={blocks} />, container)
-}
-
-const Portal = (memo(portal) as unknown) as typeof portal

@@ -1,31 +1,32 @@
-import React, { useCallback, useContext, useMemo } from "react"
+import React, { memo, useCallback, useContext, useMemo } from "react"
+import { createPortal } from "react-dom"
+
 import { useDispatch, useSelector } from "react-redux"
 
 import * as actions from "./redux/actions.js"
 
-import { GetValue, Node, Blocks, SystemState, Schema } from "./interfaces.js"
+import { GetValue, Node, Blocks, EditorState, Schema } from "./interfaces.js"
 
-import { defaultBackgroundColor } from "./utils.js"
 import { StyleContext } from "./styles.js"
 
 export interface BlockContentProps<S extends Schema> {
 	id: number
 	blocks: Blocks<S>
+	container: HTMLDivElement
 }
 
-export function BlockContent<S extends Schema>({
-	id,
-	blocks,
-}: BlockContentProps<S>) {
-	const node = useSelector<SystemState<S>, Node<S> | null>(({ nodes }) => {
-		const node = nodes.get(id)
-		return node === undefined ? null : node
-	})
+function renderBlockContent<S extends Schema>(props: BlockContentProps<S>) {
+	const node = useSelector<EditorState<S>, Node<S> | undefined>(({ nodes }) =>
+		nodes.get(props.id)
+	)
 
-	if (node === null) {
+	if (node === undefined) {
 		return null
 	} else {
-		return <InnerBlockContent node={node} blocks={blocks} />
+		return createPortal(
+			<InnerBlockContent node={node} blocks={props.blocks} />,
+			props.container
+		)
 	}
 }
 
@@ -45,19 +46,22 @@ function InnerBlockContent<S extends Schema>({
 		[id]
 	)
 
-	const { getBlockHeaderStyle } = useContext(StyleContext)
+	const { getBlockHeaderStyle, getBlockContainerStyle } = useContext(
+		StyleContext
+	)
 
 	const block = blocks[kind]
 
-	const blockHeaderStyle = useMemo(() => getBlockHeaderStyle(block), [block])
+	const { blockHeaderStyle, blockContainerStyle } = useMemo(
+		() => ({
+			blockHeaderStyle: getBlockHeaderStyle(block),
+			blockContainerStyle: getBlockContainerStyle(block),
+		}),
+		[block]
+	)
 
 	return (
-		<div
-			style={{
-				margin: "1px 4px",
-				backgroundColor: block.backgroundColor || defaultBackgroundColor,
-			}}
-		>
+		<div className="container" style={blockContainerStyle}>
 			<div className="header" style={blockHeaderStyle}>
 				{block.name}
 			</div>
@@ -65,3 +69,5 @@ function InnerBlockContent<S extends Schema>({
 		</div>
 	)
 }
+
+export const BlockContent = memo(renderBlockContent)

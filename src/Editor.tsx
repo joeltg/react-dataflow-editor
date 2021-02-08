@@ -8,8 +8,8 @@ import { HTML5Backend } from "react-dnd-html5-backend"
 
 import { Toolbox } from "./Toolbox.js"
 
-import { Edge, Node, Blocks, SystemState, Schema } from "./interfaces.js"
-import { defaultCanvasUnit } from "./utils.js"
+import { Edge, Node, Blocks, EditorState, Schema } from "./interfaces.js"
+import { defaultCanvasUnit, EditorContext } from "./utils.js"
 
 import { rootReducer } from "./redux/reducers.js"
 
@@ -19,7 +19,7 @@ export interface EditorProps<S extends Schema> {
 	unit?: number
 	dimensions: [number, number]
 	blocks: Blocks<S>
-	initialState?: SystemState<S>
+	initialState?: EditorState<S>
 	onChange: (nodes: Map<number, Node<S>>, edges: Map<number, Edge<S>>) => void
 }
 
@@ -36,21 +36,18 @@ export function Editor<S extends Schema>({
 	)
 
 	return (
-		<StoreProvider store={store}>
-			<DndProvider backend={HTML5Backend}>
-				<div
-					className="editor"
-					style={{ display: "flex", flexDirection: "column" }}
-				>
-					<Toolbox blocks={blocks} />
-					<Canvas
-						blocks={blocks}
-						dimensions={dimensions}
-						unit={unit}
-						onChange={onChange}
-					/>
-				</div>
-			</DndProvider>
-		</StoreProvider>
+		<EditorContext.Provider value={{ unit, dimensions }}>
+			<StoreProvider store={store}>
+				<DndProvider backend={HTML5Backend}>
+					<div
+						className="editor"
+						style={{ display: "flex", flexDirection: "column" }}
+					>
+						<Toolbox blocks={blocks} />
+						<Canvas blocks={blocks} onChange={onChange} />
+					</div>
+				</DndProvider>
+			</StoreProvider>
+		</EditorContext.Provider>
 	)
 }

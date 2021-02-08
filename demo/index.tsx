@@ -5,7 +5,7 @@ import {
 	Editor,
 	Edge,
 	Factory,
-	SystemState,
+	EditorState,
 	Schema,
 	Node,
 	Blocks,
@@ -62,7 +62,7 @@ function Index<S extends Schema>({
 	initialState,
 }: {
 	blocks: Blocks<S>
-	initialState: SystemState<S>
+	initialState: EditorState<S>
 }) {
 	const [nodes, setNodes] = useState(new Map<number, Node<S>>())
 
@@ -99,7 +99,7 @@ ReactDOM.render(
 					{
 						id: 0,
 						kind: "fdjsalfj",
-						position: [1, 1],
+						position: { x: 1, y: 1 },
 						value: { checked: true, counter: 9 },
 						inputs: { a: null },
 						outputs: { outA: new Set(), outB: new Set(), outC: new Set() },

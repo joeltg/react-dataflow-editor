@@ -1,6 +1,13 @@
-import { GetValue, ID, Schema, Source, Target } from "../interfaces.js"
+import {
+	GetValue,
+	ID,
+	Position,
+	Schema,
+	Source,
+	Target,
+} from "../interfaces.js"
 
-export type SystemAction<S extends Schema> =
+export type EditorAction<S extends Schema> =
 	| UpdateNodeAction<S>
 	| CreateNodeAction<S>
 	| MoveNodeAction
@@ -27,24 +34,25 @@ export const updateNode = <S extends Schema>(
 export type CreateNodeAction<S extends Schema> = {
 	type: "node/create"
 	kind: keyof S
-	position: [number, number]
+	position: Position
 }
 
 export const createNode = <S extends Schema>(
 	kind: keyof S,
-	position: [number, number]
+	position: Position
 ): CreateNodeAction<S> => ({ type: "node/create", kind, position })
 
 export type MoveNodeAction = {
 	type: "node/move"
 	id: ID
-	position: [number, number]
+	position: Position
 }
 
-export const moveNode = (
-	id: ID,
-	position: [number, number]
-): MoveNodeAction => ({ type: "node/move", id, position })
+export const moveNode = (id: ID, position: Position): MoveNodeAction => ({
+	type: "node/move",
+	id,
+	position,
+})
 
 export type DeleteNodeAction = { type: "node/delete"; id: ID }
 

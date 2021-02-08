@@ -1,7 +1,10 @@
-/// <reference types="react" />
+import React from "react";
 import { Blocks, Schema } from "./interfaces.js";
 export interface BlockContentProps<S extends Schema> {
     id: number;
     blocks: Blocks<S>;
+    container: HTMLDivElement;
 }
-export declare function BlockContent<S extends Schema>({ id, blocks, }: BlockContentProps<S>): JSX.Element | null;
+declare function renderBlockContent<S extends Schema>(props: BlockContentProps<S>): React.ReactPortal | null;
+export declare const BlockContent: React.MemoExoticComponent<typeof renderBlockContent>;
+export {};

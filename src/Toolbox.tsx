@@ -2,12 +2,8 @@ import React from "react"
 import { useDrag } from "react-dnd"
 
 import { Blocks, Schema } from "./interfaces.js"
-import {
-	defaultBackgroundColor,
-	defaultBorderColor,
-	portMargin,
-	portRadius,
-} from "./utils.js"
+import { defaultBackgroundColor, defaultBorderColor } from "./styles.js"
+import { portMargin, portRadius } from "./utils.js"
 
 const portStyle: React.CSSProperties = {
 	display: "flex",

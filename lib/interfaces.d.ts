@@ -1,8 +1,12 @@
 import React from "react";
 import { Selection } from "d3-selection";
 import { Dispatch } from "redux";
-import { SystemAction } from "./redux/actions.js";
+import { EditorAction } from "./redux/actions.js";
 export declare type ID = number;
+export declare type Position = {
+    x: number;
+    y: number;
+};
 export declare const Factory: {
     block: <T, I extends string, O extends string>(block: Block<T, I, O>) => Block<T, I, O>;
     blocks: <B extends Blocks<Record<string, {
@@ -48,7 +52,7 @@ export declare type GetSchema<B extends Blocks<Schema>> = {
 };
 export declare type Node<S extends Schema, K extends keyof S = keyof S> = {
     id: ID;
-    position: [number, number];
+    position: Position;
 } & {
     [k in K]: {
         kind: k;
@@ -57,31 +61,37 @@ export declare type Node<S extends Schema, K extends keyof S = keyof S> = {
         outputs: Record<GetOutputs<S, k>, Set<ID>>;
     };
 }[K];
-export declare type Source<S extends Schema, K extends keyof S> = [ID, GetOutputs<S, K>];
-export declare type Target<S extends Schema, K extends keyof S> = [ID, GetInputs<S, K>];
+export declare type Source<S extends Schema, K extends keyof S> = {
+    id: ID;
+    output: GetOutputs<S, K>;
+};
+export declare type Target<S extends Schema, K extends keyof S> = {
+    id: ID;
+    input: GetInputs<S, K>;
+};
 export declare type Edge<S extends Schema, SK extends keyof S = keyof S, TK extends keyof S = keyof S> = {
     id: ID;
     source: Source<S, SK>;
     target: Target<S, TK>;
 };
-export declare type SystemState<S extends Schema> = {
+export declare type EditorState<S extends Schema> = {
     id: ID;
     nodes: Map<number, Node<S>>;
     edges: Map<number, Edge<S>>;
 };
-export declare const initialSystemState: <S extends Record<string, {
+export declare const initialEditorState: <S extends Record<string, {
     value: any;
     inputs: string;
     outputs: string;
-}>>() => SystemState<S>;
+}>>() => EditorState<S>;
 export interface CanvasRef<S extends Schema> {
     svg: Selection<SVGSVGElement | null, unknown, null, undefined>;
     contentDimensions: Map<number, [number, number]>;
     canvasDimensions: [number, number];
-    nodes: SystemState<S>["nodes"];
-    edges: SystemState<S>["edges"];
+    nodes: EditorState<S>["nodes"];
+    edges: EditorState<S>["edges"];
     unit: number;
     blocks: Blocks<S>;
     dimensions: [number, number];
-    dispatch: Dispatch<SystemAction<S>>;
+    dispatch: Dispatch<EditorAction<S>>;
 }

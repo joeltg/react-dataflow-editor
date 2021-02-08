@@ -6,8 +6,6 @@ import * as actions from "./redux/actions.js"
 import { CanvasRef, forInputs, Node, Schema, Target } from "./interfaces.js"
 import { startPreview, stopPreview, updatePreview } from "./preview.js"
 import {
-	defaultBackgroundColor,
-	defaultBorderColor,
 	getPortOffsetY,
 	getSourcePosition,
 	getTargetPosition,
@@ -15,6 +13,7 @@ import {
 	portRadius,
 	DropTarget,
 } from "./utils.js"
+import { defaultBackgroundColor, defaultBorderColor } from "./styles.js"
 
 export type Input<S extends Schema> = {
 	index: number
@@ -64,7 +63,7 @@ const inputDragBehavior = <S extends Schema>(
 			"end",
 			function onEnd(
 				{ x, y, subject: { targets, preview, edge } }: InputDragEvent<S>,
-				{ value, target: [fromId, fromInput] }: Input<S>
+				{ value, target: { id: fromId, input: fromInput } }: Input<S>
 			) {
 				this.classList.remove("hidden")
 				edge.classed("hidden", false)
@@ -72,7 +71,7 @@ const inputDragBehavior = <S extends Schema>(
 				const result = targets.find(x, y, 2 * portRadius)
 				if (result !== undefined) {
 					const { target } = result
-					const [toId, toInput] = target
+					const { id: toId, input: toInput } = target
 					if (fromId !== toId || fromInput !== toInput) {
 						ref.dispatch(actions.moveEdge(value, target))
 					}
@@ -83,16 +82,16 @@ const inputDragBehavior = <S extends Schema>(
 		)
 		.subject(function (
 			{}: InputDragSubject<S>,
-			{ target: [targetId, input], value }: Input<S>
+			{ target: { id: targetId, input }, value }: Input<S>
 		): InputDragSubject<S> {
 			const e = ref.edges.get(value)!
 
 			const sourcePosition = getSourcePosition(ref, e)
 			const [x, y] = getTargetPosition(ref, e)
 
-			const [sourceId] = e.source
+			const { id: sourceId } = e.source
 			const targets = getTargets(ref, sourceId)
-			targets.add({ x, y, target: [targetId, input] })
+			targets.add({ x, y, target: { id: targetId, input } })
 
 			const preview = ref.svg.select<SVGGElement>("g.preview")
 			const edge = ref.svg.select<SVGGElement>(
@@ -103,7 +102,7 @@ const inputDragBehavior = <S extends Schema>(
 		}) as any
 
 const getInputKey = <S extends Schema>({
-	target: [_, input],
+	target: { input },
 }: Input<S>): string => input
 
 export const updateInputPorts = <S extends Schema>(ref: CanvasRef<S>) => (
@@ -116,7 +115,7 @@ export const updateInputPorts = <S extends Schema>(ref: CanvasRef<S>) => (
 			for (const [index, input] of forInputs(ref.blocks, node.kind)) {
 				const value: null | number = node.inputs[input]
 				if (value !== null) {
-					inputs.push({ index, target: [node.id, input], value })
+					inputs.push({ index, target: { id: node.id, input }, value })
 				}
 			}
 

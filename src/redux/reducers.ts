@@ -1,6 +1,6 @@
 import {
-	initialSystemState,
-	SystemState,
+	initialEditorState,
+	EditorState,
 	Blocks,
 	Schema,
 	forInputs,
@@ -9,17 +9,18 @@ import {
 	GetInputs,
 	GetOutputs,
 	ID,
+	Position,
 } from "../interfaces.js"
 
-import { SystemAction } from "./actions.js"
+import { EditorAction } from "./actions.js"
 
 export const rootReducer = <S extends Schema>(
 	blocks: Blocks<S>,
-	initialState: SystemState<S> = initialSystemState()
+	initialState: EditorState<S> = initialEditorState()
 ) => (
-	state: SystemState<S> = initialState,
-	action: SystemAction<S>
-): SystemState<S> => {
+	state: EditorState<S> = initialState,
+	action: EditorAction<S>
+): EditorState<S> => {
 	if (action.type === "node/update") {
 		const { id, value } = action
 		const nodes = new Map(state.nodes)
@@ -45,7 +46,7 @@ export const rootReducer = <S extends Schema>(
 			const edgeId: null | number = inputs[input]
 			if (edgeId !== null) {
 				const {
-					source: [sourceId, output],
+					source: { id: sourceId, output },
 				} = edges.get(edgeId)!
 				edges.delete(edgeId)
 				const source = nodes.get(sourceId)!
@@ -61,7 +62,7 @@ export const rootReducer = <S extends Schema>(
 		for (const [_, output] of forOutputs(blocks, kind)) {
 			for (const edgeId of outputs[output]) {
 				const {
-					target: [targetId, input],
+					target: { id: targetId, input },
 				} = edges.get(edgeId)!
 				edges.delete(edgeId)
 				const target = nodes.get(targetId)!
@@ -81,7 +82,7 @@ export const rootReducer = <S extends Schema>(
 
 		const nodes = new Map(state.nodes)
 
-		const [sourceId, output] = source
+		const { id: sourceId, output } = source
 		const sourceNode = nodes.get(sourceId)!
 		const sourceOutput = new Set(sourceNode.outputs[output])
 		sourceOutput.add(state.id)
@@ -90,7 +91,7 @@ export const rootReducer = <S extends Schema>(
 			outputs: { ...sourceNode.outputs, [output]: sourceOutput },
 		})
 
-		const [targetId, input] = target
+		const { id: targetId, input } = target
 		const targetNode = nodes.get(targetId)!
 		nodes.set(targetId, {
 			...targetNode,
@@ -102,7 +103,7 @@ export const rootReducer = <S extends Schema>(
 		const { id, target } = action
 		const edges = new Map(state.edges)
 		const edge = edges.get(id)!
-		const [fromNodeId, fromInput] = edge.target
+		const { id: fromNodeId, input: fromInput } = edge.target
 
 		const nodes = new Map(state.nodes)
 		const fromNode = nodes.get(fromNodeId)!
@@ -111,7 +112,7 @@ export const rootReducer = <S extends Schema>(
 			inputs: { ...fromNode.inputs, [fromInput]: null },
 		})
 
-		const [toId, toInput] = target
+		const { id: toId, input: toInput } = target
 		const toNode = nodes.get(toId)!
 		nodes.set(toId, { ...toNode, inputs: { ...toNode.inputs, [toInput]: id } })
 
@@ -125,7 +126,7 @@ export const rootReducer = <S extends Schema>(
 
 		const nodes = new Map(state.nodes)
 
-		const [sourceId, output] = edge.source
+		const { id: sourceId, output } = edge.source
 		const sourceNode = nodes.get(sourceId)!
 		const sourceOutput = new Set(sourceNode.outputs[output])
 		sourceOutput.delete(id)
@@ -134,7 +135,7 @@ export const rootReducer = <S extends Schema>(
 			outputs: { ...sourceNode.outputs, [output]: sourceOutput },
 		})
 
-		const [targetId, input] = edge.target
+		const { id: targetId, input } = edge.target
 		const targetNode = nodes.get(targetId)!
 		nodes.set(targetId, {
 			...targetNode,
@@ -151,7 +152,7 @@ export const rootReducer = <S extends Schema>(
 function createInitialNode<S extends Schema, K extends keyof S>(
 	blocks: Blocks<S>,
 	kind: K,
-	position: [number, number],
+	position: Position,
 	id: number
 ): Node<S> {
 	const inputs = Object.fromEntries(

@@ -1,4 +1,5 @@
 import { quadtree } from "d3-quadtree"
+import { createContext } from "react"
 import {
 	CanvasRef,
 	Edge,
@@ -7,6 +8,7 @@ import {
 	Schema,
 	forInputs,
 	Target,
+	Position,
 } from "./interfaces"
 
 export const portRadius = 12
@@ -31,11 +33,6 @@ export function makeClipPath(
 	return path.join(" ")
 }
 
-export const defaultCanvasUnit = 72
-
-export const defaultBackgroundColor = "lightgray"
-export const defaultBorderColor = "dimgray"
-
 export const minWidth = portHeight
 export const minHeight = portHeight
 
@@ -43,18 +40,13 @@ export const getKey = ({ id }: { id: number }) => id.toString()
 
 export const toTranslate = (x: number, y: number) => `translate(${x}, ${y})`
 
-export const positionEqual = (
-	[x1, y1]: [number, number],
-	[x2, y2]: [number, number]
-): boolean => x1 === x2 && y1 === y2
-
 export function getSourcePosition<S extends Schema>(
 	ref: CanvasRef<S>,
-	{ source: [id, output] }: Edge<S>
+	{ source: { id, output } }: Edge<S>
 ): [number, number] {
 	const {
 		kind,
-		position: [x, y],
+		position: { x, y },
 	} = ref.nodes.get(id)!
 	const index = Object.keys(ref.blocks[kind].outputs).indexOf(output as string)
 	const offsetY = getPortOffsetY(index)
@@ -64,11 +56,11 @@ export function getSourcePosition<S extends Schema>(
 
 export function getTargetPosition<S extends Schema>(
 	ref: CanvasRef<S>,
-	{ target: [id, input] }: Edge<S>
+	{ target: { id, input } }: Edge<S>
 ): [number, number] {
 	const {
 		kind,
-		position: [x, y],
+		position: { x, y },
 	} = ref.nodes.get(id)!
 	const index = Object.keys(ref.blocks[kind].inputs).indexOf(input as string)
 	const offsetY = getPortOffsetY(index)
@@ -77,10 +69,6 @@ export function getTargetPosition<S extends Schema>(
 
 export const getPortOffsetY = (index: number) =>
 	index * portHeight + portMargin + portRadius
-
-export const getBackgroundColor = <S extends Schema>(blocks: Blocks<S>) => ({
-	kind,
-}: Node<S>) => blocks[kind].backgroundColor || defaultBackgroundColor
 
 export type DropTarget<S extends Schema> = {
 	x: number
@@ -100,11 +88,11 @@ export function getTargets<S extends Schema>(
 		if (node.id === sourceId) {
 			continue
 		} else {
-			const [x, y] = node.position
+			const { x, y } = node.position
 			for (const [index, input] of forInputs(ref.blocks, node.kind)) {
 				if (node.inputs[input] === null) {
 					targets.push({
-						target: [node.id, input],
+						target: { id: node.id, input },
 						x: x * ref.unit,
 						y: y * ref.unit + getPortOffsetY(index),
 					})
@@ -120,7 +108,19 @@ export const snap = (
 	[x, y]: [number, number],
 	unit: number,
 	[X, Y]: [number, number]
-): [number, number] => [
-	Math.min(X - 1, Math.max(0, Math.round(x / unit))),
-	Math.min(Y - 1, Math.max(0, Math.round(y / unit))),
-]
+): Position => ({
+	x: Math.min(X - 1, Math.max(0, Math.round(x / unit))),
+	y: Math.min(Y - 1, Math.max(0, Math.round(y / unit))),
+})
+
+export const defaultCanvasUnit = 72
+
+export interface EditorContextValue {
+	unit: number
+	dimensions: [number, number]
+}
+
+export const EditorContext = createContext<EditorContextValue>({
+	unit: defaultCanvasUnit,
+	dimensions: [12, 8],
+})

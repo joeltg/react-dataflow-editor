@@ -1,5 +1,5 @@
-import { GetValue, ID, Schema, Source, Target } from "../interfaces.js";
-export declare type SystemAction<S extends Schema> = UpdateNodeAction<S> | CreateNodeAction<S> | MoveNodeAction | DeleteNodeAction | CreateEdgeAction<S> | MoveEdgeAction<S> | DeleteEdgeAction;
+import { GetValue, ID, Position, Schema, Source, Target } from "../interfaces.js";
+export declare type EditorAction<S extends Schema> = UpdateNodeAction<S> | CreateNodeAction<S> | MoveNodeAction | DeleteNodeAction | CreateEdgeAction<S> | MoveEdgeAction<S> | DeleteEdgeAction;
 export declare type UpdateNodeAction<S extends Schema> = {
     type: "node/update";
     id: ID;
@@ -13,19 +13,19 @@ export declare const updateNode: <S extends Record<string, {
 export declare type CreateNodeAction<S extends Schema> = {
     type: "node/create";
     kind: keyof S;
-    position: [number, number];
+    position: Position;
 };
 export declare const createNode: <S extends Record<string, {
     value: any;
     inputs: string;
     outputs: string;
-}>>(kind: keyof S, position: [number, number]) => CreateNodeAction<S>;
+}>>(kind: keyof S, position: Position) => CreateNodeAction<S>;
 export declare type MoveNodeAction = {
     type: "node/move";
     id: ID;
-    position: [number, number];
+    position: Position;
 };
-export declare const moveNode: (id: ID, position: [number, number]) => MoveNodeAction;
+export declare const moveNode: (id: ID, position: Position) => MoveNodeAction;
 export declare type DeleteNodeAction = {
     type: "node/delete";
     id: ID;

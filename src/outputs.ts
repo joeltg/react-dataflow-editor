@@ -5,14 +5,8 @@ import { BaseType, Selection } from "d3-selection"
 import { CanvasRef, GetOutputs, Node, Schema, Source } from "./interfaces.js"
 import { startPreview, stopPreview, updatePreview } from "./preview.js"
 import * as actions from "./redux/actions.js"
-import {
-	defaultBackgroundColor,
-	defaultBorderColor,
-	getPortOffsetY,
-	getTargets,
-	portRadius,
-	DropTarget,
-} from "./utils.js"
+import { defaultBackgroundColor, defaultBorderColor } from "./styles.js"
+import { getPortOffsetY, getTargets, portRadius, DropTarget } from "./utils.js"
 
 export type Output<S extends Schema> = {
 	index: number
@@ -65,10 +59,10 @@ const outputDragBehavior = <S extends Schema>(
 		)
 		.subject(function (
 			event: OutputDragEvent<S>,
-			{ index, source: [id] }: Output<S>
+			{ index, source: { id } }: Output<S>
 		): OutputDragSubject<S> {
 			const {
-				position: [x, y],
+				position: { x, y },
 			} = ref.nodes.get(id)!
 
 			const [width] = ref.contentDimensions.get(id)!
@@ -85,7 +79,7 @@ const outputDragBehavior = <S extends Schema>(
 		}) as any
 
 const getOutputKey = <S extends Schema>({
-	source: [_, output],
+	source: { output },
 }: Output<S>): string => output
 
 export const updateOutputPorts = <S extends Schema>(ref: CanvasRef<S>) => (
@@ -98,7 +92,7 @@ export const updateOutputPorts = <S extends Schema>(ref: CanvasRef<S>) => (
 				Object.keys(ref.blocks[kind].outputs).map(
 					(output: GetOutputs<S, keyof S>, index) => ({
 						index,
-						source: [id, output],
+						source: { id, output },
 						value: outputs[output],
 					})
 				),

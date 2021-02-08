@@ -4,9 +4,11 @@ import { Selection } from "d3-selection"
 
 import { Dispatch } from "redux"
 
-import { SystemAction } from "./redux/actions.js"
+import { EditorAction } from "./redux/actions.js"
 
 export type ID = number
+
+export type Position = { x: number; y: number }
 
 export const Factory = {
 	block: <T, I extends string, O extends string>(block: Block<T, I, O>) =>
@@ -62,7 +64,7 @@ export type GetSchema<B extends Blocks<Schema>> = {
 
 export type Node<S extends Schema, K extends keyof S = keyof S> = {
 	id: ID
-	position: [number, number]
+	position: Position
 } & {
 	[k in K]: {
 		kind: k
@@ -72,9 +74,15 @@ export type Node<S extends Schema, K extends keyof S = keyof S> = {
 	}
 }[K]
 
-export type Source<S extends Schema, K extends keyof S> = [ID, GetOutputs<S, K>]
+export type Source<S extends Schema, K extends keyof S> = {
+	id: ID
+	output: GetOutputs<S, K>
+}
 
-export type Target<S extends Schema, K extends keyof S> = [ID, GetInputs<S, K>]
+export type Target<S extends Schema, K extends keyof S> = {
+	id: ID
+	input: GetInputs<S, K>
+}
 
 export type Edge<
 	S extends Schema,
@@ -86,13 +94,13 @@ export type Edge<
 	target: Target<S, TK>
 }
 
-export type SystemState<S extends Schema> = {
+export type EditorState<S extends Schema> = {
 	id: ID
 	nodes: Map<number, Node<S>>
 	edges: Map<number, Edge<S>>
 }
 
-export const initialSystemState = <S extends Schema>(): SystemState<S> => ({
+export const initialEditorState = <S extends Schema>(): EditorState<S> => ({
 	id: 0,
 	nodes: new Map(),
 	edges: new Map(),
@@ -102,10 +110,10 @@ export interface CanvasRef<S extends Schema> {
 	svg: Selection<SVGSVGElement | null, unknown, null, undefined>
 	contentDimensions: Map<number, [number, number]>
 	canvasDimensions: [number, number]
-	nodes: SystemState<S>["nodes"]
-	edges: SystemState<S>["edges"]
+	nodes: EditorState<S>["nodes"]
+	edges: EditorState<S>["edges"]
 	unit: number
 	blocks: Blocks<S>
 	dimensions: [number, number]
-	dispatch: Dispatch<SystemAction<S>>
+	dispatch: Dispatch<EditorAction<S>>
 }
