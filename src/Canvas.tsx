@@ -29,37 +29,44 @@ import {
 import { Portal, PortalProps } from "./Portal.js"
 
 import { attachPreview } from "./preview.js"
-import { updateNodes } from "./nodes.js"
+import { updateNodes, handleResize } from "./nodes.js"
 import { updateEdges } from "./edges.js"
-import { EditorContext, snap } from "./utils.js"
-import { StyleContext } from "./styles.js"
+import { CanvasContext, EditorContext, snap } from "./utils.js"
+import {
+	defaultBackgroundColor,
+	defaultBorderColor,
+	StyleContext,
+} from "./styles.js"
 
-// const svgStyle = `
-// g.node > foreignObject { overflow: visible }
-// g.node > g.frame circle.port { cursor: grab }
-// g.node > g.frame circle.port.hidden { display: none }
-// g.node > g.frame > g.outputs > circle.port.dragging { cursor: grabbing }
+const SVG_STYLE = `
+g.node > foreignObject { overflow: visible }
+g.node > g.frame circle.port { cursor: grab }
+g.node > g.frame circle.port.hidden { display: none }
+g.node > g.frame > g.outputs > circle.port.dragging { cursor: grabbing }
 
-// g.edge.hidden { display: none }
-// g.edge > path.curve {
-// 	stroke: gray;
-// 	stroke-width: 6px;
-// 	fill: none;
-// }
+g.node:focus > g.frame > path { stroke-width: 3 }
+g.node:focus > g.frame > g.outputs > circle.port { stroke-width: 2 }
 
-// g.preview.hidden { display: none }
-// g.preview > path.curve {
-// 	stroke: gray;
-// 	stroke-width: 6px;
-// 	fill: none;
-// 	stroke-dasharray: 8 6;
-// }
-// g.preview > circle {
-// 	fill: ${defaultBackgroundColor};
-// 	stroke: ${defaultBorderColor};
-// 	stroke-width: 4px;
-// }
-// `
+g.edge.hidden { display: none }
+g.edge > path.curve {
+	stroke: gray;
+	stroke-width: 6px;
+	fill: none;
+}
+
+g.preview.hidden { display: none }
+g.preview > path.curve {
+	stroke: gray;
+	stroke-width: 6px;
+	fill: none;
+	stroke-dasharray: 8 6;
+}
+g.preview > circle {
+	fill: ${defaultBackgroundColor};
+	stroke: ${defaultBorderColor};
+	stroke-width: 4px;
+}
+`
 
 export interface CanvasProps<S extends Schema> {
 	blocks: Blocks<S>
@@ -74,6 +81,14 @@ export function Canvas<S extends Schema>({ blocks, onChange }: CanvasProps<S>) {
 
 	const { unit, dimensions } = useContext(EditorContext)
 	const [X, Y] = dimensions
+
+	const observer = useMemo(
+		() =>
+			new ResizeObserver((entries) => {
+				handleResize(ref, entries)
+			}),
+		[]
+	)
 
 	const ref = useMemo<CanvasRef<S>>(
 		() => ({
@@ -111,8 +126,14 @@ export function Canvas<S extends Schema>({ blocks, onChange }: CanvasProps<S>) {
 
 	useLayoutEffect(() => {
 		const portals: PortalProps<S>[] = []
-		update.nodes().each(function (this: HTMLDivElement, { id }: Node<S>) {
-			portals.push({ id, container: this, blocks })
+		// update.nodes().each(function (this: HTMLDivElement, { id }: Node<S>) {
+		// 	portals.push({ id, container: this, blocks })
+		// })
+		update.nodes().each(function (this: SVGGElement, { id }: Node<S>) {
+			const container = this.querySelector("foreignObject")
+			if (container !== null) {
+				portals.push({ id, container, blocks })
+			}
 		})
 		setPortals(portals)
 	}, [nodes])
@@ -136,21 +157,23 @@ export function Canvas<S extends Schema>({ blocks, onChange }: CanvasProps<S>) {
 	const svgStyle = useMemo(() => style.getSVGStyle({ unit }), [unit])
 
 	return (
-		<div ref={drop} className="canvas" style={{ height }}>
-			<svg
-				ref={attachSVG}
-				xmlns="http://www.w3.org/2000/svg"
-				height={height}
-				style={svgStyle}
-			>
-				{/* <style>{svgStyle}</style> */}
-				<g className="edges"></g>
-				<g className="nodes"></g>
-				<g className="preview"></g>
-				{portals.map((props) => (
-					<Portal key={props.id} {...props} />
-				))}
-			</svg>
-		</div>
+		<CanvasContext.Provider value={{ observer }}>
+			<div ref={drop} className="canvas" style={{ height }}>
+				<svg
+					ref={attachSVG}
+					xmlns="http://www.w3.org/2000/svg"
+					height={height}
+					style={svgStyle}
+				>
+					<style>{SVG_STYLE}</style>
+					<g className="edges"></g>
+					<g className="nodes"></g>
+					<g className="preview"></g>
+					{portals.map((props) => (
+						<Portal key={props.id} {...props} />
+					))}
+				</svg>
+			</div>
+		</CanvasContext.Provider>
 	)
 }

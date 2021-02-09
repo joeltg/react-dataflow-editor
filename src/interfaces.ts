@@ -107,6 +107,7 @@ export const initialEditorState = <S extends Schema>(): EditorState<S> => ({
 })
 
 export interface CanvasRef<S extends Schema> {
+	// observer: ResizeObserver
 	svg: Selection<SVGSVGElement | null, unknown, null, undefined>
 	contentDimensions: Map<number, [number, number]>
 	canvasDimensions: [number, number]

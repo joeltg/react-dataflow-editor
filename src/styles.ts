@@ -16,14 +16,16 @@ export const defaultBlockHeaderStyle: React.CSSProperties = {
 	borderBottom: `1px solid ${defaultBorderColor}`,
 }
 
+export type getEditorStyle = (ctx: { unit: number }) => React.CSSProperties
+
 export type getBlockStyle = <S extends Schema>(
 	block: Blocks<S>[keyof S]
 ) => React.CSSProperties
 
 interface StyleContext {
-	getSVGStyle: (ctx: { unit: number }) => React.CSSProperties
+	getSVGStyle: getEditorStyle
 	getBlockHeaderStyle: getBlockStyle
-	getBlockContainerStyle: getBlockStyle
+	getBlockContentStyle: getBlockStyle
 }
 
 export const defaultStyleContext: StyleContext = {
@@ -35,8 +37,9 @@ export const defaultStyleContext: StyleContext = {
 		backgroundPositionY: `-${unit / 2}px`,
 	}),
 	getBlockHeaderStyle: () => defaultBlockHeaderStyle,
-	getBlockContainerStyle: (block) => ({
-		margin: "1px 4px",
+	getBlockContentStyle: (block) => ({
+		position: "fixed",
+		width: "max-content",
 		backgroundColor: block.backgroundColor || defaultBackgroundColor,
 	}),
 }

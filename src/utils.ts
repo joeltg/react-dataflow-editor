@@ -3,13 +3,14 @@ import { createContext } from "react"
 import {
 	CanvasRef,
 	Edge,
-	Node,
-	Blocks,
 	Schema,
 	forInputs,
 	Target,
 	Position,
 } from "./interfaces"
+
+export const blockMarginX = 4
+export const blockMarginY = 2
 
 export const portRadius = 12
 export const portMargin = 12
@@ -123,4 +124,12 @@ export interface EditorContextValue {
 export const EditorContext = createContext<EditorContextValue>({
 	unit: defaultCanvasUnit,
 	dimensions: [12, 8],
+})
+
+export interface CanvasContextValue {
+	observer: ResizeObserver
+}
+
+export const CanvasContext = createContext<CanvasContextValue>({
+	observer: new ResizeObserver(() => {}),
 })

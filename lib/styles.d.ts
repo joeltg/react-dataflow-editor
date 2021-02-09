@@ -8,13 +8,14 @@ export declare const getBackgroundColor: <S extends Record<string, {
     outputs: string;
 }>>(blocks: Blocks<S>) => ({ kind, }: Node<S, keyof S>) => string;
 export declare const defaultBlockHeaderStyle: React.CSSProperties;
+export declare type getEditorStyle = (ctx: {
+    unit: number;
+}) => React.CSSProperties;
 export declare type getBlockStyle = <S extends Schema>(block: Blocks<S>[keyof S]) => React.CSSProperties;
 interface StyleContext {
-    getSVGStyle: (ctx: {
-        unit: number;
-    }) => React.CSSProperties;
+    getSVGStyle: getEditorStyle;
     getBlockHeaderStyle: getBlockStyle;
-    getBlockContainerStyle: getBlockStyle;
+    getBlockContentStyle: getBlockStyle;
 }
 export declare const defaultStyleContext: StyleContext;
 export declare const StyleContext: React.Context<StyleContext>;

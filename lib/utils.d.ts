@@ -1,5 +1,8 @@
 /// <reference types="react" />
+/// <reference types="resize-observer-browser" />
 import { CanvasRef, Edge, Schema, Target, Position } from "./interfaces";
+export declare const blockMarginX = 4;
+export declare const blockMarginY = 2;
 export declare const portRadius = 12;
 export declare const portMargin = 12;
 export declare const portHeight: number;
@@ -36,3 +39,7 @@ export interface EditorContextValue {
     dimensions: [number, number];
 }
 export declare const EditorContext: import("react").Context<EditorContextValue>;
+export interface CanvasContextValue {
+    observer: ResizeObserver;
+}
+export declare const CanvasContext: import("react").Context<CanvasContextValue>;

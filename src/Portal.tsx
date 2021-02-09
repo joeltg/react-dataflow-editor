@@ -8,11 +8,12 @@ import * as actions from "./redux/actions.js"
 import { GetValue, Node, Blocks, EditorState, Schema } from "./interfaces.js"
 
 import { StyleContext } from "./styles.js"
+import { blockMarginX, blockMarginY, CanvasContext } from "./utils.js"
 
 export interface PortalProps<S extends Schema> {
 	id: number
 	blocks: Blocks<S>
-	container: HTMLDivElement
+	container: SVGForeignObjectElement
 }
 
 export const Portal = memo(renderPortal)
@@ -48,22 +49,30 @@ function PortalContent<S extends Schema>({
 		[id]
 	)
 
-	const { getBlockHeaderStyle, getBlockContainerStyle } = useContext(
-		StyleContext
-	)
+	const { getBlockHeaderStyle, getBlockContentStyle } = useContext(StyleContext)
 
 	const block = blocks[kind]
 
-	const { blockHeaderStyle, blockContainerStyle } = useMemo(
+	const { blockHeaderStyle, blockContentStyle } = useMemo(
 		() => ({
 			blockHeaderStyle: getBlockHeaderStyle(block),
-			blockContainerStyle: getBlockContainerStyle(block),
+			blockContentStyle: {
+				...getBlockContentStyle(block),
+				margin: `${blockMarginY}px ${blockMarginX}px`,
+			},
 		}),
 		[block]
 	)
 
+	const { observer } = useContext(CanvasContext)
+	const ref = useCallback((div: HTMLDivElement) => {
+		if (div !== null) {
+			observer.observe(div)
+		}
+	}, [])
+
 	return (
-		<div className="container" style={blockContainerStyle}>
+		<div ref={ref} className="content" style={blockContentStyle}>
 			<div className="header" style={blockHeaderStyle}>
 				{block.name}
 			</div>

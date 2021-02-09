@@ -28,6 +28,8 @@ import {
 	portRadius,
 	toTranslate,
 	snap,
+	blockMarginX,
+	blockMarginY,
 } from "./utils.js"
 
 type BlockDragEvent<S extends Schema> = D3DragEvent<
@@ -36,16 +38,18 @@ type BlockDragEvent<S extends Schema> = D3DragEvent<
 	{ x: number; y: number }
 >
 
-const handleResize = <S extends Schema>(ref: CanvasRef<S>) => (
+export const handleResize = <S extends Schema>(
+	ref: CanvasRef<S>,
 	entries: readonly ResizeObserverEntry[]
 ) => {
 	for (const { target, contentRect } of entries) {
-		const { width, height } = contentRect
-
 		const foreignObject = target.parentElement
 		if (foreignObject === null) {
 			continue
 		}
+
+		const width = contentRect.width + 2 * blockMarginX
+		const height = contentRect.height + 2 * blockMarginY
 
 		foreignObject.setAttribute("width", width.toString())
 		foreignObject.setAttribute("height", height.toString())
@@ -195,7 +199,7 @@ export const updateNodes = <S extends Schema>(ref: CanvasRef<S>) => {
 		frameTransform,
 	} = getBlockPosition(ref)
 
-	const observer = new ResizeObserver(handleResize(ref))
+	// const observer = new ResizeObserver(handleResize(ref))
 
 	const nodeDrag = nodeDragBehavior(ref)
 	const nodeClick = nodeClickBehavior(ref)
@@ -253,15 +257,15 @@ export const updateNodes = <S extends Schema>(ref: CanvasRef<S>) => {
 						.attr("x", foreignObjectPositionX)
 						.attr("y", foreignObjectPositionY)
 
-					const contents = foreignObjects
-						.append<HTMLDivElement>("xhtml:div")
-						.classed("content", true)
-						.style("position", "fixed")
-						.style("width", "max-content")
-						.attr("xmlns", "http://www.w3.org/1999/xhtml")
-						.each(function () {
-							observer.observe(this)
-						})
+					// const contents = foreignObjects
+					// 	.append<HTMLDivElement>("xhtml:div")
+					// 	.classed("content", true)
+					// 	.style("position", "fixed")
+					// 	.style("width", "max-content")
+					// 	.attr("xmlns", "http://www.w3.org/1999/xhtml")
+					// 	.each(function () {
+					// 		observer.observe(this)
+					// 	})
 
 					return groups
 				},
@@ -291,15 +295,16 @@ export const updateNodes = <S extends Schema>(ref: CanvasRef<S>) => {
 					exit
 						.each(function ({ id }) {
 							ref.contentDimensions.delete(id)
-							const content = this.querySelector("foreignObject > div.content")
-							if (content !== null) {
-								observer.unobserve(content)
-							}
+							// const content = this.querySelector("foreignObject > div.content")
+							// if (content !== null) {
+							// 	observer.unobserve(content)
+							// }
 						})
 						.remove()
 				}
 			)
 
-		return nodes.select<HTMLDivElement>("foreignObject > div.content")
+		return nodes
+		// return nodes.select<HTMLDivElement>("foreignObject > div.content")
 	}
 }
