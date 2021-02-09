@@ -21,11 +21,19 @@ export type getBlockStyle = <S extends Schema>(
 ) => React.CSSProperties
 
 interface StyleContext {
+	getSVGStyle: (ctx: { unit: number }) => React.CSSProperties
 	getBlockHeaderStyle: getBlockStyle
 	getBlockContainerStyle: getBlockStyle
 }
 
 export const defaultStyleContext: StyleContext = {
+	getSVGStyle: ({ unit }) => ({
+		backgroundImage:
+			"radial-gradient(circle, #000000 1px, rgba(0, 0, 0, 0) 1px)",
+		backgroundSize: `${unit}px ${unit}px`,
+		backgroundPositionX: `-${unit / 2}px`,
+		backgroundPositionY: `-${unit / 2}px`,
+	}),
 	getBlockHeaderStyle: () => defaultBlockHeaderStyle,
 	getBlockContainerStyle: (block) => ({
 		margin: "1px 4px",

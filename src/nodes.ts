@@ -42,7 +42,11 @@ const handleResize = <S extends Schema>(ref: CanvasRef<S>) => (
 	for (const { target, contentRect } of entries) {
 		const { width, height } = contentRect
 
-		const foreignObject = target.parentElement!
+		const foreignObject = target.parentElement
+		if (foreignObject === null) {
+			continue
+		}
+
 		foreignObject.setAttribute("width", width.toString())
 		foreignObject.setAttribute("height", height.toString())
 

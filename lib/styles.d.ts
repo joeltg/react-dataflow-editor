@@ -10,6 +10,9 @@ export declare const getBackgroundColor: <S extends Record<string, {
 export declare const defaultBlockHeaderStyle: React.CSSProperties;
 export declare type getBlockStyle = <S extends Schema>(block: Blocks<S>[keyof S]) => React.CSSProperties;
 interface StyleContext {
+    getSVGStyle: (ctx: {
+        unit: number;
+    }) => React.CSSProperties;
     getBlockHeaderStyle: getBlockStyle;
     getBlockContainerStyle: getBlockStyle;
 }

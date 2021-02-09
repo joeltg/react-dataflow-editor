@@ -9,13 +9,15 @@ import { GetValue, Node, Blocks, EditorState, Schema } from "./interfaces.js"
 
 import { StyleContext } from "./styles.js"
 
-export interface BlockContentProps<S extends Schema> {
+export interface PortalProps<S extends Schema> {
 	id: number
 	blocks: Blocks<S>
 	container: HTMLDivElement
 }
 
-function renderBlockContent<S extends Schema>(props: BlockContentProps<S>) {
+export const Portal = memo(renderPortal)
+
+function renderPortal<S extends Schema>(props: PortalProps<S>) {
 	const node = useSelector<EditorState<S>, Node<S> | undefined>(({ nodes }) =>
 		nodes.get(props.id)
 	)
@@ -24,21 +26,21 @@ function renderBlockContent<S extends Schema>(props: BlockContentProps<S>) {
 		return null
 	} else {
 		return createPortal(
-			<InnerBlockContent node={node} blocks={props.blocks} />,
+			<PortalContent node={node} blocks={props.blocks} />,
 			props.container
 		)
 	}
 }
 
-interface InnerBlockContentProps<S extends Schema> {
+interface PortalContentProps<S extends Schema> {
 	node: Node<S>
 	blocks: Blocks<S>
 }
 
-function InnerBlockContent<S extends Schema>({
+function PortalContent<S extends Schema>({
 	node: { id, kind, value },
 	blocks,
-}: InnerBlockContentProps<S>) {
+}: PortalContentProps<S>) {
 	const dispatch = useDispatch()
 
 	const setValue = useCallback(
@@ -69,5 +71,3 @@ function InnerBlockContent<S extends Schema>({
 		</div>
 	)
 }
-
-export const BlockContent = memo(renderBlockContent)
