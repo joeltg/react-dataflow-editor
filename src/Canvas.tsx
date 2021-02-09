@@ -45,7 +45,6 @@ g.node > g.frame circle.port.hidden { display: none }
 g.node > g.frame > g.outputs > circle.port.dragging { cursor: grabbing }
 
 g.node:focus > g.frame > path { stroke-width: 3 }
-g.node:focus > g.frame > g.outputs > circle.port { stroke-width: 2 }
 
 g.edge.hidden { display: none }
 g.edge > path.curve {
