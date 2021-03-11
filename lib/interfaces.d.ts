@@ -1,21 +1,14 @@
-import React from "react";
 import { Selection } from "d3-selection";
-import { Dispatch } from "redux";
 import { EditorAction } from "./redux/actions.js";
-export declare type ID = number;
 export declare type Position = {
     x: number;
     y: number;
 };
 export declare const Factory: {
-    block: <T, I extends string, O extends string>(block: Block<T, I, O>) => Block<T, I, O>;
-    blocks: <B extends Blocks<Record<string, {
-        value: any;
-        inputs: string;
-        outputs: string;
-    }>>>(blocks: B) => Blocks<GetSchema<B>>;
+    block: <I extends string, O extends string>(block: Block<I, O>) => Block<I, O>;
+    blocks: <B extends Blocks<Schema>>(blocks: B) => Blocks<GetSchema<B>>;
 };
-export declare type Block<T, I extends string, O extends string> = {
+export declare type Block<I extends string, O extends string> = {
     name: string;
     inputs: {
         [i in I]: null;
@@ -23,75 +16,62 @@ export declare type Block<T, I extends string, O extends string> = {
     outputs: {
         [o in O]: null;
     };
-    initialValue: T;
     backgroundColor: string;
-    component: React.FC<{
-        value: T;
-        setValue(value: T): void;
-    }>;
 };
 export declare type Schema = Record<string, {
-    value: any;
     inputs: string;
     outputs: string;
 }>;
-export declare type GetValue<S extends Schema, K extends keyof S> = S[K]["value"];
 export declare type GetInputs<S extends Schema, K extends keyof S> = S[K]["inputs"];
 export declare type GetOutputs<S extends Schema, K extends keyof S> = S[K]["outputs"];
 export declare function forInputs<S extends Schema, K extends keyof S>(blocks: Blocks<S>, kind: keyof S): Generator<[number, GetInputs<S, K>]>;
 export declare function forOutputs<S extends Schema, K extends keyof S>(blocks: Blocks<S>, kind: keyof S): Generator<[number, GetOutputs<S, K>]>;
 export declare type Blocks<S extends Schema> = {
-    [k in keyof S]: Block<GetValue<S, k>, GetInputs<S, k>, GetOutputs<S, k>>;
+    [k in keyof S]: Block<GetInputs<S, k>, GetOutputs<S, k>>;
 };
 export declare type GetSchema<B extends Blocks<Schema>> = {
-    [k in keyof B]: B[k] extends Block<infer T, infer I, infer O> ? {
-        value: T;
+    [k in keyof B]: B[k] extends Block<infer I, infer O> ? {
         inputs: I;
         outputs: O;
     } : never;
 };
-export declare type Node<S extends Schema, K extends keyof S = keyof S> = {
-    id: ID;
-    position: Position;
-} & {
-    [k in K]: {
+declare type NodeIndex<S extends Schema> = {
+    [k in keyof S]: {
+        id: string;
+        position: Position;
         kind: k;
-        value: GetValue<S, k>;
-        inputs: Record<GetInputs<S, k>, null | ID>;
-        outputs: Record<GetOutputs<S, k>, Set<ID>>;
+        inputs: Record<GetInputs<S, k>, null | string>;
+        outputs: Record<GetOutputs<S, k>, Set<string>>;
     };
-}[K];
+};
+export declare type Node<S extends Schema, K extends keyof S = keyof S> = NodeIndex<S>[K];
 export declare type Source<S extends Schema, K extends keyof S> = {
-    id: ID;
+    id: string;
     output: GetOutputs<S, K>;
 };
 export declare type Target<S extends Schema, K extends keyof S> = {
-    id: ID;
+    id: string;
     input: GetInputs<S, K>;
 };
 export declare type Edge<S extends Schema, SK extends keyof S = keyof S, TK extends keyof S = keyof S> = {
-    id: ID;
+    id: string;
     source: Source<S, SK>;
     target: Target<S, TK>;
 };
-export declare type EditorState<S extends Schema> = {
-    id: ID;
-    nodes: Map<number, Node<S>>;
-    edges: Map<number, Edge<S>>;
+export declare type Graph<S extends Schema> = {
+    nodes: Record<string, Node<S>>;
+    edges: Record<string, Edge<S>>;
 };
-export declare const initialEditorState: <S extends Record<string, {
-    value: any;
-    inputs: string;
-    outputs: string;
-}>>() => EditorState<S>;
+export declare const initialEditorState: <S extends Schema>() => Graph<S>;
 export interface CanvasRef<S extends Schema> {
-    svg: Selection<SVGSVGElement | null, unknown, null, undefined>;
-    contentDimensions: Map<number, [number, number]>;
+    nodes: Selection<SVGGElement | null, unknown, null, undefined>;
+    edges: Selection<SVGGElement | null, unknown, null, undefined>;
+    preview: Selection<SVGGElement | null, unknown, null, undefined>;
     canvasDimensions: [number, number];
-    nodes: EditorState<S>["nodes"];
-    edges: EditorState<S>["edges"];
+    graph: Graph<S>;
     unit: number;
     blocks: Blocks<S>;
     dimensions: [number, number];
-    dispatch: Dispatch<EditorAction<S>>;
+    dispatch: (action: EditorAction<S>) => void;
 }
+export {};

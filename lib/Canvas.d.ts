@@ -1,7 +1,11 @@
 /// <reference types="react" />
-import { Blocks, Node, Edge, Schema } from "./interfaces.js";
+import * as actions from "./redux/actions.js";
+import { Graph, Blocks, Schema } from "./interfaces.js";
 export interface CanvasProps<S extends Schema> {
+    unit: number;
+    dimensions: [number, number];
     blocks: Blocks<S>;
-    onChange: (nodes: Map<number, Node<S>>, edges: Map<number, Edge<S>>) => void;
+    graph: Graph<S>;
+    dispatch: (action: actions.EditorAction<S>) => void;
 }
-export declare function Canvas<S extends Schema>({ blocks, onChange }: CanvasProps<S>): JSX.Element;
+export declare function Canvas<S extends Schema>(props: CanvasProps<S>): JSX.Element;

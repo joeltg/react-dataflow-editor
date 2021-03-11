@@ -1,45 +1,26 @@
-/// <reference types="react" />
-/// <reference types="resize-observer-browser" />
-import { CanvasRef, Edge, Schema, Target, Position } from "./interfaces";
-export declare const blockMarginX = 4;
-export declare const blockMarginY = 2;
+import { CanvasRef, Schema, Target, Position, Source } from "./interfaces.js";
+export declare const blockWidth = 144;
 export declare const portRadius = 12;
 export declare const portMargin = 12;
 export declare const portHeight: number;
 export declare function makeClipPath(inputCount: number, [width, height]: [number, number]): string;
-export declare const minWidth: number;
-export declare const minHeight: number;
 export declare const getKey: ({ id }: {
-    id: number;
+    id: string;
 }) => string;
 export declare const toTranslate: (x: number, y: number) => string;
-export declare function getSourcePosition<S extends Schema>(ref: CanvasRef<S>, { source: { id, output } }: Edge<S>): [number, number];
-export declare function getTargetPosition<S extends Schema>(ref: CanvasRef<S>, { target: { id, input } }: Edge<S>): [number, number];
+export declare const getSourceIndex: <S extends Schema>(ref: CanvasRef<S>, source: Source<S, keyof S>) => number;
+export declare const getTargetIndex: <S extends Schema>(ref: CanvasRef<S>, target: Target<S, keyof S>) => number;
+export declare function getSourcePosition<S extends Schema>(ref: CanvasRef<S>, source: Source<S, keyof S>): [number, number];
+export declare function getTargetPosition<S extends Schema>(ref: CanvasRef<S>, target: Target<S, keyof S>): [number, number];
 export declare const getPortOffsetY: (index: number) => number;
 export declare type DropTarget<S extends Schema> = {
     x: number;
     y: number;
     target: Target<S, keyof S>;
 };
-export declare const getX: <S extends Record<string, {
-    value: any;
-    inputs: string;
-    outputs: string;
-}>>({ x }: DropTarget<S>) => number;
-export declare const getY: <S extends Record<string, {
-    value: any;
-    inputs: string;
-    outputs: string;
-}>>({ y }: DropTarget<S>) => number;
-export declare function getTargets<S extends Schema>(ref: CanvasRef<S>, sourceId: number): import("d3-quadtree").Quadtree<DropTarget<S>>;
+export declare const getX: <S extends Schema>({ x }: DropTarget<S>) => number;
+export declare const getY: <S extends Schema>({ y }: DropTarget<S>) => number;
+export declare function getTargets<S extends Schema>(ref: CanvasRef<S>, sourceId: string): import("d3-quadtree").Quadtree<DropTarget<S>>;
 export declare const snap: ([x, y]: [number, number], unit: number, [X, Y]: [number, number]) => Position;
-export declare const defaultCanvasUnit = 72;
-export interface EditorContextValue {
-    unit: number;
-    dimensions: [number, number];
-}
-export declare const EditorContext: import("react").Context<EditorContextValue>;
-export interface CanvasContextValue {
-    observer: ResizeObserver;
-}
-export declare const CanvasContext: import("react").Context<CanvasContextValue>;
+export declare const defaultCanvasUnit = 52;
+export declare const defaultCanvasDimensions: [number, number];

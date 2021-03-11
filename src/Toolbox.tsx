@@ -1,21 +1,21 @@
-import React from "react"
+import React, { memo } from "react"
 import { useDrag } from "react-dnd"
 
 import { Blocks, Schema } from "./interfaces.js"
 import { defaultBackgroundColor, defaultBorderColor } from "./styles.js"
 import { portMargin, portRadius } from "./utils.js"
 
-const portStyle: React.CSSProperties = {
-	display: "flex",
-	justifyContent: "center",
-	alignItems: "center",
-	width: portRadius * 2,
-	height: portRadius * 2,
-	borderRadius: portRadius,
-	border: `1px solid ${defaultBorderColor}`,
-	backgroundColor: defaultBackgroundColor,
-	boxSizing: "border-box",
-}
+// const portStyle: React.CSSProperties = {
+// 	display: "flex",
+// 	justifyContent: "center",
+// 	alignItems: "center",
+// 	width: portRadius * 2,
+// 	height: portRadius * 2,
+// 	borderRadius: portRadius,
+// 	border: `1px solid ${defaultBorderColor}`,
+// 	backgroundColor: defaultBackgroundColor,
+// 	boxSizing: "border-box",
+// }
 
 export interface AbstractBlockViewProps<S extends Schema> {
 	kind: keyof S
@@ -60,7 +60,7 @@ export interface ToolboxProps<S extends Schema> {
 	blocks: Blocks<S>
 }
 
-export function Toolbox<S extends Schema>({ blocks }: ToolboxProps<S>) {
+function renderToolbox<S extends Schema>({ blocks }: ToolboxProps<S>) {
 	return (
 		<div style={{ display: "flex" }} className="toolbox">
 			{Object.keys(blocks).map((key) => {
@@ -70,3 +70,5 @@ export function Toolbox<S extends Schema>({ blocks }: ToolboxProps<S>) {
 		</div>
 	)
 }
+
+export const Toolbox = memo(renderToolbox)

@@ -1,4 +1,5 @@
 import React from "react"
+
 import { Blocks, Node, Schema } from "./interfaces.js"
 
 export const defaultBackgroundColor = "lightgray"

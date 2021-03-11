@@ -18,7 +18,7 @@ import { defaultBackgroundColor, defaultBorderColor } from "./styles.js"
 export type Input<S extends Schema> = {
 	index: number
 	target: Target<S, keyof S>
-	value: number
+	value: string
 }
 
 type InputDragSubject<S extends Schema> = {
@@ -26,7 +26,6 @@ type InputDragSubject<S extends Schema> = {
 	y: number
 	sourcePosition: [number, number]
 	targets: Quadtree<DropTarget<S>>
-	preview: Selection<SVGGElement, unknown, null, undefined>
 	edge: Selection<SVGGElement, unknown, null, undefined>
 }
 
@@ -43,31 +42,30 @@ const inputDragBehavior = <S extends Schema>(
 		.on("start", function onStart(event: InputDragEvent<S>) {
 			this.classList.add("hidden")
 			event.subject.edge.classed("hidden", true)
-			event.subject.preview.call(startPreview, event.subject.sourcePosition, [
-				event.subject.x,
-				event.subject.y,
-			])
+			const sourcePosition = event.subject.sourcePosition
+			const targetPosition = [event.subject.x, event.subject.y]
+			ref.preview.call(startPreview, sourcePosition, targetPosition)
 		})
 		.on("drag", function onDrag(event: InputDragEvent<S>) {
-			const { targets, sourcePosition, preview } = event.subject
+			const { targets, sourcePosition } = event.subject
 			const result = targets.find(event.x, event.y, 2 * portRadius)
 			if (result !== undefined) {
 				const targetPosition = [result.x, result.y]
-				preview.call(updatePreview, sourcePosition, targetPosition, true)
+				ref.preview.call(updatePreview, sourcePosition, targetPosition, true)
 			} else {
 				const targetPosition = [event.x, event.y]
-				preview.call(updatePreview, sourcePosition, targetPosition, false)
+				ref.preview.call(updatePreview, sourcePosition, targetPosition, false)
 			}
 		})
 		.on(
 			"end",
 			function onEnd(
-				{ x, y, subject: { targets, preview, edge } }: InputDragEvent<S>,
+				{ x, y, subject: { targets, edge } }: InputDragEvent<S>,
 				{ value, target: { id: fromId, input: fromInput } }: Input<S>
 			) {
 				this.classList.remove("hidden")
 				edge.classed("hidden", false)
-				preview.call(stopPreview, false)
+				ref.preview.call(stopPreview, false)
 				const result = targets.find(x, y, 2 * portRadius)
 				if (result !== undefined) {
 					const { target } = result
@@ -84,21 +82,17 @@ const inputDragBehavior = <S extends Schema>(
 			{}: InputDragSubject<S>,
 			{ target: { id: targetId, input }, value }: Input<S>
 		): InputDragSubject<S> {
-			const e = ref.edges.get(value)!
+			const { source, target } = ref.graph.edges[value]
 
-			const sourcePosition = getSourcePosition(ref, e)
-			const [x, y] = getTargetPosition(ref, e)
+			const sourcePosition = getSourcePosition(ref, source)
+			const [x, y] = getTargetPosition(ref, target)
 
-			const { id: sourceId } = e.source
-			const targets = getTargets(ref, sourceId)
+			const targets = getTargets(ref, source.id)
 			targets.add({ x, y, target: { id: targetId, input } })
 
-			const preview = ref.svg.select<SVGGElement>("g.preview")
-			const edge = ref.svg.select<SVGGElement>(
-				`g.edges > g.edge[data-id="${value}"]`
-			)
+			const edge = ref.edges.select<SVGGElement>(`g.edge[data-id="${value}"]`)
 
-			return { targets, x, y, sourcePosition, preview, edge }
+			return { targets, x, y, sourcePosition, edge }
 		}) as any
 
 const getInputKey = <S extends Schema>({
@@ -113,7 +107,7 @@ export const updateInputPorts = <S extends Schema>(ref: CanvasRef<S>) => (
 		.data<Input<S>>((node: Node<S>): Input<S>[] => {
 			const inputs: Input<S>[] = []
 			for (const [index, input] of forInputs(ref.blocks, node.kind)) {
-				const value: null | number = node.inputs[input]
+				const value: null | string = node.inputs[input]
 				if (value !== null) {
 					inputs.push({ index, target: { id: node.id, input }, value })
 				}

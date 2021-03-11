@@ -1,6 +1,7 @@
+import { nanoid } from "nanoid"
 import {
 	initialEditorState,
-	EditorState,
+	Graph,
 	Blocks,
 	Schema,
 	forInputs,
@@ -8,54 +9,45 @@ import {
 	Node,
 	GetInputs,
 	GetOutputs,
-	ID,
 	Position,
 } from "../interfaces.js"
 
 import { EditorAction } from "./actions.js"
 
-export const rootReducer = <S extends Schema>(
+export const makeReducer = <S extends Schema>(
 	blocks: Blocks<S>,
-	initialState: EditorState<S> = initialEditorState()
-) => (
-	state: EditorState<S> = initialState,
-	action: EditorAction<S>
-): EditorState<S> => {
-	if (action.type === "node/update") {
-		const { id, value } = action
-		const nodes = new Map(state.nodes)
-		const node = nodes.get(id)!
-		nodes.set(id, { ...node, value })
-		return { ...state, nodes }
-	} else if (action.type === "node/create") {
+	initialState: Graph<S> = initialEditorState()
+) => (state: Graph<S> = initialState, action: EditorAction<S>): Graph<S> => {
+	if (action.type === "node/create") {
 		const { kind, position } = action
-		const nodes = new Map(state.nodes)
-		nodes.set(state.id, createInitialNode(blocks, kind, position, state.id))
-		return { ...state, id: state.id + 1, nodes }
+		const nodes = { ...state.nodes }
+		const id = nanoid(10)
+		nodes[id] = createInitialNode(blocks, id, kind, position)
+		return { ...state, nodes }
 	} else if (action.type === "node/move") {
 		const { id, position } = action
-		const nodes = new Map(state.nodes)
-		nodes.set(id, { ...nodes.get(id)!, position })
+		const node = { ...state.nodes[id], position }
+		const nodes = { ...state.nodes, [id]: node }
 		return { ...state, nodes }
 	} else if (action.type === "node/delete") {
 		const { id } = action
-		const { kind, inputs, outputs } = state.nodes.get(id)!
-		const nodes = new Map(state.nodes)
-		const edges = new Map(state.edges)
+		const { kind, inputs, outputs } = state.nodes[id]
+		const nodes = { ...state.nodes }
+		const edges = { ...state.edges }
 		for (const [_, input] of forInputs(blocks, kind)) {
-			const edgeId: null | number = inputs[input]
+			const edgeId: null | string = inputs[input]
 			if (edgeId !== null) {
 				const {
 					source: { id: sourceId, output },
-				} = edges.get(edgeId)!
-				edges.delete(edgeId)
-				const source = nodes.get(sourceId)!
+				} = edges[edgeId]
+				delete edges[edgeId]
+				const source = nodes[sourceId]
 				const outputs = new Set(source.outputs[output])
 				outputs.delete(edgeId)
-				nodes.set(sourceId, {
+				nodes[sourceId] = {
 					...source,
 					outputs: { ...source.outputs, [output]: outputs },
-				})
+				}
 			}
 		}
 
@@ -63,107 +55,108 @@ export const rootReducer = <S extends Schema>(
 			for (const edgeId of outputs[output]) {
 				const {
 					target: { id: targetId, input },
-				} = edges.get(edgeId)!
-				edges.delete(edgeId)
-				const target = nodes.get(targetId)!
-				nodes.set(targetId, {
+				} = edges[edgeId]
+				delete edges[edgeId]
+				const target = nodes[targetId]
+				nodes[targetId] = {
 					...target,
 					inputs: { ...target.inputs, [input]: null },
-				})
+				}
 			}
 		}
 
-		nodes.delete(id)
-		return { ...state, nodes, edges }
+		delete nodes[id]
+		return { nodes, edges }
 	} else if (action.type === "edge/create") {
 		const { source, target } = action
-		const edges = new Map(state.edges)
-		edges.set(state.id, { id: state.id, source, target })
+		const edges = { ...state.edges }
+		const id = nanoid(10)
 
-		const nodes = new Map(state.nodes)
+		edges[id] = { id, source, target }
+
+		const nodes = { ...state.nodes }
 
 		const { id: sourceId, output } = source
-		const sourceNode = nodes.get(sourceId)!
+		const sourceNode = nodes[sourceId]
 		const sourceOutput = new Set(sourceNode.outputs[output])
-		sourceOutput.add(state.id)
-		nodes.set(sourceId, {
+		sourceOutput.add(id)
+		nodes[sourceId] = {
 			...sourceNode,
 			outputs: { ...sourceNode.outputs, [output]: sourceOutput },
-		})
+		}
 
 		const { id: targetId, input } = target
-		const targetNode = nodes.get(targetId)!
-		nodes.set(targetId, {
+		const targetNode = nodes[targetId]
+		nodes[targetId] = {
 			...targetNode,
-			inputs: { ...targetNode.inputs, [input]: state.id },
-		})
+			inputs: { ...targetNode.inputs, [input]: id },
+		}
 
-		return { ...state, id: state.id + 1, edges, nodes }
+		return { edges, nodes }
 	} else if (action.type === "edge/move") {
 		const { id, target } = action
-		const edges = new Map(state.edges)
-		const edge = edges.get(id)!
+		const edges = { ...state.edges }
+		const edge = edges[id]
 		const { id: fromNodeId, input: fromInput } = edge.target
 
-		const nodes = new Map(state.nodes)
-		const fromNode = nodes.get(fromNodeId)!
-		nodes.set(fromNodeId, {
+		const nodes = { ...state.nodes }
+		const fromNode = nodes[fromNodeId]
+		nodes[fromNodeId] = {
 			...fromNode,
 			inputs: { ...fromNode.inputs, [fromInput]: null },
-		})
+		}
 
 		const { id: toId, input: toInput } = target
-		const toNode = nodes.get(toId)!
-		nodes.set(toId, { ...toNode, inputs: { ...toNode.inputs, [toInput]: id } })
+		const toNode = nodes[toId]
+		nodes[toId] = { ...toNode, inputs: { ...toNode.inputs, [toInput]: id } }
 
-		edges.set(id, { ...edge, target })
+		edges[id] = { ...edge, target }
 
 		return { ...state, edges, nodes }
 	} else if (action.type === "edge/delete") {
 		const { id } = action
-		const edges = new Map(state.edges)
-		const edge = edges.get(id)!
+		const edges = { ...state.edges }
+		const edge = edges[id]
 
-		const nodes = new Map(state.nodes)
+		const nodes = { ...state.nodes }
 
 		const { id: sourceId, output } = edge.source
-		const sourceNode = nodes.get(sourceId)!
+		const sourceNode = nodes[sourceId]
 		const sourceOutput = new Set(sourceNode.outputs[output])
 		sourceOutput.delete(id)
-		nodes.set(sourceId, {
+		nodes[sourceId] = {
 			...sourceNode,
 			outputs: { ...sourceNode.outputs, [output]: sourceOutput },
-		})
+		}
 
 		const { id: targetId, input } = edge.target
-		const targetNode = nodes.get(targetId)!
-		nodes.set(targetId, {
+		const targetNode = nodes[targetId]
+		nodes[targetId] = {
 			...targetNode,
 			inputs: { ...targetNode.inputs, [input]: null },
-		})
+		}
 
-		edges.delete(id)
-		return { ...state, edges, nodes }
+		delete edges[id]
+		return { edges, nodes }
 	} else {
+		console.error("Invalid action", action)
 		return state
 	}
 }
 
 function createInitialNode<S extends Schema, K extends keyof S>(
 	blocks: Blocks<S>,
+	id: string,
 	kind: K,
-	position: Position,
-	id: number
+	position: Position
 ): Node<S> {
 	const inputs = Object.fromEntries(
 		Object.keys(blocks[kind].inputs).map((input) => [input, null])
-	) as Record<GetInputs<S, K>, null | ID>
+	) as Record<GetInputs<S, K>, null | string>
 
 	const outputs = Object.fromEntries(
 		Object.keys(blocks[kind].outputs).map((output) => [output, new Set()])
-	) as Record<GetOutputs<S, K>, Set<ID>>
+	) as Record<GetOutputs<S, K>, Set<string>>
 
-	const value = blocks[kind].initialValue
-
-	return { id, kind, position, inputs, outputs, value }
+	return { id, kind, position, inputs, outputs }
 }

@@ -6,19 +6,24 @@ import { CanvasRef, GetOutputs, Node, Schema, Source } from "./interfaces.js"
 import { startPreview, stopPreview, updatePreview } from "./preview.js"
 import * as actions from "./redux/actions.js"
 import { defaultBackgroundColor, defaultBorderColor } from "./styles.js"
-import { getPortOffsetY, getTargets, portRadius, DropTarget } from "./utils.js"
+import {
+	getPortOffsetY,
+	getTargets,
+	portRadius,
+	DropTarget,
+	blockWidth,
+} from "./utils.js"
 
 export type Output<S extends Schema> = {
 	index: number
 	source: Source<S, keyof S>
-	value: Set<number>
+	value: Set<string>
 }
 
 type OutputDragSubject<S extends Schema> = {
 	x: number
 	y: number
 	targets: Quadtree<DropTarget<S>>
-	preview: Selection<SVGGElement, unknown, null, undefined>
 }
 
 type OutputDragEvent<S extends Schema> = D3DragEvent<
@@ -33,23 +38,23 @@ const outputDragBehavior = <S extends Schema>(
 	drag<SVGCircleElement, Output<S>>()
 		.on("start", function onStart(event: OutputDragEvent<S>) {
 			this.classList.add("dragging")
-			const { x, y, preview } = event.subject
-			preview.call(startPreview, [x, y], [x, y])
+			const { x, y } = event.subject
+			ref.preview.call(startPreview, [x, y], [x, y])
 		})
 		.on("drag", function onDrag(event: OutputDragEvent<S>) {
-			const { x, y, targets, preview } = event.subject
+			const { x, y, targets } = event.subject
 			const source = [x, y]
 			const result = targets.find(event.x, event.y, 2 * portRadius)
 			const target =
 				result !== undefined ? [result.x, result.y] : [event.x, event.y]
-			preview.call(updatePreview, source, target, result !== undefined)
+			ref.preview.call(updatePreview, source, target, result !== undefined)
 		})
 		.on(
 			"end",
 			function onEnd(event: OutputDragEvent<S>, { source }: Output<S>) {
 				this.classList.remove("dragging")
-				const { targets, preview } = event.subject
-				preview.call(stopPreview, false)
+				const { targets } = event.subject
+				ref.preview.call(stopPreview, false)
 				const result = targets.find(event.x, event.y, 2 * portRadius)
 				if (result !== undefined) {
 					const { target } = result
@@ -63,18 +68,12 @@ const outputDragBehavior = <S extends Schema>(
 		): OutputDragSubject<S> {
 			const {
 				position: { x, y },
-			} = ref.nodes.get(id)!
-
-			const [width] = ref.contentDimensions.get(id)!
-			const offsetX = width + 2 * portRadius
-
-			const preview = ref.svg.select<SVGGElement>("g.preview")
+			} = ref.graph.nodes[id]
 
 			return {
 				targets: getTargets(ref, id),
-				x: x * ref.unit + offsetX,
+				x: x * ref.unit + blockWidth,
 				y: y * ref.unit + getPortOffsetY(index),
-				preview,
 			}
 		}) as any
 

@@ -2,11 +2,7 @@ import React from "react";
 import { Blocks, Node, Schema } from "./interfaces.js";
 export declare const defaultBackgroundColor = "lightgray";
 export declare const defaultBorderColor = "dimgray";
-export declare const getBackgroundColor: <S extends Record<string, {
-    value: any;
-    inputs: string;
-    outputs: string;
-}>>(blocks: Blocks<S>) => ({ kind, }: Node<S, keyof S>) => string;
+export declare const getBackgroundColor: <S extends Schema>(blocks: Blocks<S>) => ({ kind, }: Node<S, keyof S>) => string;
 export declare const defaultBlockHeaderStyle: React.CSSProperties;
 export declare type getEditorStyle = (ctx: {
     unit: number;

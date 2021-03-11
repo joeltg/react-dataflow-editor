@@ -1,53 +1,44 @@
-import React, { useMemo } from "react"
-
-import { createStore } from "redux"
-import { Provider as StoreProvider } from "react-redux"
+import React from "react"
 
 import { DndProvider } from "react-dnd"
 import { HTML5Backend } from "react-dnd-html5-backend"
 
 import { Toolbox } from "./Toolbox.js"
-
-import { Edge, Node, Blocks, EditorState, Schema } from "./interfaces.js"
-import { defaultCanvasUnit, EditorContext } from "./utils.js"
-
-import { rootReducer } from "./redux/reducers.js"
-
 import { Canvas } from "./Canvas.js"
+
+import { Blocks, Graph, Schema } from "./interfaces.js"
+import { EditorAction } from "./redux/actions.js"
+import { defaultCanvasUnit, defaultCanvasDimensions } from "./utils.js"
 
 export interface EditorProps<S extends Schema> {
 	unit?: number
-	dimensions: [number, number]
+	dimensions?: [number, number]
 	blocks: Blocks<S>
-	initialState?: EditorState<S>
-	onChange: (nodes: Map<number, Node<S>>, edges: Map<number, Edge<S>>) => void
+	graph: Graph<S>
+	dispatch: (action: EditorAction<S>) => void
+	onFocus: (id: string | null) => void
 }
 
 export function Editor<S extends Schema>({
 	unit = defaultCanvasUnit,
-	dimensions,
-	blocks,
-	initialState,
-	onChange,
+	dimensions = defaultCanvasDimensions,
+	...props
 }: EditorProps<S>) {
-	const store = useMemo(
-		() => createStore(rootReducer(blocks, initialState)),
-		[]
-	)
-
 	return (
-		<EditorContext.Provider value={{ unit, dimensions }}>
-			<StoreProvider store={store}>
-				<DndProvider backend={HTML5Backend}>
-					<div
-						className="editor"
-						style={{ display: "flex", flexDirection: "column" }}
-					>
-						<Toolbox blocks={blocks} />
-						<Canvas blocks={blocks} onChange={onChange} />
-					</div>
-				</DndProvider>
-			</StoreProvider>
-		</EditorContext.Provider>
+		<DndProvider backend={HTML5Backend}>
+			<div
+				className="editor"
+				style={{ display: "flex", flexDirection: "column" }}
+			>
+				<Toolbox blocks={props.blocks} />
+				<Canvas
+					unit={unit}
+					dimensions={dimensions}
+					blocks={props.blocks}
+					graph={props.graph}
+					dispatch={props.dispatch}
+				/>
+			</div>
+		</DndProvider>
 	)
 }

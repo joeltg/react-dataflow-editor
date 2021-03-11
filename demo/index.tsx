@@ -1,59 +1,31 @@
-import React, { useCallback, useState } from "react"
+import React, { useCallback, useMemo, useRef, useState } from "react"
 import ReactDOM from "react-dom"
 
 import {
 	Editor,
-	Edge,
 	Factory,
-	EditorState,
+	Graph,
 	Schema,
-	Node,
 	Blocks,
 	GetSchema,
+	makeReducer,
+	EditorAction,
 } from ".."
 
 const main = document.querySelector("main")
 
 const blocks = {
 	source: Factory.block({
-		name: "Title",
+		name: "Collection Export",
 		inputs: { a: null, b: null },
 		outputs: { outA: null, outB: null },
-		initialValue: { foo: "cool" },
 		backgroundColor: "lavender",
-		component(props) {
-			return (
-				<>
-					<h2>Hello</h2>
-					<div>neat {props.value.foo}</div>
-					<textarea></textarea>
-				</>
-			)
-		},
 	}),
 	fdjsalfj: Factory.block({
-		name: "ANOTHER BOX",
+		name: "CSV Import",
 		inputs: { a: null },
 		outputs: { outA: null, outB: null, outC: null },
-		initialValue: { checked: false, counter: 0 },
 		backgroundColor: "darksalmon",
-		component(props) {
-			return (
-				<>
-					<input
-						type="checkbox"
-						checked={props.value.checked}
-						onChange={({ target: { checked } }) =>
-							props.setValue({ ...props.value, checked })
-						}
-					/>
-					<select>
-						<option>Hello</option>
-						<option>World</option>
-					</select>
-				</>
-			)
-		},
 	}),
 }
 
@@ -62,27 +34,30 @@ function Index<S extends Schema>({
 	initialState,
 }: {
 	blocks: Blocks<S>
-	initialState: EditorState<S>
+	initialState: Graph<S>
 }) {
-	const [nodes, setNodes] = useState(new Map<number, Node<S>>())
+	const [graph, setGraph] = useState(initialState)
 
-	const [edges, setEdges] = useState(new Map<number, Edge<S>>())
+	const graphRef = useRef<Graph<S>>(graph)
+	graphRef.current = graph
 
-	const handleChange = useCallback(
-		(nodes: Map<number, Node<S>>, edges: Map<number, Edge<S>>) => {
-			setNodes(nodes)
-			setEdges(edges)
-		},
+	const reducer = useMemo(() => makeReducer(blocks, initialState), [])
+	const dispatch = useCallback(
+		(action: EditorAction<S>) => setGraph(reducer(graphRef.current, action)),
+		[]
+	)
+
+	const handleFocus = useCallback(
+		(id: null | string) => console.log("focus", id),
 		[]
 	)
 
 	return (
 		<Editor<S>
-			dimensions={[12, 12]}
-			unit={54}
 			blocks={blocks}
-			onChange={handleChange}
-			initialState={initialState}
+			graph={graph}
+			onFocus={handleFocus}
+			dispatch={dispatch}
 		/>
 	)
 }
@@ -93,21 +68,16 @@ ReactDOM.render(
 	<Index<S>
 		blocks={blocks}
 		initialState={{
-			nodes: new Map([
-				[
-					0,
-					{
-						id: 0,
-						kind: "fdjsalfj",
-						position: { x: 1, y: 1 },
-						value: { checked: true, counter: 9 },
-						inputs: { a: null },
-						outputs: { outA: new Set(), outB: new Set(), outC: new Set() },
-					},
-				],
-			]),
-			edges: new Map(),
-			id: 1,
+			nodes: {
+				a: {
+					id: "a",
+					kind: "fdjsalfj",
+					position: { x: 1, y: 1 },
+					inputs: { a: null },
+					outputs: { outA: new Set(), outB: new Set(), outC: new Set() },
+				},
+			},
+			edges: {},
 		}}
 	/>,
 	main

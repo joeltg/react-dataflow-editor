@@ -1,16 +1,15 @@
 import { quadtree } from "d3-quadtree"
-import { createContext } from "react"
+
 import {
 	CanvasRef,
-	Edge,
 	Schema,
 	forInputs,
 	Target,
 	Position,
-} from "./interfaces"
+	Source,
+} from "./interfaces.js"
 
-export const blockMarginX = 4
-export const blockMarginY = 2
+export const blockWidth = 144
 
 export const portRadius = 12
 export const portMargin = 12
@@ -34,36 +33,48 @@ export function makeClipPath(
 	return path.join(" ")
 }
 
-export const minWidth = portHeight
-export const minHeight = portHeight
-
-export const getKey = ({ id }: { id: number }) => id.toString()
+export const getKey = ({ id }: { id: string }) => id
 
 export const toTranslate = (x: number, y: number) => `translate(${x}, ${y})`
 
+export const getSourceIndex = <S extends Schema>(
+	ref: CanvasRef<S>,
+	source: Source<S, keyof S>
+) => {
+	const { kind } = ref.graph.nodes[source.id]
+	const keys = Object.keys(ref.blocks[kind].outputs)
+	return keys.indexOf(source.output as string)
+}
+
+export const getTargetIndex = <S extends Schema>(
+	ref: CanvasRef<S>,
+	target: Target<S, keyof S>
+) => {
+	const { kind } = ref.graph.nodes[target.id]
+	const keys = Object.keys(ref.blocks[kind].inputs)
+	return keys.indexOf(target.input as string)
+}
+
 export function getSourcePosition<S extends Schema>(
 	ref: CanvasRef<S>,
-	{ source: { id, output } }: Edge<S>
+	source: Source<S, keyof S>
 ): [number, number] {
 	const {
-		kind,
 		position: { x, y },
-	} = ref.nodes.get(id)!
-	const index = Object.keys(ref.blocks[kind].outputs).indexOf(output as string)
+	} = ref.graph.nodes[source.id]
+	const index = getSourceIndex(ref, source)
 	const offsetY = getPortOffsetY(index)
-	const [offsetX] = ref.contentDimensions.get(id)!
-	return [x * ref.unit + offsetX + 2 * portRadius, y * ref.unit + offsetY]
+	return [x * ref.unit + blockWidth, y * ref.unit + offsetY]
 }
 
 export function getTargetPosition<S extends Schema>(
 	ref: CanvasRef<S>,
-	{ target: { id, input } }: Edge<S>
+	target: Target<S, keyof S>
 ): [number, number] {
 	const {
-		kind,
 		position: { x, y },
-	} = ref.nodes.get(id)!
-	const index = Object.keys(ref.blocks[kind].inputs).indexOf(input as string)
+	} = ref.graph.nodes[target.id]
+	const index = getTargetIndex(ref, target)
 	const offsetY = getPortOffsetY(index)
 	return [x * ref.unit, y * ref.unit + offsetY]
 }
@@ -82,10 +93,10 @@ export const getY = <S extends Schema>({ y }: DropTarget<S>) => y
 
 export function getTargets<S extends Schema>(
 	ref: CanvasRef<S>,
-	sourceId: number
+	sourceId: string
 ) {
 	const targets: DropTarget<S>[] = []
-	for (const node of ref.nodes.values()) {
+	for (const node of Object.values(ref.graph.nodes)) {
 		if (node.id === sourceId) {
 			continue
 		} else {
@@ -114,22 +125,5 @@ export const snap = (
 	y: Math.min(Y - 1, Math.max(0, Math.round(y / unit))),
 })
 
-export const defaultCanvasUnit = 72
-
-export interface EditorContextValue {
-	unit: number
-	dimensions: [number, number]
-}
-
-export const EditorContext = createContext<EditorContextValue>({
-	unit: defaultCanvasUnit,
-	dimensions: [12, 8],
-})
-
-export interface CanvasContextValue {
-	observer: ResizeObserver
-}
-
-export const CanvasContext = createContext<CanvasContextValue>({
-	observer: new ResizeObserver(() => {}),
-})
+export const defaultCanvasUnit = 52
+export const defaultCanvasDimensions: [number, number] = [12, 12]

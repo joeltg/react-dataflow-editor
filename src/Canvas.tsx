@@ -1,15 +1,10 @@
 import React, {
 	useCallback,
 	useContext,
-	useEffect,
 	useLayoutEffect,
 	useMemo,
 	useRef,
-	useState,
 } from "react"
-
-import { useDispatch, useSelector } from "react-redux"
-import { Dispatch } from "redux"
 
 import { useDrop } from "react-dnd"
 
@@ -17,21 +12,12 @@ import { select } from "d3-selection"
 
 import * as actions from "./redux/actions.js"
 
-import {
-	EditorState,
-	CanvasRef,
-	Blocks,
-	Node,
-	Edge,
-	Schema,
-} from "./interfaces.js"
-
-import { Portal, PortalProps } from "./Portal.js"
+import { Graph, CanvasRef, Blocks, Schema } from "./interfaces.js"
 
 import { attachPreview } from "./preview.js"
-import { updateNodes, handleResize } from "./nodes.js"
+import { updateNodes } from "./nodes.js"
 import { updateEdges } from "./edges.js"
-import { CanvasContext, EditorContext, snap } from "./utils.js"
+import { snap } from "./utils.js"
 import {
 	defaultBackgroundColor,
 	defaultBorderColor,
@@ -39,12 +25,11 @@ import {
 } from "./styles.js"
 
 const SVG_STYLE = `
-g.node > foreignObject { overflow: visible }
-g.node > g.frame circle.port { cursor: grab }
-g.node > g.frame circle.port.hidden { display: none }
-g.node > g.frame > g.outputs > circle.port.dragging { cursor: grabbing }
+g.node circle.port { cursor: grab }
+g.node circle.port.hidden { display: none }
+g.node > g.outputs > circle.port.dragging { cursor: grabbing }
 
-g.node:focus > g.frame > path { stroke-width: 3 }
+g.node:focus > path { stroke-width: 3 }
 
 g.edge.hidden { display: none }
 g.edge > path.curve {
@@ -68,52 +53,46 @@ g.preview > circle {
 `
 
 export interface CanvasProps<S extends Schema> {
+	unit: number
+	dimensions: [number, number]
 	blocks: Blocks<S>
-	onChange: (nodes: Map<number, Node<S>>, edges: Map<number, Edge<S>>) => void
+	graph: Graph<S>
+	dispatch: (action: actions.EditorAction<S>) => void
 }
 
-export function Canvas<S extends Schema>({ blocks, onChange }: CanvasProps<S>) {
-	const dispatch = useDispatch<Dispatch<actions.EditorAction<S>>>()
-
-	const nodes = useSelector(({ nodes }: EditorState<S>) => nodes)
-	const edges = useSelector(({ edges }: EditorState<S>) => edges)
-
-	const { unit, dimensions } = useContext(EditorContext)
-	const [X, Y] = dimensions
-
-	const observer = useMemo(
-		() =>
-			new ResizeObserver((entries) => {
-				handleResize(ref, entries)
-			}),
+export function Canvas<S extends Schema>(props: CanvasProps<S>) {
+	const ref = useMemo<CanvasRef<S>>(
+		() => ({
+			nodes: select<SVGGElement | null, unknown>(null),
+			edges: select<SVGGElement | null, unknown>(null),
+			preview: select<SVGGElement | null, unknown>(null),
+			canvasDimensions: [0, 0],
+			unit: props.unit,
+			dimensions: props.dimensions,
+			blocks: props.blocks,
+			graph: props.graph,
+			dispatch: props.dispatch,
+		}),
 		[]
 	)
 
-	const ref = useMemo<CanvasRef<S>>(
-		() => ({
-			svg: select<SVGSVGElement | null, unknown>(null),
-			contentDimensions: new Map(),
-			canvasDimensions: [0, 0],
-			unit,
-			dimensions: [X, Y],
-			blocks: blocks,
-			nodes,
-			edges,
-			dispatch,
-		}),
-		[unit, X, Y, blocks, dispatch]
-	)
+	ref.graph = props.graph
 
-	ref.nodes = nodes
-	ref.edges = edges
-
-	useEffect(() => onChange(nodes, edges), [nodes, edges])
+	const [X, Y] = props.dimensions
 
 	const svgRef = useRef<SVGSVGElement | null>(null)
-	const attachSVG = useCallback((svg: SVGSVGElement) => {
-		svgRef.current = svg
-		ref.svg = select<SVGSVGElement | null, unknown>(svg)
-		ref.svg.select<SVGGElement>("g.preview").call(attachPreview)
+
+	const nodesRef = useCallback((nodes: SVGGElement) => {
+		ref.nodes = select<SVGGElement | null, unknown>(nodes)
+	}, [])
+
+	const edgesRef = useCallback((edges: SVGGElement) => {
+		ref.edges = select<SVGGElement | null, unknown>(edges)
+	}, [])
+
+	const previewRef = useCallback((preview: SVGGElement) => {
+		ref.preview = select<SVGGElement | null, unknown>(preview)
+		ref.preview.call(attachPreview)
 	}, [])
 
 	const update = useMemo(
@@ -121,58 +100,41 @@ export function Canvas<S extends Schema>({ blocks, onChange }: CanvasProps<S>) {
 		[]
 	)
 
-	const [portals, setPortals] = useState<PortalProps<S>[]>([])
-
-	useLayoutEffect(() => {
-		const portals: PortalProps<S>[] = []
-		// update.nodes().each(function (this: HTMLDivElement, { id }: Node<S>) {
-		// 	portals.push({ id, container: this, blocks })
-		// })
-		update.nodes().each(function (this: SVGGElement, { id }: Node<S>) {
-			const container = this.querySelector("foreignObject")
-			if (container !== null) {
-				portals.push({ id, container, blocks })
-			}
-		})
-		setPortals(portals)
-	}, [nodes])
-
-	useLayoutEffect(() => void update.edges(), [edges, nodes])
-
-	const height = unit * Y
+	useLayoutEffect(() => void update.nodes(), [props.graph.nodes])
+	useLayoutEffect(() => void update.edges(), [
+		props.graph.edges,
+		props.graph.nodes,
+	])
 
 	const [{}, drop] = useDrop<{ type: "block"; kind: keyof S }, void, {}>({
 		accept: ["block"],
 		drop({ kind }, monitor) {
 			const { x, y } = monitor.getSourceClientOffset()!
 			const { left, top } = svgRef.current!.getBoundingClientRect()
-			const position = snap([x - left, y - top], unit, dimensions)
-			dispatch(actions.createNode(kind, position))
+			const position = snap([x - left, y - top], props.unit, props.dimensions)
+			props.dispatch(actions.createNode(kind, position))
 		},
 	})
 
 	const style = useContext(StyleContext)
 
-	const svgStyle = useMemo(() => style.getSVGStyle({ unit }), [unit])
+	const svgStyle = useMemo(() => style.getSVGStyle(props), [props.unit])
+
+	const height = props.unit * Y
 
 	return (
-		<CanvasContext.Provider value={{ observer }}>
-			<div ref={drop} className="canvas" style={{ height }}>
-				<svg
-					ref={attachSVG}
-					xmlns="http://www.w3.org/2000/svg"
-					height={height}
-					style={svgStyle}
-				>
-					<style>{SVG_STYLE}</style>
-					<g className="edges"></g>
-					<g className="nodes"></g>
-					<g className="preview"></g>
-					{portals.map((props) => (
-						<Portal key={props.id} {...props} />
-					))}
-				</svg>
-			</div>
-		</CanvasContext.Provider>
+		<div ref={drop} className="canvas" style={{ height }}>
+			<svg
+				ref={svgRef}
+				xmlns="http://www.w3.org/2000/svg"
+				height={height}
+				style={svgStyle}
+			>
+				<style>{SVG_STYLE}</style>
+				<g className="edges" ref={edgesRef}></g>
+				<g className="nodes" ref={nodesRef}></g>
+				<g className="preview" ref={previewRef}></g>
+			</svg>
+		</div>
 	)
 }

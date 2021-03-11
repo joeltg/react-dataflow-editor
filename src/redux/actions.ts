@@ -1,35 +1,12 @@
-import {
-	GetValue,
-	ID,
-	Position,
-	Schema,
-	Source,
-	Target,
-} from "../interfaces.js"
+import { Position, Schema, Source, Target } from "../interfaces.js"
 
 export type EditorAction<S extends Schema> =
-	| UpdateNodeAction<S>
 	| CreateNodeAction<S>
 	| MoveNodeAction
 	| DeleteNodeAction
 	| CreateEdgeAction<S>
 	| MoveEdgeAction<S>
 	| DeleteEdgeAction
-
-export type UpdateNodeAction<S extends Schema> = {
-	type: "node/update"
-	id: ID
-	value: GetValue<S, keyof S>
-}
-
-export const updateNode = <S extends Schema>(
-	id: ID,
-	value: GetValue<S, keyof S>
-): UpdateNodeAction<S> => ({
-	type: "node/update",
-	id,
-	value,
-})
 
 export type CreateNodeAction<S extends Schema> = {
 	type: "node/create"
@@ -44,19 +21,19 @@ export const createNode = <S extends Schema>(
 
 export type MoveNodeAction = {
 	type: "node/move"
-	id: ID
+	id: string
 	position: Position
 }
 
-export const moveNode = (id: ID, position: Position): MoveNodeAction => ({
+export const moveNode = (id: string, position: Position): MoveNodeAction => ({
 	type: "node/move",
 	id,
 	position,
 })
 
-export type DeleteNodeAction = { type: "node/delete"; id: ID }
+export type DeleteNodeAction = { type: "node/delete"; id: string }
 
-export const deleteNode = (id: ID): DeleteNodeAction => ({
+export const deleteNode = (id: string): DeleteNodeAction => ({
 	type: "node/delete",
 	id,
 })
@@ -78,12 +55,12 @@ export const createEdge = <S extends Schema>(
 
 export type MoveEdgeAction<S extends Schema> = {
 	type: "edge/move"
-	id: ID
+	id: string
 	target: Target<S, keyof S>
 }
 
 export const moveEdge = <S extends Schema>(
-	id: ID,
+	id: string,
 	target: Target<S, keyof S>
 ): MoveEdgeAction<S> => ({
 	type: "edge/move",
@@ -91,9 +68,9 @@ export const moveEdge = <S extends Schema>(
 	target,
 })
 
-export type DeleteEdgeAction = { type: "edge/delete"; id: ID }
+export type DeleteEdgeAction = { type: "edge/delete"; id: string }
 
-export const deleteEdge = (id: ID): DeleteEdgeAction => ({
+export const deleteEdge = (id: string): DeleteEdgeAction => ({
 	type: "edge/delete",
 	id,
 })

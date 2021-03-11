@@ -4,25 +4,29 @@ import { CanvasRef, Edge, Schema } from "./interfaces.js"
 import { getKey, getSourcePosition, getTargetPosition } from "./utils.js"
 
 export const updateEdges = <S extends Schema>(ref: CanvasRef<S>) => {
-	function updateEdgePathPositions(this: SVGPathElement, edge: Edge<S>) {
-		const sourcePosition = getSourcePosition(ref, edge)
-		const targetPosition = getTargetPosition(ref, edge)
+	function updateEdgePathPositions(
+		this: SVGPathElement,
+		{ source, target }: Edge<S>
+	) {
+		const sourcePosition = getSourcePosition(ref, source)
+		const targetPosition = getTargetPosition(ref, target)
 		select(this).attr("d", makeCurvePath(sourcePosition, targetPosition))
 	}
 
-	return () =>
-		ref.svg
-			.select("g.edges")
+	return () => {
+		ref.edges
 			.selectAll<SVGGElement, Edge<S>>("g.edge")
-			.data<Edge<S>>(ref.edges.values(), getKey)
+			.data<Edge<S>>(Object.values(ref.graph.edges), getKey)
 			.join(
 				(enter) => {
 					const edges = enter
 						.append("g")
 						.classed("edge", true)
 						.attr("data-id", getKey)
+						.attr("data-source", ({ source: { id } }) => id)
+						.attr("data-target", ({ target: { id } }) => id)
 
-					const paths = edges
+					edges
 						.append("path")
 						.classed("curve", true)
 						.each(updateEdgePathPositions)
@@ -31,10 +35,11 @@ export const updateEdges = <S extends Schema>(ref: CanvasRef<S>) => {
 				},
 				(update) => {
 					update
-						.select<SVGPathElement>("g.edge > path")
+						.select<SVGPathElement>("path.curve")
 						.each(updateEdgePathPositions)
 					return update
 				},
 				(exit) => exit.remove()
 			)
+	}
 }
