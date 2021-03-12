@@ -1,6 +1,7 @@
 import React, {
 	useCallback,
 	useContext,
+	useEffect,
 	useLayoutEffect,
 	useMemo,
 	useRef,
@@ -54,21 +55,21 @@ g.preview > circle {
 
 export interface CanvasProps<S extends Schema> {
 	unit: number
-	dimensions: [number, number]
 	blocks: Blocks<S>
 	graph: Graph<S>
 	dispatch: (action: actions.EditorAction<S>) => void
 }
 
 export function Canvas<S extends Schema>(props: CanvasProps<S>) {
+	const dimensions = useRef<[number, number]>([Infinity, Infinity])
+
 	const ref = useMemo<CanvasRef<S>>(
 		() => ({
 			nodes: select<SVGGElement | null, unknown>(null),
 			edges: select<SVGGElement | null, unknown>(null),
 			preview: select<SVGGElement | null, unknown>(null),
-			canvasDimensions: [0, 0],
 			unit: props.unit,
-			dimensions: props.dimensions,
+			dimensions: dimensions.current,
 			blocks: props.blocks,
 			graph: props.graph,
 			dispatch: props.dispatch,
@@ -78,9 +79,23 @@ export function Canvas<S extends Schema>(props: CanvasProps<S>) {
 
 	ref.graph = props.graph
 
-	const [X, Y] = props.dimensions
-
 	const svgRef = useRef<SVGSVGElement | null>(null)
+
+	useEffect(() => {
+		const svg = svgRef.current
+		if (svg !== null) {
+			const observer = new ResizeObserver((entries: ResizeObserverEntry[]) => {
+				for (const entry of entries) {
+					if (entry.target === svg) {
+						const { width, height } = entry.contentRect
+						ref.dimensions = [width, height]
+					}
+				}
+			})
+			observer.observe(svg)
+			return () => observer.unobserve(svg)
+		}
+	}, [svgRef.current])
 
 	const nodesRef = useCallback((nodes: SVGGElement) => {
 		ref.nodes = select<SVGGElement | null, unknown>(nodes)
@@ -111,24 +126,38 @@ export function Canvas<S extends Schema>(props: CanvasProps<S>) {
 		drop({ kind }, monitor) {
 			const { x, y } = monitor.getSourceClientOffset()!
 			const { left, top } = svgRef.current!.getBoundingClientRect()
-			const position = snap([x - left, y - top], props.unit, props.dimensions)
+			const position = snap([x - left, y - top], props.unit, dimensions.current)
 			props.dispatch(actions.createNode(kind, position))
 		},
 	})
 
 	const style = useContext(StyleContext)
 
-	const svgStyle = useMemo(() => style.getSVGStyle(props), [props.unit])
+	const { svgStyle, canvasStyle } = useMemo(
+		() => ({
+			canvasStyle: style.getCanvasStyle(props),
+			svgStyle: style.getSVGStyle(props),
+		}),
+		[props.unit]
+	)
 
-	const height = props.unit * Y
+	const x = useMemo(
+		() =>
+			480 +
+			props.unit *
+				Object.values(props.graph.nodes).reduce(
+					(x, { position }) => Math.max(x, position.x),
+					0
+				),
+		[props.graph.nodes]
+	)
 
 	return (
-		<div ref={drop} className="canvas" style={{ height }}>
+		<div ref={drop} className="canvas" style={canvasStyle}>
 			<svg
 				ref={svgRef}
 				xmlns="http://www.w3.org/2000/svg"
-				height={height}
-				style={svgStyle}
+				style={{ ...svgStyle, minWidth: x }}
 			>
 				<style>{SVG_STYLE}</style>
 				<g className="edges" ref={edgesRef}></g>

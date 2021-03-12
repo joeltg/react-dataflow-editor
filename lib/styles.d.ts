@@ -9,10 +9,12 @@ export declare type getEditorStyle = (ctx: {
 }) => React.CSSProperties;
 export declare type getBlockStyle = <S extends Schema>(block: Blocks<S>[keyof S]) => React.CSSProperties;
 interface StyleContext {
+    getCanvasStyle: getEditorStyle;
     getSVGStyle: getEditorStyle;
     getBlockHeaderStyle: getBlockStyle;
     getBlockContentStyle: getBlockStyle;
 }
+export declare const defaultCanvasStyle: React.CSSProperties;
 export declare const defaultStyleContext: StyleContext;
 export declare const StyleContext: React.Context<StyleContext>;
 export {};

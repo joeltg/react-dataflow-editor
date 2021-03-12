@@ -33,7 +33,6 @@ export function Editor<S extends Schema>({
 				<Toolbox blocks={props.blocks} />
 				<Canvas
 					unit={unit}
-					dimensions={dimensions}
 					blocks={props.blocks}
 					graph={props.graph}
 					dispatch={props.dispatch}

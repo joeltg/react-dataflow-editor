@@ -95,11 +95,9 @@ export const initialEditorState = <S extends Schema>(): Graph<S> => ({
 })
 
 export interface CanvasRef<S extends Schema> {
-	// svg: Selection<SVGSVGElement | null, unknown, null, undefined>
 	nodes: Selection<SVGGElement | null, unknown, null, undefined>
 	edges: Selection<SVGGElement | null, unknown, null, undefined>
 	preview: Selection<SVGGElement | null, unknown, null, undefined>
-	canvasDimensions: [number, number]
 	graph: Graph<S>
 	unit: number
 	blocks: Blocks<S>

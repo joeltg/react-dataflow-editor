@@ -67,7 +67,6 @@ export interface CanvasRef<S extends Schema> {
     nodes: Selection<SVGGElement | null, unknown, null, undefined>;
     edges: Selection<SVGGElement | null, unknown, null, undefined>;
     preview: Selection<SVGGElement | null, unknown, null, undefined>;
-    canvasDimensions: [number, number];
     graph: Graph<S>;
     unit: number;
     blocks: Blocks<S>;

@@ -24,18 +24,28 @@ export type getBlockStyle = <S extends Schema>(
 ) => React.CSSProperties
 
 interface StyleContext {
+	getCanvasStyle: getEditorStyle
 	getSVGStyle: getEditorStyle
 	getBlockHeaderStyle: getBlockStyle
 	getBlockContentStyle: getBlockStyle
 }
 
+export const defaultCanvasStyle: React.CSSProperties = {
+	border: "1px solid dimgrey",
+	width: "100%",
+	overflowX: "scroll",
+}
+
 export const defaultStyleContext: StyleContext = {
+	getCanvasStyle: () => defaultCanvasStyle,
 	getSVGStyle: ({ unit }) => ({
 		backgroundImage:
 			"radial-gradient(circle, #000000 1px, rgba(0, 0, 0, 0) 1px)",
 		backgroundSize: `${unit}px ${unit}px`,
 		backgroundPositionX: `-${unit / 2}px`,
 		backgroundPositionY: `-${unit / 2}px`,
+		width: "100%",
+		height: 640,
 	}),
 	getBlockHeaderStyle: () => defaultBlockHeaderStyle,
 	getBlockContentStyle: (block) => ({
