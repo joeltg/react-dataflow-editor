@@ -9,8 +9,8 @@ import {
 	Source,
 } from "./interfaces.js"
 
-export const blockWidth = 144
-
+export const blockWidth = 156
+export const blockHeaderHeight = 24
 export const portRadius = 12
 export const portMargin = 12
 export const portHeight = portRadius * 2 + portMargin * 2
@@ -22,7 +22,7 @@ export function makeClipPath(
 	inputCount: number,
 	[width, height]: [number, number]
 ): string {
-	const path = ["M 0 0 V 0"]
+	const path = [`M 0 0 V ${blockHeaderHeight}`]
 
 	for (let i = 0; i < inputCount; i++) {
 		path.push(inputPort)
@@ -80,7 +80,7 @@ export function getTargetPosition<S extends Schema>(
 }
 
 export const getPortOffsetY = (index: number) =>
-	index * portHeight + portMargin + portRadius
+	blockHeaderHeight + index * portHeight + portMargin + portRadius
 
 export type DropTarget<S extends Schema> = {
 	x: number

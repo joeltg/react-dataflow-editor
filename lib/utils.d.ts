@@ -1,5 +1,6 @@
 import { CanvasRef, Schema, Target, Position, Source } from "./interfaces.js";
-export declare const blockWidth = 144;
+export declare const blockWidth = 156;
+export declare const blockHeaderHeight = 24;
 export declare const portRadius = 12;
 export declare const portMargin = 12;
 export declare const portHeight: number;

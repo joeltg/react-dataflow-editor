@@ -19,6 +19,7 @@ import {
 	portHeight,
 	getTargetIndex,
 	getSourceIndex,
+	blockHeaderHeight,
 } from "./utils.js"
 
 type BlockDragSubject<S extends Schema> = {
@@ -177,13 +178,27 @@ export const updateNodes = <S extends Schema>(ref: CanvasRef<S>) => {
 							const { length: outputCount } = Object.keys(outputs)
 
 							const w = blockWidth
-							const h = Math.max(
-								portHeight,
-								inputCount * portHeight,
-								outputCount * portHeight
-							)
+							const h =
+								blockHeaderHeight +
+								portHeight * Math.max(inputCount, outputCount)
 							return makeClipPath(inputCount, [w, h])
 						})
+
+					groups
+						.append("text")
+						.classed("title", true)
+						.attr("x", 8)
+						.attr("y", 18)
+						.attr("font-size", 16)
+						.text(({ kind }) => ref.blocks[kind].name)
+
+					groups
+						.append("line")
+						.attr("stroke", "dimgrey")
+						.attr("x1", 4)
+						.attr("y1", blockHeaderHeight)
+						.attr("x2", blockWidth - 4)
+						.attr("y2", blockHeaderHeight)
 
 					groups
 						.append("g")
