@@ -2,6 +2,7 @@ import { Position, Schema, Source, Target } from "../interfaces.js";
 export declare type EditorAction<S extends Schema> = CreateNodeAction<S> | MoveNodeAction | DeleteNodeAction | CreateEdgeAction<S> | MoveEdgeAction<S> | DeleteEdgeAction;
 export declare type CreateNodeAction<S extends Schema> = {
     type: "node/create";
+    id: string;
     kind: keyof S;
     position: Position;
 };
@@ -19,6 +20,7 @@ export declare type DeleteNodeAction = {
 export declare const deleteNode: (id: string) => DeleteNodeAction;
 export declare type CreateEdgeAction<S extends Schema> = {
     type: "edge/create";
+    id: string;
     source: Source<S, keyof S>;
     target: Target<S, keyof S>;
 };

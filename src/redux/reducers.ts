@@ -19,9 +19,8 @@ export const makeReducer = <S extends Schema>(
 	initialState: Graph<S> = initialEditorState()
 ) => (state: Graph<S> = initialState, action: EditorAction<S>): Graph<S> => {
 	if (action.type === "node/create") {
-		const { kind, position } = action
+		const { id, kind, position } = action
 		const nodes = { ...state.nodes }
-		const id = nanoid(10)
 		nodes[id] = createInitialNode(blocks, id, kind, position)
 		return { ...state, nodes }
 	} else if (action.type === "node/move") {
@@ -68,9 +67,8 @@ export const makeReducer = <S extends Schema>(
 		delete nodes[id]
 		return { nodes, edges }
 	} else if (action.type === "edge/create") {
-		const { source, target } = action
+		const { id, source, target } = action
 		const edges = { ...state.edges }
-		const id = nanoid(10)
 
 		edges[id] = { id, source, target }
 

@@ -1,3 +1,4 @@
+import { nanoid } from "nanoid"
 import { Position, Schema, Source, Target } from "../interfaces.js"
 
 export type EditorAction<S extends Schema> =
@@ -10,6 +11,7 @@ export type EditorAction<S extends Schema> =
 
 export type CreateNodeAction<S extends Schema> = {
 	type: "node/create"
+	id: string
 	kind: keyof S
 	position: Position
 }
@@ -17,7 +19,12 @@ export type CreateNodeAction<S extends Schema> = {
 export const createNode = <S extends Schema>(
 	kind: keyof S,
 	position: Position
-): CreateNodeAction<S> => ({ type: "node/create", kind, position })
+): CreateNodeAction<S> => ({
+	type: "node/create",
+	id: nanoid(10),
+	kind,
+	position,
+})
 
 export type MoveNodeAction = {
 	type: "node/move"
@@ -40,6 +47,7 @@ export const deleteNode = (id: string): DeleteNodeAction => ({
 
 export type CreateEdgeAction<S extends Schema> = {
 	type: "edge/create"
+	id: string
 	source: Source<S, keyof S>
 	target: Target<S, keyof S>
 }
@@ -49,6 +57,7 @@ export const createEdge = <S extends Schema>(
 	target: Target<S, keyof S>
 ): CreateEdgeAction<S> => ({
 	type: "edge/create",
+	id: nanoid(10),
 	source,
 	target,
 })

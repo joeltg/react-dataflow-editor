@@ -1,8 +1,11 @@
 {
 	"name": "react-dataflow-editor",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"description": "",
 	"main": "lib/index.js",
+	"files": [
+		"lib"
+	],
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
@@ -20,7 +23,7 @@
 		"d3-drag": "^2.0.0",
 		"d3-quadtree": "^2.0.0",
 		"d3-selection": "^2.0.0",
-		"nanoid": "^3.1.20",
+		"nanoid": "^3.1.22",
 		"react-dnd": "^11.1.3",
 		"react-dnd-html5-backend": "^11.1.3"
 	},
@@ -34,7 +37,10 @@
 		"react": "^17.0.1",
 		"react-dom": "^17.0.1",
 		"source-map-loader": "^2.0.1",
-		"ts-loader": "^8.0.17"
+		"ts-loader": "^8.0.18",
+		"typescript": "^4.2.3",
+		"webpack": "^5.25.1",
+		"webpack-cli": "^4.5.0"
 	},
 	"peerDependencies": {
 		"react": "^17.0.1"
