@@ -1,6 +1,6 @@
 import { select } from "d3-selection"
 import { makeCurvePath } from "./curve.js"
-import { CanvasRef, Edge, Schema } from "./interfaces.js"
+import { CanvasRef, Edge, ReadonlyCanvasRef, Schema } from "./interfaces.js"
 import { getKey, getSourcePosition, getTargetPosition } from "./utils.js"
 
 export function setEdgePosition(
@@ -12,7 +12,7 @@ export function setEdgePosition(
 	select(this).selectAll("path.curve").attr("d", d)
 }
 
-export const updateEdges = <S extends Schema>(ref: CanvasRef<S>) => {
+export const updateEdges = <S extends Schema>(ref: ReadonlyCanvasRef<S>) => {
 	return () => {
 		ref.edges
 			.selectAll<SVGGElement, Edge<S>>("g.edge")

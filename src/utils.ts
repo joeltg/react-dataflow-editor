@@ -1,4 +1,3 @@
-import { quadtree } from "d3-quadtree"
 import { Selection } from "d3-selection"
 
 import {
@@ -12,12 +11,36 @@ import {
 	GetOutputs,
 	ReadonlyCanvasRef,
 } from "./interfaces.js"
+import { defaultBackgroundColor, defaultBorderColor } from "./styles.js"
 
 export const blockWidth = 156
 export const blockHeaderHeight = 24
 export const portRadius = 12
 export const portMargin = 12
 export const portHeight = portRadius * 2 + portMargin * 2
+
+export const SVG_STYLE = `
+g.node circle.port { cursor: grab }
+g.node circle.port.hidden { display: none }
+g.node > g.outputs > circle.port.dragging { cursor: grabbing }
+
+g.node:focus > path { stroke-width: 3 }
+
+g.edge.hidden { display: none }
+
+g.preview.hidden { display: none }
+g.preview > path.curve {
+	stroke: gray;
+	stroke-width: 6px;
+	fill: none;
+	stroke-dasharray: 8 6;
+}
+g.preview > circle {
+	fill: ${defaultBackgroundColor};
+	stroke: ${defaultBorderColor};
+	stroke-width: 4px;
+}
+`
 
 const inputPortArc = `a ${portRadius} ${portRadius} 0 0 1 0 ${2 * portRadius}`
 const inputPort = `v ${portMargin} ${inputPortArc} v ${portMargin}`
@@ -85,41 +108,6 @@ export function getTargetPosition<S extends Schema>(
 
 export const getPortOffsetY = (index: number) =>
 	blockHeaderHeight + index * portHeight + portMargin + portRadius
-
-export type DropTarget<S extends Schema> = {
-	x: number
-	y: number
-	target: Target<S, keyof S>
-}
-
-export const getX = <S extends Schema>({ x }: DropTarget<S>) => x
-export const getY = <S extends Schema>({ y }: DropTarget<S>) => y
-
-export function getTargets<S extends Schema>(
-	ref: ReadonlyCanvasRef<S>,
-	sourceId: string
-) {
-	const targets: DropTarget<S>[] = []
-	for (const node of Object.values(ref.graph.nodes)) {
-		if (node.id === sourceId) {
-			continue
-		} else {
-			const { x, y } = node.position
-
-			for (const [index, input] of forInputs(ref.blocks, node.kind)) {
-				if (node.inputs[input] === null) {
-					targets.push({
-						target: { id: node.id, input },
-						x: x * ref.unit,
-						y: y * ref.unit + getPortOffsetY(index),
-					})
-				}
-			}
-		}
-	}
-
-	return quadtree(targets, getX, getY)
-}
 
 export function* forInputs<S extends Schema, K extends keyof S>(
 	blocks: Blocks<S>,

@@ -6,12 +6,12 @@ import { startPreview, stopPreview, updatePreview } from "../preview.js"
 import * as actions from "../redux/actions.js"
 import {
 	getPortOffsetY,
-	getTargets,
 	portRadius,
-	DropTarget,
 	blockWidth,
 	AttachPorts,
 } from "../utils.js"
+
+import { getTargets, DropTarget } from "../target.js"
 
 import { appendOutputPorts, getOutputKey, getOutputs, Output } from "./index.js"
 

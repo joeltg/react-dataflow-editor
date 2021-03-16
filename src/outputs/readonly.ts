@@ -9,4 +9,4 @@ export const updateOutputPorts = <S extends Schema>(
 	outputs
 		.selectAll<SVGCircleElement, Output<S>>("circle.port")
 		.data((node) => getOutputs(ref, node), getOutputKey)
-		.join((enter) => enter.call(appendOutputPorts))
+		.join((enter) => appendOutputPorts(enter))

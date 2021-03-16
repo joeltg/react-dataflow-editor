@@ -8,11 +8,11 @@ import { startPreview, stopPreview, updatePreview } from "../preview.js"
 import {
 	getSourcePosition,
 	getTargetPosition,
-	getTargets,
 	portRadius,
-	DropTarget,
 	AttachPorts,
 } from "../utils.js"
+
+import { getTargets, DropTarget } from "../target.js"
 
 import { Input, appendInputPorts, getInputKey, getInputs } from "./index.js"
 

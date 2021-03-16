@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useRef, useState } from "react"
 import ReactDOM from "react-dom"
 
 import {
-	Editor,
+	// Editor,
 	Factory,
 	Graph,
 	Schema,
@@ -10,6 +10,7 @@ import {
 	GetSchema,
 	makeReducer,
 	EditorAction,
+	Viewer,
 } from ".."
 
 const main = document.querySelector("main")
@@ -36,16 +37,16 @@ function Index<S extends Schema>({
 	blocks: Blocks<S>
 	initialState: Graph<S>
 }) {
-	const [graph, setGraph] = useState(initialState)
+	// const [graph, setGraph] = useState(initialState)
 
-	const graphRef = useRef<Graph<S>>(graph)
-	graphRef.current = graph
+	// const graphRef = useRef<Graph<S>>(graph)
+	// graphRef.current = graph
 
-	const reducer = useMemo(() => makeReducer(blocks, initialState), [])
-	const dispatch = useCallback(
-		(action: EditorAction<S>) => setGraph(reducer(graphRef.current, action)),
-		[]
-	)
+	// const reducer = useMemo(() => makeReducer(blocks, initialState), [])
+	// const dispatch = useCallback(
+	// 	(action: EditorAction<S>) => setGraph(reducer(graphRef.current, action)),
+	// 	[]
+	// )
 
 	const handleFocus = useCallback(
 		(id: null | string) => console.log("focus", id),
@@ -53,12 +54,7 @@ function Index<S extends Schema>({
 	)
 
 	return (
-		<Editor<S>
-			blocks={blocks}
-			graph={graph}
-			onFocus={handleFocus}
-			dispatch={dispatch}
-		/>
+		<Viewer<S> blocks={blocks} graph={initialState} onFocus={handleFocus} />
 	)
 }
 
@@ -74,10 +70,23 @@ ReactDOM.render(
 					kind: "fdjsalfj",
 					position: { x: 1, y: 1 },
 					inputs: { a: null },
-					outputs: { outA: new Set(), outB: new Set(), outC: new Set() },
+					outputs: { outA: new Set(), outB: new Set("c"), outC: new Set() },
+				},
+				b: {
+					id: "b",
+					kind: "source",
+					position: { x: 5, y: 3 },
+					inputs: { a: null, b: "c" },
+					outputs: { outA: new Set(), outB: new Set() },
 				},
 			},
-			edges: {},
+			edges: {
+				c: {
+					id: "c",
+					source: { id: "a", output: "outB" },
+					target: { id: "b", input: "b" },
+				},
+			},
 		}}
 	/>,
 	main

@@ -4,7 +4,6 @@ import { EditorAction } from "./redux/actions.js";
 export interface EditorProps<S extends Schema> {
     unit?: number;
     height?: number;
-    dimensions?: [number, number];
     blocks: Blocks<S>;
     graph: Graph<S>;
     dispatch: (action: EditorAction<S>) => void;

@@ -1,7 +1,6 @@
 import React, {
 	useCallback,
 	useContext,
-	useEffect,
 	useLayoutEffect,
 	useMemo,
 	useRef,
@@ -18,35 +17,8 @@ import { Graph, CanvasRef, Blocks, Schema } from "./interfaces.js"
 import { attachPreview } from "./preview.js"
 import { updateNodes } from "./nodes/editable.js"
 import { updateEdges } from "./edges.js"
-import { snap } from "./utils.js"
-import {
-	defaultBackgroundColor,
-	defaultBorderColor,
-	StyleContext,
-} from "./styles.js"
-
-const SVG_STYLE = `
-g.node circle.port { cursor: grab }
-g.node circle.port.hidden { display: none }
-g.node > g.outputs > circle.port.dragging { cursor: grabbing }
-
-g.node:focus > path { stroke-width: 3 }
-
-g.edge.hidden { display: none }
-
-g.preview.hidden { display: none }
-g.preview > path.curve {
-	stroke: gray;
-	stroke-width: 6px;
-	fill: none;
-	stroke-dasharray: 8 6;
-}
-g.preview > circle {
-	fill: ${defaultBackgroundColor};
-	stroke: ${defaultBorderColor};
-	stroke-width: 4px;
-}
-`
+import { snap, SVG_STYLE } from "./utils.js"
+import { StyleContext } from "./styles.js"
 
 export interface CanvasProps<S extends Schema> {
 	unit: number

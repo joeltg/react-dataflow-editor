@@ -5,6 +5,7 @@ export declare const blockHeaderHeight = 24;
 export declare const portRadius = 12;
 export declare const portMargin = 12;
 export declare const portHeight: number;
+export declare const SVG_STYLE: string;
 export declare function makeClipPath(inputCount: number, [width, height]: [number, number]): string;
 export declare const getKey: ({ id }: {
     id: string;
@@ -15,14 +16,6 @@ export declare const getTargetIndex: <S extends Schema>(ref: ReadonlyCanvasRef<S
 export declare function getSourcePosition<S extends Schema>(ref: ReadonlyCanvasRef<S>, source: Source<S, keyof S>): [number, number];
 export declare function getTargetPosition<S extends Schema>(ref: ReadonlyCanvasRef<S>, target: Target<S, keyof S>): [number, number];
 export declare const getPortOffsetY: (index: number) => number;
-export declare type DropTarget<S extends Schema> = {
-    x: number;
-    y: number;
-    target: Target<S, keyof S>;
-};
-export declare const getX: <S extends Schema>({ x }: DropTarget<S>) => number;
-export declare const getY: <S extends Schema>({ y }: DropTarget<S>) => number;
-export declare function getTargets<S extends Schema>(ref: ReadonlyCanvasRef<S>, sourceId: string): import("d3-quadtree").Quadtree<DropTarget<S>>;
 export declare function forInputs<S extends Schema, K extends keyof S>(blocks: Blocks<S>, kind: keyof S): Generator<[number, GetInputs<S, K>]>;
 export declare function forOutputs<S extends Schema, K extends keyof S>(blocks: Blocks<S>, kind: keyof S): Generator<[number, GetOutputs<S, K>]>;
 export declare const snap: <S extends Schema>(ref: ReadonlyCanvasRef<S>, [x, y]: [number, number]) => Position;
