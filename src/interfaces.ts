@@ -21,24 +21,6 @@ export type Schema = Record<string, { inputs: string; outputs: string }>
 export type GetInputs<S extends Schema, K extends keyof S> = S[K]["inputs"]
 export type GetOutputs<S extends Schema, K extends keyof S> = S[K]["outputs"]
 
-export function* forInputs<S extends Schema, K extends keyof S>(
-	blocks: Blocks<S>,
-	kind: keyof S
-): Generator<[number, GetInputs<S, K>]> {
-	for (const entry of Object.keys(blocks[kind].inputs).entries()) {
-		yield entry
-	}
-}
-
-export function* forOutputs<S extends Schema, K extends keyof S>(
-	blocks: Blocks<S>,
-	kind: keyof S
-): Generator<[number, GetOutputs<S, K>]> {
-	for (const entry of Object.keys(blocks[kind].outputs).entries()) {
-		yield entry
-	}
-}
-
 export type Blocks<S extends Schema> = {
 	[k in keyof S]: Block<GetInputs<S, k>, GetOutputs<S, k>>
 }
@@ -94,13 +76,16 @@ export const initialEditorState = <S extends Schema>(): Graph<S> => ({
 	edges: {},
 })
 
-export interface CanvasRef<S extends Schema> {
+export interface ReadonlyCanvasRef<S extends Schema> {
+	graph: Graph<S>
 	nodes: Selection<SVGGElement | null, unknown, null, undefined>
 	edges: Selection<SVGGElement | null, unknown, null, undefined>
-	preview: Selection<SVGGElement | null, unknown, null, undefined>
-	graph: Graph<S>
 	unit: number
+	height: number
 	blocks: Blocks<S>
-	dimensions: [number, number]
+}
+
+export interface CanvasRef<S extends Schema> extends ReadonlyCanvasRef<S> {
+	preview: Selection<SVGGElement | null, unknown, null, undefined>
 	dispatch: (action: EditorAction<S>) => void
 }

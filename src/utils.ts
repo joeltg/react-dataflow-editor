@@ -1,12 +1,16 @@
 import { quadtree } from "d3-quadtree"
+import { Selection } from "d3-selection"
 
 import {
-	CanvasRef,
 	Schema,
-	forInputs,
+	Node,
 	Target,
 	Position,
 	Source,
+	Blocks,
+	GetInputs,
+	GetOutputs,
+	ReadonlyCanvasRef,
 } from "./interfaces.js"
 
 export const blockWidth = 156
@@ -38,7 +42,7 @@ export const getKey = ({ id }: { id: string }) => id
 export const toTranslate = (x: number, y: number) => `translate(${x}, ${y})`
 
 export const getSourceIndex = <S extends Schema>(
-	ref: CanvasRef<S>,
+	ref: ReadonlyCanvasRef<S>,
 	source: Source<S, keyof S>
 ) => {
 	const { kind } = ref.graph.nodes[source.id]
@@ -47,7 +51,7 @@ export const getSourceIndex = <S extends Schema>(
 }
 
 export const getTargetIndex = <S extends Schema>(
-	ref: CanvasRef<S>,
+	ref: ReadonlyCanvasRef<S>,
 	target: Target<S, keyof S>
 ) => {
 	const { kind } = ref.graph.nodes[target.id]
@@ -56,7 +60,7 @@ export const getTargetIndex = <S extends Schema>(
 }
 
 export function getSourcePosition<S extends Schema>(
-	ref: CanvasRef<S>,
+	ref: ReadonlyCanvasRef<S>,
 	source: Source<S, keyof S>
 ): [number, number] {
 	const {
@@ -68,7 +72,7 @@ export function getSourcePosition<S extends Schema>(
 }
 
 export function getTargetPosition<S extends Schema>(
-	ref: CanvasRef<S>,
+	ref: ReadonlyCanvasRef<S>,
 	target: Target<S, keyof S>
 ): [number, number] {
 	const {
@@ -92,7 +96,7 @@ export const getX = <S extends Schema>({ x }: DropTarget<S>) => x
 export const getY = <S extends Schema>({ y }: DropTarget<S>) => y
 
 export function getTargets<S extends Schema>(
-	ref: CanvasRef<S>,
+	ref: ReadonlyCanvasRef<S>,
 	sourceId: string
 ) {
 	const targets: DropTarget<S>[] = []
@@ -101,6 +105,7 @@ export function getTargets<S extends Schema>(
 			continue
 		} else {
 			const { x, y } = node.position
+
 			for (const [index, input] of forInputs(ref.blocks, node.kind)) {
 				if (node.inputs[input] === null) {
 					targets.push({
@@ -116,14 +121,35 @@ export function getTargets<S extends Schema>(
 	return quadtree(targets, getX, getY)
 }
 
-export const snap = (
-	[x, y]: [number, number],
-	unit: number,
-	[X, Y]: [number, number]
+export function* forInputs<S extends Schema, K extends keyof S>(
+	blocks: Blocks<S>,
+	kind: keyof S
+): Generator<[number, GetInputs<S, K>]> {
+	for (const entry of Object.keys(blocks[kind].inputs).entries()) {
+		yield entry
+	}
+}
+
+export function* forOutputs<S extends Schema, K extends keyof S>(
+	blocks: Blocks<S>,
+	kind: keyof S
+): Generator<[number, GetOutputs<S, K>]> {
+	for (const entry of Object.keys(blocks[kind].outputs).entries()) {
+		yield entry
+	}
+}
+
+export const snap = <S extends Schema>(
+	ref: ReadonlyCanvasRef<S>,
+	[x, y]: [number, number]
 ): Position => ({
-	x: Math.min(X - 1, Math.max(0, Math.round(x / unit))),
-	y: Math.min(Y - 1, Math.max(0, Math.round(y / unit))),
+	x: Math.max(0, Math.round(x / ref.unit)),
+	y: Math.min(ref.height - 1, Math.max(0, Math.round(y / ref.unit))),
 })
 
 export const defaultCanvasUnit = 52
-export const defaultCanvasDimensions: [number, number] = [12, 12]
+export const defaultCanvasHeight = 12
+
+export type AttachPorts<S extends Schema> = (
+	ports: Selection<SVGGElement, Node<S, keyof S>, SVGGElement | null, unknown>
+) => void

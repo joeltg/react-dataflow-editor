@@ -17,7 +17,10 @@ export const defaultBlockHeaderStyle: React.CSSProperties = {
 	borderBottom: `1px solid ${defaultBorderColor}`,
 }
 
-export type getEditorStyle = (ctx: { unit: number }) => React.CSSProperties
+export type getEditorStyle = (ref: {
+	unit: number
+	height: number
+}) => React.CSSProperties
 
 export type getBlockStyle = <S extends Schema>(
 	block: Blocks<S>[keyof S]
@@ -38,14 +41,14 @@ export const defaultCanvasStyle: React.CSSProperties = {
 
 export const defaultStyleContext: StyleContext = {
 	getCanvasStyle: () => defaultCanvasStyle,
-	getSVGStyle: ({ unit }) => ({
+	getSVGStyle: ({ unit, height }) => ({
 		backgroundImage:
 			"radial-gradient(circle, #000000 1px, rgba(0, 0, 0, 0) 1px)",
 		backgroundSize: `${unit}px ${unit}px`,
 		backgroundPositionX: `-${unit / 2}px`,
 		backgroundPositionY: `-${unit / 2}px`,
 		width: "100%",
-		height: 640,
+		height: unit * height,
 	}),
 	getBlockHeaderStyle: () => defaultBlockHeaderStyle,
 	getBlockContentStyle: (block) => ({

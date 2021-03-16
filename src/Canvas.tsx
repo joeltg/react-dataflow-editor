@@ -16,7 +16,7 @@ import * as actions from "./redux/actions.js"
 import { Graph, CanvasRef, Blocks, Schema } from "./interfaces.js"
 
 import { attachPreview } from "./preview.js"
-import { updateNodes } from "./nodes.js"
+import { updateNodes } from "./nodes/editable.js"
 import { updateEdges } from "./edges.js"
 import { snap } from "./utils.js"
 import {
@@ -33,11 +33,6 @@ g.node > g.outputs > circle.port.dragging { cursor: grabbing }
 g.node:focus > path { stroke-width: 3 }
 
 g.edge.hidden { display: none }
-g.edge > path.curve {
-	stroke: gray;
-	stroke-width: 6px;
-	fill: none;
-}
 
 g.preview.hidden { display: none }
 g.preview > path.curve {
@@ -55,21 +50,21 @@ g.preview > circle {
 
 export interface CanvasProps<S extends Schema> {
 	unit: number
+	height: number
 	blocks: Blocks<S>
 	graph: Graph<S>
+	onFocus?: (id: string | null) => void
 	dispatch: (action: actions.EditorAction<S>) => void
 }
 
 export function Canvas<S extends Schema>(props: CanvasProps<S>) {
-	const dimensions = useRef<[number, number]>([Infinity, Infinity])
-
 	const ref = useMemo<CanvasRef<S>>(
 		() => ({
 			nodes: select<SVGGElement | null, unknown>(null),
 			edges: select<SVGGElement | null, unknown>(null),
 			preview: select<SVGGElement | null, unknown>(null),
 			unit: props.unit,
-			dimensions: dimensions.current,
+			height: props.height,
 			blocks: props.blocks,
 			graph: props.graph,
 			dispatch: props.dispatch,
@@ -80,22 +75,6 @@ export function Canvas<S extends Schema>(props: CanvasProps<S>) {
 	ref.graph = props.graph
 
 	const svgRef = useRef<SVGSVGElement | null>(null)
-
-	useEffect(() => {
-		const svg = svgRef.current
-		if (svg !== null) {
-			const observer = new ResizeObserver((entries: ResizeObserverEntry[]) => {
-				for (const entry of entries) {
-					if (entry.target === svg) {
-						const { width, height } = entry.contentRect
-						ref.dimensions = [width, height]
-					}
-				}
-			})
-			observer.observe(svg)
-			return () => observer.unobserve(svg)
-		}
-	}, [svgRef.current])
 
 	const nodesRef = useCallback((nodes: SVGGElement) => {
 		ref.nodes = select<SVGGElement | null, unknown>(nodes)
@@ -126,7 +105,7 @@ export function Canvas<S extends Schema>(props: CanvasProps<S>) {
 		drop({ kind }, monitor) {
 			const { x, y } = monitor.getSourceClientOffset()!
 			const { left, top } = svgRef.current!.getBoundingClientRect()
-			const position = snap([x - left, y - top], props.unit, dimensions.current)
+			const position = snap(ref, [x - left, y - top])
 			props.dispatch(actions.createNode(kind, position))
 		},
 	})
@@ -152,12 +131,15 @@ export function Canvas<S extends Schema>(props: CanvasProps<S>) {
 		[props.graph.nodes]
 	)
 
+	const height = props.unit * props.height
+
 	return (
 		<div ref={drop} className="canvas" style={canvasStyle}>
 			<svg
 				ref={svgRef}
 				xmlns="http://www.w3.org/2000/svg"
 				style={{ ...svgStyle, minWidth: x }}
+				height={height}
 			>
 				<style>{SVG_STYLE}</style>
 				<g className="edges" ref={edgesRef}></g>

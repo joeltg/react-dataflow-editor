@@ -1,12 +1,13 @@
 import { D3DragEvent, drag } from "d3-drag"
-import { Selection } from "d3-selection"
-import { Input, updateInputPorts } from "./inputs.js"
+import { select, Selection } from "d3-selection"
+import { updateInputPorts } from "../inputs/editable.js"
 
-import * as actions from "./redux/actions.js"
-import { CanvasRef, Edge, Node, Position, Schema } from "./interfaces.js"
-import { Output, updateOutputPorts } from "./outputs.js"
-import { makeCurvePath } from "./curve.js"
-import { defaultBorderColor, getBackgroundColor } from "./styles.js"
+import * as actions from "../redux/actions.js"
+import { CanvasRef, Edge, Node, Position, Schema } from "../interfaces.js"
+
+import { updateOutputPorts } from "../outputs/editable.js"
+import { makeCurvePath } from "../curve.js"
+
 import {
 	getKey,
 	getPortOffsetY,
@@ -15,12 +16,12 @@ import {
 	toTranslate,
 	snap,
 	blockWidth,
-	makeClipPath,
-	portHeight,
 	getTargetIndex,
 	getSourceIndex,
-	blockHeaderHeight,
-} from "./utils.js"
+} from "../utils.js"
+
+import { appendNodes } from "./index.js"
+import { setEdgePosition } from "../edges.js"
 
 type BlockDragSubject<S extends Schema> = {
 	x: number
@@ -35,12 +36,8 @@ type BlockDragEvent<S extends Schema> = D3DragEvent<
 	BlockDragSubject<S>
 >
 
-const getFrameTransform = <S extends Schema>(ref: CanvasRef<S>) => ({
-	position: { x, y },
-}: Node<S>) => toTranslate(x * ref.unit, y * ref.unit)
-
 const nodeDragBehavior = <S extends Schema>(ref: CanvasRef<S>) => {
-	function setPosition(
+	function setNodePosition(
 		this: SVGGElement,
 		subject: BlockDragSubject<S>,
 		{ x, y }: Position
@@ -48,19 +45,20 @@ const nodeDragBehavior = <S extends Schema>(ref: CanvasRef<S>) => {
 		this.setAttribute("transform", toTranslate(x, y))
 
 		const x2 = x
-		subject.incoming.select("path").attr("d", ({ source, target }) => {
+
+		subject.incoming.each(function ({ source, target }) {
 			const sourcePosition = getSourcePosition(ref, source)
 			const targetIndex = getTargetIndex(ref, target)
 			const y2 = y + getPortOffsetY(targetIndex)
-			return makeCurvePath(sourcePosition, [x2, y2])
+			setEdgePosition.call(this, sourcePosition, [x2, y2])
 		})
 
 		const x1 = x + blockWidth
-		subject.outgoing.select("path").attr("d", ({ source, target }) => {
-			const targetPosition = getTargetPosition(ref, target)
+		subject.outgoing.each(function ({ source, target }) {
 			const sourceIndex = getSourceIndex(ref, source)
 			const y1 = y + getPortOffsetY(sourceIndex)
-			return makeCurvePath([x1, y1], targetPosition)
+			const targetPosition = getTargetPosition(ref, target)
+			setEdgePosition.call(this, [x1, y1], targetPosition)
 		})
 	}
 
@@ -70,14 +68,14 @@ const nodeDragBehavior = <S extends Schema>(ref: CanvasRef<S>) => {
 		})
 		.on("drag", function onDrag(event: BlockDragEvent<S>, node: Node<S>) {
 			const { x, y, subject } = event
-			setPosition.call(this, subject, { x, y })
+			setNodePosition.call(this, subject, { x, y })
 		})
 		.on("end", function onEnd(event: BlockDragEvent<S>, node: Node<S>) {
 			this.style.cursor = "grab"
-			const snapped = snap([event.x, event.y], ref.unit, ref.dimensions)
+			const snapped = snap(ref, [event.x, event.y])
 			if (snapped.x === node.position.x && snapped.y === node.position.y) {
 				const position = { x: snapped.x * ref.unit, y: snapped.y * ref.unit }
-				setPosition.call(this, event.subject, position)
+				setNodePosition.call(this, event.subject, position)
 			} else {
 				ref.dispatch(actions.moveNode(node.id, snapped))
 			}
@@ -111,8 +109,7 @@ const nodeKeyDownBehavior = <S extends Schema>(ref: CanvasRef<S>) =>
 		if (event.key === "ArrowDown") {
 			event.preventDefault()
 			const { x, y } = node.position
-			const [_, Y] = ref.dimensions
-			if (y < Y - 1) {
+			if (y < ref.height - 1) {
 				ref.dispatch(actions.moveNode(node.id, { x, y: y + 1 }))
 			}
 		} else if (event.key === "ArrowUp") {
@@ -124,10 +121,7 @@ const nodeKeyDownBehavior = <S extends Schema>(ref: CanvasRef<S>) =>
 		} else if (event.key === "ArrowRight") {
 			event.preventDefault()
 			const { x, y } = node.position
-			const [X] = ref.dimensions
-			if (x < X - 1) {
-				ref.dispatch(actions.moveNode(node.id, { x: x + 1, y }))
-			}
+			ref.dispatch(actions.moveNode(node.id, { x: x + 1, y }))
 		} else if (event.key === "ArrowLeft") {
 			event.preventDefault()
 			const { x, y } = node.position
@@ -141,8 +135,6 @@ const nodeKeyDownBehavior = <S extends Schema>(ref: CanvasRef<S>) =>
 	}
 
 export const updateNodes = <S extends Schema>(ref: CanvasRef<S>) => {
-	const frameTransform = getFrameTransform(ref)
-
 	const nodeDrag = nodeDragBehavior(ref)
 	const nodeClick = nodeClickBehavior(ref)
 	const nodeKeyDown = nodeKeyDownBehavior(ref)
@@ -155,78 +147,18 @@ export const updateNodes = <S extends Schema>(ref: CanvasRef<S>) => {
 			.selectAll<SVGGElement, Node<S>>("g.node")
 			.data<Node<S>>(Object.values(ref.graph.nodes), getKey)
 			.join(
-				(enter) => {
-					const groups = enter
-						.append("g")
-						.classed("node", true)
-						.attr("data-id", getKey)
-						.attr("tabindex", 0)
+				(enter) =>
+					appendNodes(ref, enter, updateInputs, updateOutputs)
 						.call(nodeDrag)
 						.on("click", nodeClick)
 						.on("keydown", nodeKeyDown)
-						.attr("transform", frameTransform)
-						.style("cursor", "grab")
-
-					groups
-						.append("path")
-						.attr("stroke", defaultBorderColor)
-						.attr("fill", getBackgroundColor(ref.blocks))
-						.attr("stroke-width", 1)
-						.attr("d", function ({ kind }) {
-							const { inputs, outputs } = ref.blocks[kind]
-							const { length: inputCount } = Object.keys(inputs)
-							const { length: outputCount } = Object.keys(outputs)
-
-							const w = blockWidth
-							const h =
-								blockHeaderHeight +
-								portHeight * Math.max(inputCount, outputCount)
-							return makeClipPath(inputCount, [w, h])
-						})
-
-					groups
-						.append("text")
-						.classed("title", true)
-						.attr("x", 8)
-						.attr("y", 18)
-						.attr("font-size", 16)
-						.text(({ kind }) => ref.blocks[kind].name)
-
-					groups
-						.append("line")
-						.attr("stroke", "dimgrey")
-						.attr("x1", 4)
-						.attr("y1", blockHeaderHeight)
-						.attr("x2", blockWidth - 4)
-						.attr("y2", blockHeaderHeight)
-
-					groups
-						.append("g")
-						.classed("inputs", true)
-						.selectAll<SVGCircleElement, Input<S>>("circle.port")
-						.call(updateInputs)
-
-					groups
-						.append("g")
-						.classed("outputs", true)
-						.attr("transform", toTranslate(blockWidth, 0))
-						.selectAll<SVGCircleElement, Output<S>>("circle.port")
-						.call(updateOutputs)
-
-					return groups
-				},
+						.style("cursor", "grab"),
 				(update) => {
-					update.attr("transform", frameTransform)
+					update.attr("transform", ({ position: { x, y } }) =>
+						toTranslate(x * ref.unit, y * ref.unit)
+					)
 
-					update
-						.select("g.inputs")
-						.selectAll<SVGCircleElement, Input<S>>("circle.port")
-						.call(updateInputs)
-
-					update
-						.select("g.outputs")
-						.selectAll<SVGCircleElement, Output<S>>("circle.port")
-						.call(updateOutputs)
+					update.select<SVGGElement>("g.inputs").call(updateInputs)
 
 					return update
 				},

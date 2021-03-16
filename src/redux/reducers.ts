@@ -1,16 +1,15 @@
-import { nanoid } from "nanoid"
 import {
 	initialEditorState,
 	Graph,
 	Blocks,
 	Schema,
-	forInputs,
-	forOutputs,
 	Node,
 	GetInputs,
 	GetOutputs,
 	Position,
 } from "../interfaces.js"
+
+import { forInputs, forOutputs } from "../utils.js"
 
 import { EditorAction } from "./actions.js"
 

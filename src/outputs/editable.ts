@@ -1,24 +1,19 @@
 import { D3DragEvent, drag, DragBehavior } from "d3-drag"
 import { Quadtree } from "d3-quadtree"
-import { BaseType, Selection } from "d3-selection"
 
-import { CanvasRef, GetOutputs, Node, Schema, Source } from "./interfaces.js"
-import { startPreview, stopPreview, updatePreview } from "./preview.js"
-import * as actions from "./redux/actions.js"
-import { defaultBackgroundColor, defaultBorderColor } from "./styles.js"
+import { CanvasRef, Schema } from "../interfaces.js"
+import { startPreview, stopPreview, updatePreview } from "../preview.js"
+import * as actions from "../redux/actions.js"
 import {
 	getPortOffsetY,
 	getTargets,
 	portRadius,
 	DropTarget,
 	blockWidth,
-} from "./utils.js"
+	AttachPorts,
+} from "../utils.js"
 
-export type Output<S extends Schema> = {
-	index: number
-	source: Source<S, keyof S>
-	value: Set<string>
-}
+import { appendOutputPorts, getOutputKey, getOutputs, Output } from "./index.js"
 
 type OutputDragSubject<S extends Schema> = {
 	x: number
@@ -77,37 +72,13 @@ const outputDragBehavior = <S extends Schema>(
 			}
 		}) as any
 
-const getOutputKey = <S extends Schema>({
-	source: { output },
-}: Output<S>): string => output
-
-export const updateOutputPorts = <S extends Schema>(ref: CanvasRef<S>) => (
-	outputs: Selection<SVGCircleElement, Output<S>, BaseType, Node<S>>
-) => {
+export function updateOutputPorts<S extends Schema>(
+	ref: CanvasRef<S>
+): AttachPorts<S> {
 	const dragBehavior = outputDragBehavior(ref)
-	return outputs
-		.data<Output<S>>(
-			({ kind, id, outputs }: Node<S>): Output<S>[] =>
-				Object.keys(ref.blocks[kind].outputs).map(
-					(output: GetOutputs<S, keyof S>, index) => ({
-						index,
-						source: { id, output },
-						value: outputs[output],
-					})
-				),
-			getOutputKey
-		)
-		.join((enter) => {
-			const circles = enter
-				.append("circle")
-				.classed("port", true)
-				.attr("cx", 0)
-				.attr("cy", ({ index }) => getPortOffsetY(index))
-				.attr("r", portRadius)
-				.attr("fill", defaultBackgroundColor)
-				.attr("stroke", defaultBorderColor)
-				.call(dragBehavior)
-			circles.append("title").text(getOutputKey).datum(null)
-			return circles
-		})
+	return (outputs) =>
+		outputs
+			.selectAll<SVGCircleElement, Output<S>>("circle.port")
+			.data((node) => getOutputs(ref, node), getOutputKey)
+			.join((enter) => appendOutputPorts(enter).call(dragBehavior))
 }

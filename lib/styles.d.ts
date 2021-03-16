@@ -4,8 +4,9 @@ export declare const defaultBackgroundColor = "lightgray";
 export declare const defaultBorderColor = "dimgray";
 export declare const getBackgroundColor: <S extends Schema>(blocks: Blocks<S>) => ({ kind, }: Node<S, keyof S>) => string;
 export declare const defaultBlockHeaderStyle: React.CSSProperties;
-export declare type getEditorStyle = (ctx: {
+export declare type getEditorStyle = (ref: {
     unit: number;
+    height: number;
 }) => React.CSSProperties;
 export declare type getBlockStyle = <S extends Schema>(block: Blocks<S>[keyof S]) => React.CSSProperties;
 interface StyleContext {

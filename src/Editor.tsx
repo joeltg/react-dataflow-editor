@@ -8,10 +8,11 @@ import { Canvas } from "./Canvas.js"
 
 import { Blocks, Graph, Schema } from "./interfaces.js"
 import { EditorAction } from "./redux/actions.js"
-import { defaultCanvasUnit, defaultCanvasDimensions } from "./utils.js"
+import { defaultCanvasUnit, defaultCanvasHeight } from "./utils.js"
 
 export interface EditorProps<S extends Schema> {
 	unit?: number
+	height?: number
 	dimensions?: [number, number]
 	blocks: Blocks<S>
 	graph: Graph<S>
@@ -21,7 +22,7 @@ export interface EditorProps<S extends Schema> {
 
 export function Editor<S extends Schema>({
 	unit = defaultCanvasUnit,
-	dimensions = defaultCanvasDimensions,
+	height = defaultCanvasHeight,
 	...props
 }: EditorProps<S>) {
 	return (
@@ -33,6 +34,7 @@ export function Editor<S extends Schema>({
 				<Toolbox blocks={props.blocks} />
 				<Canvas
 					unit={unit}
+					height={height}
 					blocks={props.blocks}
 					graph={props.graph}
 					dispatch={props.dispatch}

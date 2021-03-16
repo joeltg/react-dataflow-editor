@@ -1,6 +1,6 @@
 {
-	"include": ["src/*", "src/redux/*"],
-	"exclude": ["demo/*"],
+	"include": ["src"],
+	"exclude": ["demo"],
 	"compilerOptions": {
 		"outDir": "lib",
 		"strict": true,
