@@ -40,6 +40,7 @@ export function Canvas<S extends Schema>(props: CanvasProps<S>) {
 			blocks: props.blocks,
 			graph: props.graph,
 			dispatch: props.dispatch,
+			onFocus: props.onFocus || ((id) => {}),
 		}),
 		[]
 	)

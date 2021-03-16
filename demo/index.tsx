@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useRef, useState } from "react"
 import ReactDOM from "react-dom"
 
 import {
-	// Editor,
+	Editor,
 	Factory,
 	Graph,
 	Schema,
@@ -37,24 +37,29 @@ function Index<S extends Schema>({
 	blocks: Blocks<S>
 	initialState: Graph<S>
 }) {
-	// const [graph, setGraph] = useState(initialState)
+	const [graph, setGraph] = useState(initialState)
 
-	// const graphRef = useRef<Graph<S>>(graph)
-	// graphRef.current = graph
+	const graphRef = useRef<Graph<S>>(graph)
+	graphRef.current = graph
 
-	// const reducer = useMemo(() => makeReducer(blocks, initialState), [])
-	// const dispatch = useCallback(
-	// 	(action: EditorAction<S>) => setGraph(reducer(graphRef.current, action)),
-	// 	[]
-	// )
+	const reducer = useMemo(() => makeReducer(blocks, initialState), [])
+	const dispatch = useCallback(
+		(action: EditorAction<S>) => setGraph(reducer(graphRef.current, action)),
+		[]
+	)
 
 	const handleFocus = useCallback(
-		(id: null | string) => console.log("focus", id),
+		(id: string | null) => console.log("focus", id),
 		[]
 	)
 
 	return (
-		<Viewer<S> blocks={blocks} graph={initialState} onFocus={handleFocus} />
+		<Editor<S>
+			blocks={blocks}
+			graph={graph}
+			dispatch={dispatch}
+			onFocus={handleFocus}
+		/>
 	)
 }
 
@@ -70,7 +75,7 @@ ReactDOM.render(
 					kind: "fdjsalfj",
 					position: { x: 1, y: 1 },
 					inputs: { a: null },
-					outputs: { outA: new Set(), outB: new Set("c"), outC: new Set() },
+					outputs: { outA: new Set(), outB: new Set("b"), outC: new Set() },
 				},
 				b: {
 					id: "b",

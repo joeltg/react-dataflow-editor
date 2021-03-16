@@ -83,6 +83,7 @@ export interface ReadonlyCanvasRef<S extends Schema> {
 	unit: number
 	height: number
 	blocks: Blocks<S>
+	onFocus: (id: string | null) => void
 }
 
 export interface CanvasRef<S extends Schema> extends ReadonlyCanvasRef<S> {

@@ -35,6 +35,7 @@ export function Viewer<S extends Schema>({
 				height={height}
 				blocks={props.blocks}
 				graph={props.graph}
+				onFocus={props.onFocus}
 			/>
 		</div>
 	)
@@ -57,6 +58,7 @@ function Canvas<S extends Schema>(props: CanvasProps<S>) {
 			height: props.height,
 			blocks: props.blocks,
 			graph: props.graph,
+			onFocus: props.onFocus || ((id) => {}),
 		}),
 		[]
 	)

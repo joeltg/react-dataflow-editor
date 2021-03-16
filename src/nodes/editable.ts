@@ -95,15 +95,6 @@ const nodeDragBehavior = <S extends Schema>(ref: CanvasRef<S>) => {
 		})
 }
 
-const nodeClickBehavior = <S extends Schema>(ref: CanvasRef<S>) =>
-	function clicked(this: SVGGElement, event: MouseEvent, node: Node<S>) {
-		if (event.defaultPrevented) {
-			return
-		} else {
-			// TODO
-		}
-	}
-
 const nodeKeyDownBehavior = <S extends Schema>(ref: CanvasRef<S>) =>
 	function keydown(this: SVGGElement, event: KeyboardEvent, node: Node<S>) {
 		if (event.key === "ArrowDown") {
@@ -136,11 +127,18 @@ const nodeKeyDownBehavior = <S extends Schema>(ref: CanvasRef<S>) =>
 
 export const updateNodes = <S extends Schema>(ref: CanvasRef<S>) => {
 	const nodeDrag = nodeDragBehavior(ref)
-	const nodeClick = nodeClickBehavior(ref)
 	const nodeKeyDown = nodeKeyDownBehavior(ref)
 
 	const updateInputs = updateInputPorts(ref)
 	const updateOutputs = updateOutputPorts(ref)
+
+	function focused(this: SVGGElement, event: FocusEvent, node: Node<S>) {
+		ref.onFocus(node.id)
+	}
+
+	function blurred(this: SVGGElement, event: FocusEvent, node: Node<S>) {
+		ref.onFocus(null)
+	}
 
 	return () => {
 		ref.nodes
@@ -150,7 +148,8 @@ export const updateNodes = <S extends Schema>(ref: CanvasRef<S>) => {
 				(enter) =>
 					appendNodes(ref, enter, updateInputs, updateOutputs)
 						.call(nodeDrag)
-						.on("click", nodeClick)
+						.on("focus", focused)
+						.on("blur", blurred)
 						.on("keydown", nodeKeyDown)
 						.style("cursor", "grab"),
 				(update) => {

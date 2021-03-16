@@ -16,7 +16,7 @@ export interface EditorProps<S extends Schema> {
 	blocks: Blocks<S>
 	graph: Graph<S>
 	dispatch: (action: EditorAction<S>) => void
-	onFocus: (id: string | null) => void
+	onFocus?: (id: string | null) => void
 }
 
 export function Editor<S extends Schema>({
@@ -37,6 +37,7 @@ export function Editor<S extends Schema>({
 					blocks={props.blocks}
 					graph={props.graph}
 					dispatch={props.dispatch}
+					onFocus={props.onFocus}
 				/>
 			</div>
 		</DndProvider>
