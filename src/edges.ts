@@ -13,6 +13,8 @@ export function setEdgePosition(
 }
 
 export const updateEdges = <S extends Schema>(ref: ReadonlyCanvasRef<S>) => {
+	const decorateEdges = ref.decorateEdges || ((node) => {})
+
 	return () => {
 		ref.edges
 			.selectAll<SVGGElement, Edge<S>>("g.edge")
@@ -25,6 +27,8 @@ export const updateEdges = <S extends Schema>(ref: ReadonlyCanvasRef<S>) => {
 						.attr("data-id", getKey)
 						.attr("data-source", ({ source: { id } }) => id)
 						.attr("data-target", ({ target: { id } }) => id)
+						.attr("data-output", ({ source: { output } }) => output)
+						.attr("data-input", ({ target: { input } }) => input)
 
 					edges.each(function ({ source, target }) {
 						const sourcePosition = getSourcePosition(ref, source)
@@ -45,6 +49,8 @@ export const updateEdges = <S extends Schema>(ref: ReadonlyCanvasRef<S>) => {
 							.attr("d", d)
 					})
 
+					edges.call(decorateEdges)
+
 					return edges
 				},
 				(update) => {
@@ -55,6 +61,8 @@ export const updateEdges = <S extends Schema>(ref: ReadonlyCanvasRef<S>) => {
 							getTargetPosition(ref, target)
 						)
 					})
+
+					update.call(decorateEdges)
 
 					return update
 				},

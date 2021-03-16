@@ -133,12 +133,18 @@ export const updateNodes = <S extends Schema>(ref: CanvasRef<S>) => {
 	const updateOutputs = updateOutputPorts(ref)
 
 	function focused(this: SVGGElement, event: FocusEvent, node: Node<S>) {
-		ref.onFocus(node.id)
+		if (ref.onFocus !== undefined) {
+			ref.onFocus(node.id)
+		}
 	}
 
 	function blurred(this: SVGGElement, event: FocusEvent, node: Node<S>) {
-		ref.onFocus(null)
+		if (ref.onFocus !== undefined) {
+			ref.onFocus(null)
+		}
 	}
+
+	const decorateNodes = ref.decorateNodes || ((node) => {})
 
 	return () => {
 		ref.nodes
@@ -147,17 +153,20 @@ export const updateNodes = <S extends Schema>(ref: CanvasRef<S>) => {
 			.join(
 				(enter) =>
 					appendNodes(ref, enter, updateInputs, updateOutputs)
-						.call(nodeDrag)
+						.style("cursor", "grab")
 						.on("focus", focused)
 						.on("blur", blurred)
 						.on("keydown", nodeKeyDown)
-						.style("cursor", "grab"),
+						.call(nodeDrag)
+						.call(decorateNodes),
 				(update) => {
 					update.attr("transform", ({ position: { x, y } }) =>
 						toTranslate(x * ref.unit, y * ref.unit)
 					)
 
 					update.select<SVGGElement>("g.inputs").call(updateInputs)
+
+					update.call(decorateNodes)
 
 					return update
 				},

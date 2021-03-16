@@ -6,12 +6,19 @@ import React, {
 	useRef,
 } from "react"
 
-import { select } from "d3-selection"
+import { select, Selection } from "d3-selection"
 
 import { updateNodes } from "./nodes/readonly.js"
 import { updateEdges } from "./edges.js"
 
-import { Blocks, Graph, ReadonlyCanvasRef, Schema } from "./interfaces.js"
+import {
+	Blocks,
+	Edge,
+	Graph,
+	Node,
+	ReadonlyCanvasRef,
+	Schema,
+} from "./interfaces.js"
 import { defaultCanvasUnit, defaultCanvasHeight, SVG_STYLE } from "./utils.js"
 import { StyleContext } from "./styles.js"
 
@@ -21,6 +28,12 @@ export interface ViewerProps<S extends Schema> {
 	blocks: Blocks<S>
 	graph: Graph<S>
 	onFocus: (id: string | null) => void
+	decorateNodes?: (
+		nodes: Selection<SVGGElement, Node<S>, SVGGElement | null, unknown>
+	) => void
+	decorateEdges?: (
+		edges: Selection<SVGGElement, Edge<S>, SVGGElement | null, unknown>
+	) => void
 }
 
 export function Viewer<S extends Schema>({
@@ -36,6 +49,8 @@ export function Viewer<S extends Schema>({
 				blocks={props.blocks}
 				graph={props.graph}
 				onFocus={props.onFocus}
+				decorateEdges={props.decorateEdges}
+				decorateNodes={props.decorateNodes}
 			/>
 		</div>
 	)
@@ -47,6 +62,12 @@ interface CanvasProps<S extends Schema> {
 	blocks: Blocks<S>
 	graph: Graph<S>
 	onFocus?: (id: string | null) => void
+	decorateNodes?: (
+		nodes: Selection<SVGGElement, Node<S>, SVGGElement | null, unknown>
+	) => void
+	decorateEdges?: (
+		edges: Selection<SVGGElement, Edge<S>, SVGGElement | null, unknown>
+	) => void
 }
 
 function Canvas<S extends Schema>(props: CanvasProps<S>) {
@@ -58,7 +79,9 @@ function Canvas<S extends Schema>(props: CanvasProps<S>) {
 			height: props.height,
 			blocks: props.blocks,
 			graph: props.graph,
-			onFocus: props.onFocus || ((id) => {}),
+			onFocus: props.onFocus,
+			decorateEdges: props.decorateEdges,
+			decorateNodes: props.decorateNodes,
 		}),
 		[]
 	)

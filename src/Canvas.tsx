@@ -8,11 +8,11 @@ import React, {
 
 import { useDrop } from "react-dnd"
 
-import { select } from "d3-selection"
+import { select, Selection } from "d3-selection"
 
 import * as actions from "./redux/actions.js"
 
-import { Graph, CanvasRef, Blocks, Schema } from "./interfaces.js"
+import { Graph, CanvasRef, Blocks, Schema, Node, Edge } from "./interfaces.js"
 
 import { attachPreview } from "./preview.js"
 import { updateNodes } from "./nodes/editable.js"
@@ -27,6 +27,12 @@ export interface CanvasProps<S extends Schema> {
 	graph: Graph<S>
 	onFocus?: (id: string | null) => void
 	dispatch: (action: actions.EditorAction<S>) => void
+	decorateNodes?: (
+		nodes: Selection<SVGGElement, Node<S>, SVGGElement | null, unknown>
+	) => void
+	decorateEdges?: (
+		edges: Selection<SVGGElement, Edge<S>, SVGGElement | null, unknown>
+	) => void
 }
 
 export function Canvas<S extends Schema>(props: CanvasProps<S>) {
@@ -40,7 +46,9 @@ export function Canvas<S extends Schema>(props: CanvasProps<S>) {
 			blocks: props.blocks,
 			graph: props.graph,
 			dispatch: props.dispatch,
-			onFocus: props.onFocus || ((id) => {}),
+			onFocus: props.onFocus,
+			decorateEdges: props.decorateEdges,
+			decorateNodes: props.decorateNodes,
 		}),
 		[]
 	)

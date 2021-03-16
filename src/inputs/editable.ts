@@ -116,7 +116,10 @@ export function updateInputPorts<S extends Schema>(
 			.data((node) => getInputs(ref, node), getInputKey)
 			.join(
 				(enter) => appendInputPorts(enter).call(dragBehavior),
-				(update) => update.classed("hidden", ({ value }) => value === null)
+				(update) =>
+					update
+						.classed("hidden", ({ value }) => value === null)
+						.attr("data-value", ({ value }) => value)
 			)
 	}
 }

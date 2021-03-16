@@ -6,9 +6,10 @@ import { HTML5Backend } from "react-dnd-html5-backend"
 import { Toolbox } from "./Toolbox.js"
 import { Canvas } from "./Canvas.js"
 
-import { Blocks, Graph, Schema } from "./interfaces.js"
+import { Blocks, Edge, Graph, Node, Schema } from "./interfaces.js"
 import { EditorAction } from "./redux/actions.js"
 import { defaultCanvasUnit, defaultCanvasHeight } from "./utils.js"
+import { Selection } from "d3-selection"
 
 export interface EditorProps<S extends Schema> {
 	unit?: number
@@ -17,6 +18,12 @@ export interface EditorProps<S extends Schema> {
 	graph: Graph<S>
 	dispatch: (action: EditorAction<S>) => void
 	onFocus?: (id: string | null) => void
+	decorateNodes?: (
+		nodes: Selection<SVGGElement, Node<S>, SVGGElement | null, unknown>
+	) => void
+	decorateEdges?: (
+		edges: Selection<SVGGElement, Edge<S>, SVGGElement | null, unknown>
+	) => void
 }
 
 export function Editor<S extends Schema>({
@@ -38,6 +45,8 @@ export function Editor<S extends Schema>({
 					graph={props.graph}
 					dispatch={props.dispatch}
 					onFocus={props.onFocus}
+					decorateEdges={props.decorateEdges}
+					decorateNodes={props.decorateNodes}
 				/>
 			</div>
 		</DndProvider>

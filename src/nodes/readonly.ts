@@ -11,12 +11,18 @@ export const updateNodes = <S extends Schema>(ref: ReadonlyCanvasRef<S>) => {
 	const updateOutputs = updateOutputPorts(ref)
 
 	function focused(this: SVGGElement, event: FocusEvent, node: Node<S>) {
-		ref.onFocus(node.id)
+		if (ref.onFocus !== undefined) {
+			ref.onFocus(node.id)
+		}
 	}
 
 	function blurred(this: SVGGElement, event: FocusEvent, node: Node<S>) {
-		ref.onFocus(null)
+		if (ref.onFocus !== undefined) {
+			ref.onFocus(null)
+		}
 	}
+
+	const decorateNodes = ref.decorateNodes || ((node) => {})
 
 	return () => {
 		ref.nodes
@@ -27,14 +33,15 @@ export const updateNodes = <S extends Schema>(ref: ReadonlyCanvasRef<S>) => {
 					appendNodes(ref, enter, updateInputs, updateOutputs)
 						.style("cursor", "pointer")
 						.on("focus", focused)
-						.on("blur", blurred),
+						.on("blur", blurred)
+						.call(decorateNodes),
 				(update) => {
 					update.attr("transform", ({ position: { x, y } }) =>
 						toTranslate(x * ref.unit, y * ref.unit)
 					)
 
 					update.select<SVGGElement>("g.inputs").call(updateInputs)
-
+					update.call(decorateNodes)
 					return update
 				},
 				(exit) => exit.remove()

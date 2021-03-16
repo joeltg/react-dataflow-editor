@@ -30,7 +30,6 @@ export const appendOutputPorts = <S extends Schema>(
 		.attr("cy", ({ index }) => getPortOffsetY(index))
 		.attr("r", portRadius)
 		.attr("fill", defaultBackgroundColor)
-		.attr("stroke", defaultBorderColor)
 
 	circles.append("title").text(getOutputKey).datum(null)
 	return circles

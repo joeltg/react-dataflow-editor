@@ -59,6 +59,12 @@ function Index<S extends Schema>({
 			graph={graph}
 			dispatch={dispatch}
 			onFocus={handleFocus}
+			decorateNodes={(nodes) =>
+				nodes
+					.filter('[data-id="b"]')
+					.attr("stroke-width", 3)
+					.attr("stroke", "firebrick")
+			}
 		/>
 	)
 }

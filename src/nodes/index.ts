@@ -26,12 +26,12 @@ export const appendNodes = <S extends Schema>(
 		.attr("transform", ({ position: { x, y } }) =>
 			toTranslate(x * ref.unit, y * ref.unit)
 		)
+		.attr("stroke", defaultBorderColor)
+		.attr("stroke-width", 1)
 
 	groups
 		.append("path")
-		.attr("stroke", defaultBorderColor)
 		.attr("fill", getBackgroundColor(ref.blocks))
-		.attr("stroke-width", 1)
 		.attr("d", function ({ kind }) {
 			const { inputs, outputs } = ref.blocks[kind]
 			const { length: inputCount } = Object.keys(inputs)
@@ -46,6 +46,7 @@ export const appendNodes = <S extends Schema>(
 	groups
 		.append("text")
 		.classed("title", true)
+		.attr("stroke", "none")
 		.attr("x", 8)
 		.attr("y", 18)
 		.attr("font-size", 16)
@@ -54,6 +55,7 @@ export const appendNodes = <S extends Schema>(
 	groups
 		.append("line")
 		.attr("stroke", "dimgrey")
+		.attr("stroke-width", 1)
 		.attr("x1", 4)
 		.attr("y1", blockHeaderHeight)
 		.attr("x2", blockWidth - 4)

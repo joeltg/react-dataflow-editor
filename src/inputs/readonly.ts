@@ -9,4 +9,10 @@ export const updateInputPorts = <S extends Schema>(
 	inputs
 		.selectAll<SVGCircleElement, Input<S>>("circle.port")
 		.data((node) => getInputs(ref, node), getInputKey)
-		.join((enter) => appendInputPorts(enter))
+		.join(
+			(enter) => appendInputPorts(enter),
+			(update) =>
+				update
+					.classed("hidden", ({ value }) => value === null)
+					.attr("data-value", ({ value }) => value)
+		)

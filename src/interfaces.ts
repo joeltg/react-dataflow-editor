@@ -83,7 +83,13 @@ export interface ReadonlyCanvasRef<S extends Schema> {
 	unit: number
 	height: number
 	blocks: Blocks<S>
-	onFocus: (id: string | null) => void
+	onFocus?: (id: string | null) => void
+	decorateNodes?: (
+		nodes: Selection<SVGGElement, Node<S>, SVGGElement | null, unknown>
+	) => void
+	decorateEdges?: (
+		edges: Selection<SVGGElement, Edge<S>, SVGGElement | null, unknown>
+	) => void
 }
 
 export interface CanvasRef<S extends Schema> extends ReadonlyCanvasRef<S> {
