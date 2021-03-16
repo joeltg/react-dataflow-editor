@@ -81,7 +81,7 @@ export function Canvas<S extends Schema>(props: CanvasProps<S>) {
 		props.graph.nodes,
 	])
 
-	const [{}, drop] = useDrop<{ type: "block"; kind: keyof S }, void, {}>({
+	const [{}, drop] = useDrop<{ kind: keyof S }, void, {}>({
 		accept: ["block"],
 		drop({ kind }, monitor) {
 			const { x, y } = monitor.getSourceClientOffset()!

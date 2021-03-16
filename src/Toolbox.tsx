@@ -27,7 +27,7 @@ export function AbstractBlockView<S extends Schema>({
 	blocks,
 }: AbstractBlockViewProps<S>) {
 	const block = blocks[kind]
-	const [_, drag] = useDrag({ item: { type: "block", kind } })
+	const [_, drag] = useDrag({ type: "block", item: { kind } })
 	return (
 		<div
 			ref={drag}
