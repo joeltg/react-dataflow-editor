@@ -27,7 +27,7 @@ export interface ViewerProps<S extends Schema> {
 	height?: number
 	blocks: Blocks<S>
 	graph: Graph<S>
-	onFocus: (id: string | null) => void
+	onFocus?: (id: string | null) => void
 	decorateNodes?: (
 		nodes: Selection<SVGGElement, Node<S>, SVGGElement | null, unknown>
 	) => void
