@@ -3,7 +3,7 @@ import { Schema, Node, Source, ReadonlyCanvasRef, GetOutputs } from "../interfac
 export declare type Output<S extends Schema> = {
     index: number;
     source: Source<S, keyof S>;
-    value: Set<string>;
+    value: string[];
 };
 export declare const getOutputKey: <S extends Schema>({ source: { output }, }: Output<S>) => string;
 export declare const appendOutputPorts: <S extends Schema>(enter: Selection<EnterElement, Output<S>, SVGGElement, Node<S, keyof S>>) => Selection<SVGCircleElement, Output<S>, SVGGElement, Node<S, keyof S>>;
@@ -13,5 +13,5 @@ export declare const getOutputs: <S extends Schema>(ref: ReadonlyCanvasRef<S>, n
         id: string;
         output: GetOutputs<S, keyof S>;
     };
-    value: Record<GetOutputs<S, keyof S>, Set<string>>[GetOutputs<S, keyof S>];
+    value: Record<GetOutputs<S, keyof S>, string[]>[GetOutputs<S, keyof S>];
 }[];

@@ -37,7 +37,7 @@ type NodeIndex<S extends Schema> = {
 		position: Position
 		kind: k
 		inputs: Record<GetInputs<S, k>, null | string>
-		outputs: Record<GetOutputs<S, k>, Set<string>>
+		outputs: Record<GetOutputs<S, k>, string[]>
 	}
 }
 

@@ -81,14 +81,14 @@ ReactDOM.render(
 					kind: "fdjsalfj",
 					position: { x: 1, y: 1 },
 					inputs: { a: null },
-					outputs: { outA: new Set(), outB: new Set("b"), outC: new Set() },
+					outputs: { outA: [], outB: ["b"], outC: [] },
 				},
 				b: {
 					id: "b",
 					kind: "source",
 					position: { x: 5, y: 3 },
 					inputs: { a: null, b: "c" },
-					outputs: { outA: new Set(), outB: new Set() },
+					outputs: { outA: [], outB: [] },
 				},
 			},
 			edges: {

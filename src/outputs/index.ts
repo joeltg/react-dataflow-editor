@@ -13,7 +13,7 @@ import { getPortOffsetY, portRadius } from "../utils.js"
 export type Output<S extends Schema> = {
 	index: number
 	source: Source<S, keyof S>
-	value: Set<string>
+	value: string[]
 }
 
 export const getOutputKey = <S extends Schema>({

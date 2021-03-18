@@ -39,7 +39,7 @@ declare type NodeIndex<S extends Schema> = {
         position: Position;
         kind: k;
         inputs: Record<GetInputs<S, k>, null | string>;
-        outputs: Record<GetOutputs<S, k>, Set<string>>;
+        outputs: Record<GetOutputs<S, k>, string[]>;
     };
 };
 export declare type Node<S extends Schema, K extends keyof S = keyof S> = NodeIndex<S>[K];

@@ -44,7 +44,7 @@ export const makeReducer = <S extends Schema>(
 				outputs.delete(edgeId)
 				nodes[sourceId] = {
 					...source,
-					outputs: { ...source.outputs, [output]: outputs },
+					outputs: { ...source.outputs, [output]: Array.from(outputs) },
 				}
 			}
 		}
@@ -79,7 +79,7 @@ export const makeReducer = <S extends Schema>(
 		sourceOutput.add(id)
 		nodes[sourceId] = {
 			...sourceNode,
-			outputs: { ...sourceNode.outputs, [output]: sourceOutput },
+			outputs: { ...sourceNode.outputs, [output]: Array.from(sourceOutput) },
 		}
 
 		const { id: targetId, input } = target
@@ -123,7 +123,7 @@ export const makeReducer = <S extends Schema>(
 		sourceOutput.delete(id)
 		nodes[sourceId] = {
 			...sourceNode,
-			outputs: { ...sourceNode.outputs, [output]: sourceOutput },
+			outputs: { ...sourceNode.outputs, [output]: Array.from(sourceOutput) },
 		}
 
 		const { id: targetId, input } = edge.target
@@ -152,8 +152,10 @@ function createInitialNode<S extends Schema, K extends keyof S>(
 	) as Record<GetInputs<S, K>, null | string>
 
 	const outputs = Object.fromEntries(
-		Object.keys(blocks[kind].outputs).map((output) => [output, new Set()])
-	) as Record<GetOutputs<S, K>, Set<string>>
+		Object.keys(blocks[kind].outputs).map<[GetOutputs<S, K>, string[]]>(
+			(output) => [output, []]
+		)
+	) as Record<GetOutputs<S, K>, string[]>
 
 	return { id, kind, position, inputs, outputs }
 }
