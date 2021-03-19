@@ -54,6 +54,8 @@ export const updateEdges = <S extends Schema>(ref: ReadonlyCanvasRef<S>) => {
 					return edges
 				},
 				(update) => {
+					update.attr("data-target", ({ target: { id } }) => id)
+					update.attr("data-input", ({ target: { input } }) => input)
 					update.each(function ({ source, target }) {
 						setEdgePosition.call(
 							this,

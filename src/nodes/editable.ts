@@ -1,12 +1,12 @@
+import { Selection } from "d3-selection"
 import { D3DragEvent, drag } from "d3-drag"
-import { select, Selection } from "d3-selection"
+
 import { updateInputPorts } from "../inputs/editable.js"
 
 import * as actions from "../redux/actions.js"
 import { CanvasRef, Edge, Node, Position, Schema } from "../interfaces.js"
 
 import { updateOutputPorts } from "../outputs/editable.js"
-import { makeCurvePath } from "../curve.js"
 
 import {
 	getKey,
