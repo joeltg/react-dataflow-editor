@@ -1,6 +1,6 @@
 import { select } from "d3-selection"
 import { makeCurvePath } from "./curve.js"
-import { CanvasRef, Edge, ReadonlyCanvasRef, Schema } from "./interfaces.js"
+import type { Edge, ReadonlyCanvasRef, Schema } from "./interfaces.js"
 import { getKey, getSourcePosition, getTargetPosition } from "./utils.js"
 
 export function setEdgePosition(

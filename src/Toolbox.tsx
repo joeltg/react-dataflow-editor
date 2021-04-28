@@ -1,36 +1,22 @@
-import React, { memo } from "react"
+import React from "react"
 import { useDrag } from "react-dnd"
 
-import { Blocks, Schema } from "./interfaces.js"
+import type { Kinds, Schema } from "./interfaces.js"
 import { defaultBackgroundColor, defaultBorderColor } from "./styles.js"
-import { portMargin, portRadius } from "./utils.js"
+import { portMargin } from "./utils.js"
 
-// const portStyle: React.CSSProperties = {
-// 	display: "flex",
-// 	justifyContent: "center",
-// 	alignItems: "center",
-// 	width: portRadius * 2,
-// 	height: portRadius * 2,
-// 	borderRadius: portRadius,
-// 	border: `1px solid ${defaultBorderColor}`,
-// 	backgroundColor: defaultBackgroundColor,
-// 	boxSizing: "border-box",
-// }
-
-export interface AbstractBlockViewProps<S extends Schema> {
+export interface PreviewNodeProps<S extends Schema> {
 	kind: keyof S
-	blocks: Blocks<S>
+	kinds: Kinds<S>
 }
 
-export function AbstractBlockView<S extends Schema>({
-	kind,
-	blocks,
-}: AbstractBlockViewProps<S>) {
-	const block = blocks[kind]
-	const [_, drag] = useDrag({ type: "block", item: { kind } })
+export function PreviewNode<S extends Schema>(props: PreviewNodeProps<S>) {
+	const { backgroundColor, name } = props.kinds[props.kind]
+	const [_, drag] = useDrag({ type: "node", item: { kind: props.kind } })
 	return (
 		<div
 			ref={drag}
+			className="abstract"
 			style={{
 				cursor: "move",
 				margin: "1em",
@@ -40,7 +26,7 @@ export function AbstractBlockView<S extends Schema>({
 				borderWidth: 1,
 				borderStyle: "solid",
 				borderColor: defaultBorderColor,
-				backgroundColor: block.backgroundColor || defaultBackgroundColor,
+				backgroundColor: backgroundColor || defaultBackgroundColor,
 			}}
 		>
 			<div
@@ -50,25 +36,23 @@ export function AbstractBlockView<S extends Schema>({
 					marginRight: portMargin / 2,
 				}}
 			>
-				{block.name}
+				{name}
 			</div>
 		</div>
 	)
 }
 
 export interface ToolboxProps<S extends Schema> {
-	blocks: Blocks<S>
+	kinds: Kinds<S>
 }
 
-function renderToolbox<S extends Schema>({ blocks }: ToolboxProps<S>) {
+export function Toolbox<S extends Schema>(props: ToolboxProps<S>) {
 	return (
 		<div style={{ display: "flex" }} className="toolbox">
-			{Object.keys(blocks).map((key) => {
+			{Object.keys(props.kinds).map((key) => {
 				const kind = key as keyof S
-				return <AbstractBlockView key={key} kind={kind} blocks={blocks} />
+				return <PreviewNode key={key} kind={kind} kinds={props.kinds} />
 			})}
 		</div>
 	)
 }
-
-export const Toolbox = memo(renderToolbox)

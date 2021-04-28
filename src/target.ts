@@ -1,6 +1,6 @@
 import { quadtree } from "d3-quadtree"
 
-import { ReadonlyCanvasRef, Schema, Target } from "./interfaces.js"
+import type { ReadonlyCanvasRef, Schema, Target } from "./interfaces.js"
 import { forInputs, getPortOffsetY } from "./utils.js"
 
 export function getTargets<S extends Schema>(
@@ -14,7 +14,7 @@ export function getTargets<S extends Schema>(
 		} else {
 			const { x, y } = node.position
 
-			for (const [index, input] of forInputs(ref.blocks, node.kind)) {
+			for (const [index, input] of forInputs(ref.kinds, node.kind)) {
 				if (node.inputs[input] === null) {
 					targets.push({
 						target: { id: node.id, input },

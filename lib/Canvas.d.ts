@@ -1,11 +1,11 @@
 /// <reference types="react" />
 import { Selection } from "d3-selection";
-import * as actions from "./redux/actions.js";
-import { Graph, Blocks, Schema, Node, Edge } from "./interfaces.js";
+import * as actions from "./state/actions.js";
+import type { Graph, Kinds, Schema, Node, Edge } from "./interfaces.js";
 export interface CanvasProps<S extends Schema> {
     unit: number;
     height: number;
-    blocks: Blocks<S>;
+    kinds: Kinds<S>;
     graph: Graph<S>;
     onFocus?: (id: string | null) => void;
     dispatch: (action: actions.EditorAction<S>) => void;

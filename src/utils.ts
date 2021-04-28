@@ -1,20 +1,26 @@
 import { Selection } from "d3-selection"
 
-import {
+import type {
 	Schema,
 	Node,
 	Target,
 	Position,
 	Source,
-	Blocks,
+	Kinds,
 	GetInputs,
 	GetOutputs,
 	ReadonlyCanvasRef,
+	Graph,
 } from "./interfaces.js"
 import { defaultBackgroundColor, defaultBorderColor } from "./styles.js"
 
-export const blockWidth = 156
-export const blockHeaderHeight = 24
+export const initialEditorState = <S extends Schema>(): Graph<S> => ({
+	nodes: {},
+	edges: {},
+})
+
+export const nodeWidth = 156
+export const nodeHeaderHeight = 24
 export const portRadius = 12
 export const portMargin = 12
 export const portHeight = portRadius * 2 + portMargin * 2
@@ -49,7 +55,7 @@ export function makeClipPath(
 	inputCount: number,
 	[width, height]: [number, number]
 ): string {
-	const path = [`M 0 0 V ${blockHeaderHeight}`]
+	const path = [`M 0 0 V ${nodeHeaderHeight}`]
 
 	for (let i = 0; i < inputCount; i++) {
 		path.push(inputPort)
@@ -69,7 +75,7 @@ export const getSourceIndex = <S extends Schema>(
 	source: Source<S, keyof S>
 ) => {
 	const { kind } = ref.graph.nodes[source.id]
-	const keys = Object.keys(ref.blocks[kind].outputs)
+	const keys = Object.keys(ref.kinds[kind].outputs)
 	return keys.indexOf(source.output as string)
 }
 
@@ -78,7 +84,7 @@ export const getTargetIndex = <S extends Schema>(
 	target: Target<S, keyof S>
 ) => {
 	const { kind } = ref.graph.nodes[target.id]
-	const keys = Object.keys(ref.blocks[kind].inputs)
+	const keys = Object.keys(ref.kinds[kind].inputs)
 	return keys.indexOf(target.input as string)
 }
 
@@ -91,7 +97,7 @@ export function getSourcePosition<S extends Schema>(
 	} = ref.graph.nodes[source.id]
 	const index = getSourceIndex(ref, source)
 	const offsetY = getPortOffsetY(index)
-	return [x * ref.unit + blockWidth, y * ref.unit + offsetY]
+	return [x * ref.unit + nodeWidth, y * ref.unit + offsetY]
 }
 
 export function getTargetPosition<S extends Schema>(
@@ -107,22 +113,22 @@ export function getTargetPosition<S extends Schema>(
 }
 
 export const getPortOffsetY = (index: number) =>
-	blockHeaderHeight + index * portHeight + portMargin + portRadius
+	nodeHeaderHeight + index * portHeight + portMargin + portRadius
 
 export function* forInputs<S extends Schema, K extends keyof S>(
-	blocks: Blocks<S>,
+	kinds: Kinds<S>,
 	kind: keyof S
 ): Generator<[number, GetInputs<S, K>]> {
-	for (const entry of Object.keys(blocks[kind].inputs).entries()) {
+	for (const entry of Object.keys(kinds[kind].inputs).entries()) {
 		yield entry
 	}
 }
 
 export function* forOutputs<S extends Schema, K extends keyof S>(
-	blocks: Blocks<S>,
+	kinds: Kinds<S>,
 	kind: keyof S
 ): Generator<[number, GetOutputs<S, K>]> {
-	for (const entry of Object.keys(blocks[kind].outputs).entries()) {
+	for (const entry of Object.keys(kinds[kind].outputs).entries()) {
 		yield entry
 	}
 }

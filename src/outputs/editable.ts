@@ -1,15 +1,10 @@
 import { D3DragEvent, drag, DragBehavior } from "d3-drag"
 import { Quadtree } from "d3-quadtree"
 
-import { CanvasRef, Schema } from "../interfaces.js"
+import type { CanvasRef, Schema } from "../interfaces.js"
 import { startPreview, stopPreview, updatePreview } from "../preview.js"
-import * as actions from "../redux/actions.js"
-import {
-	getPortOffsetY,
-	portRadius,
-	blockWidth,
-	AttachPorts,
-} from "../utils.js"
+import * as actions from "../state/actions.js"
+import { getPortOffsetY, portRadius, nodeWidth, AttachPorts } from "../utils.js"
 
 import { getTargets, DropTarget } from "../target.js"
 
@@ -67,7 +62,7 @@ const outputDragBehavior = <S extends Schema>(
 
 			return {
 				targets: getTargets(ref, id),
-				x: x * ref.unit + blockWidth,
+				x: x * ref.unit + nodeWidth,
 				y: y * ref.unit + getPortOffsetY(index),
 			}
 		}) as any

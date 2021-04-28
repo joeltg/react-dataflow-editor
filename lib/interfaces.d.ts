@@ -1,53 +1,44 @@
 import { Selection } from "d3-selection";
-import { EditorAction } from "./redux/actions.js";
+import { EditorAction } from "./state/actions.js";
 export declare type Position = {
     x: number;
     y: number;
 };
-export declare const Factory: {
-    block: <I extends string, O extends string>(block: Block<I, O>) => Block<I, O>;
-    blocks: <B extends Blocks<Schema>>(blocks: B) => Blocks<GetSchema<B>>;
-};
-export declare type Block<I extends string, O extends string> = {
+export declare type Kind<I extends string, O extends string> = Readonly<{
     name: string;
-    inputs: {
-        [i in I]: null;
-    };
-    outputs: {
-        [o in O]: null;
-    };
+    inputs: Readonly<Record<I, null>>;
+    outputs: Readonly<Record<O, null>>;
     backgroundColor: string;
-};
+}>;
 export declare type Schema = Record<string, {
     inputs: string;
     outputs: string;
 }>;
-export declare type GetInputs<S extends Schema, K extends keyof S> = S[K]["inputs"];
-export declare type GetOutputs<S extends Schema, K extends keyof S> = S[K]["outputs"];
-export declare type Blocks<S extends Schema> = {
-    [k in keyof S]: Block<GetInputs<S, k>, GetOutputs<S, k>>;
+export declare type GetInputs<S extends Schema, K extends keyof S = keyof S> = S[K]["inputs"];
+export declare type GetOutputs<S extends Schema, K extends keyof S = keyof S> = S[K]["outputs"];
+export declare type Kinds<S extends Schema> = {
+    readonly [K in keyof S]: Kind<GetInputs<S, K>, GetOutputs<S, K>>;
 };
-export declare type GetSchema<B extends Blocks<Schema>> = {
-    [k in keyof B]: B[k] extends Block<infer I, infer O> ? {
+export declare type GetSchema<B extends Kinds<Schema>> = {
+    [k in keyof B]: B[k] extends Kind<infer I, infer O> ? {
         inputs: I;
         outputs: O;
     } : never;
 };
-declare type NodeIndex<S extends Schema> = {
-    [k in keyof S]: {
+export declare type Node<S extends Schema, K extends keyof S = keyof S> = {
+    [k in K]: {
         id: string;
-        position: Position;
         kind: k;
         inputs: Record<GetInputs<S, k>, null | string>;
         outputs: Record<GetOutputs<S, k>, string[]>;
+        position: Position;
     };
-};
-export declare type Node<S extends Schema, K extends keyof S = keyof S> = NodeIndex<S>[K];
-export declare type Source<S extends Schema, K extends keyof S> = {
+}[K];
+export declare type Source<S extends Schema, K extends keyof S = keyof S> = {
     id: string;
     output: GetOutputs<S, K>;
 };
-export declare type Target<S extends Schema, K extends keyof S> = {
+export declare type Target<S extends Schema, K extends keyof S = keyof S> = {
     id: string;
     input: GetInputs<S, K>;
 };
@@ -60,14 +51,13 @@ export declare type Graph<S extends Schema> = {
     nodes: Record<string, Node<S>>;
     edges: Record<string, Edge<S>>;
 };
-export declare const initialEditorState: <S extends Schema>() => Graph<S>;
 export interface ReadonlyCanvasRef<S extends Schema> {
     graph: Graph<S>;
     nodes: Selection<SVGGElement | null, unknown, null, undefined>;
     edges: Selection<SVGGElement | null, unknown, null, undefined>;
     unit: number;
     height: number;
-    blocks: Blocks<S>;
+    kinds: Kinds<S>;
     onFocus?: (id: string | null) => void;
     decorateNodes?: (nodes: Selection<SVGGElement, Node<S>, SVGGElement | null, unknown>) => void;
     decorateEdges?: (edges: Selection<SVGGElement, Edge<S>, SVGGElement | null, unknown>) => void;
@@ -76,4 +66,3 @@ export interface CanvasRef<S extends Schema> extends ReadonlyCanvasRef<S> {
     preview: Selection<SVGGElement | null, unknown, null, undefined>;
     dispatch: (action: EditorAction<S>) => void;
 }
-export {};

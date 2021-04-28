@@ -2,8 +2,8 @@ import { D3DragEvent, drag, DragBehavior } from "d3-drag"
 import { Quadtree } from "d3-quadtree"
 import { Selection } from "d3-selection"
 
-import * as actions from "../redux/actions.js"
-import { CanvasRef, Schema } from "../interfaces.js"
+import * as actions from "../state/actions.js"
+import type { CanvasRef, Schema } from "../interfaces.js"
 import { startPreview, stopPreview, updatePreview } from "../preview.js"
 import {
 	getSourcePosition,

@@ -1,10 +1,10 @@
 /// <reference types="react" />
 import { Selection } from "d3-selection";
-import { Blocks, Edge, Graph, Node, Schema } from "./interfaces.js";
+import type { Kinds, Edge, Graph, Node, Schema } from "./interfaces.js";
 export interface ViewerProps<S extends Schema> {
     unit?: number;
     height?: number;
-    blocks: Blocks<S>;
+    kinds: Kinds<S>;
     graph: Graph<S>;
     onFocus?: (id: string | null) => void;
     decorateNodes?: (nodes: Selection<SVGGElement, Node<S>, SVGGElement | null, unknown>) => void;

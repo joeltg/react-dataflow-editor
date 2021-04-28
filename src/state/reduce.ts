@@ -1,7 +1,6 @@
-import {
-	initialEditorState,
+import type {
 	Graph,
-	Blocks,
+	Kinds,
 	Schema,
 	Node,
 	GetInputs,
@@ -9,18 +8,18 @@ import {
 	Position,
 } from "../interfaces.js"
 
-import { forInputs, forOutputs } from "../utils.js"
+import { forInputs, forOutputs, initialEditorState } from "../utils.js"
 
 import { EditorAction } from "./actions.js"
 
 export const makeReducer = <S extends Schema>(
-	blocks: Blocks<S>,
+	kinds: Kinds<S>,
 	initialState: Graph<S> = initialEditorState()
 ) => (state: Graph<S> = initialState, action: EditorAction<S>): Graph<S> => {
 	if (action.type === "node/create") {
 		const { id, kind, position } = action
 		const nodes = { ...state.nodes }
-		nodes[id] = createInitialNode(blocks, id, kind, position)
+		nodes[id] = createInitialNode(kinds, id, kind, position)
 		return { ...state, nodes }
 	} else if (action.type === "node/move") {
 		const { id, position } = action
@@ -32,7 +31,7 @@ export const makeReducer = <S extends Schema>(
 		const { kind, inputs, outputs } = state.nodes[id]
 		const nodes = { ...state.nodes }
 		const edges = { ...state.edges }
-		for (const [_, input] of forInputs(blocks, kind)) {
+		for (const [_, input] of forInputs(kinds, kind)) {
 			const edgeId: null | string = inputs[input]
 			if (edgeId !== null) {
 				const {
@@ -49,7 +48,7 @@ export const makeReducer = <S extends Schema>(
 			}
 		}
 
-		for (const [_, output] of forOutputs(blocks, kind)) {
+		for (const [_, output] of forOutputs(kinds, kind)) {
 			for (const edgeId of outputs[output]) {
 				const {
 					target: { id: targetId, input },
@@ -142,17 +141,17 @@ export const makeReducer = <S extends Schema>(
 }
 
 function createInitialNode<S extends Schema, K extends keyof S>(
-	blocks: Blocks<S>,
+	kinds: Kinds<S>,
 	id: string,
 	kind: K,
 	position: Position
 ): Node<S> {
 	const inputs = Object.fromEntries(
-		Object.keys(blocks[kind].inputs).map((input) => [input, null])
+		Object.keys(kinds[kind].inputs).map((input) => [input, null])
 	) as Record<GetInputs<S, K>, null | string>
 
 	const outputs = Object.fromEntries(
-		Object.keys(blocks[kind].outputs).map<[GetOutputs<S, K>, string[]]>(
+		Object.keys(kinds[kind].outputs).map<[GetOutputs<S, K>, string[]]>(
 			(output) => [output, []]
 		)
 	) as Record<GetOutputs<S, K>, string[]>

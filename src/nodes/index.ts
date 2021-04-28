@@ -1,11 +1,11 @@
 import { Selection, EnterElement } from "d3-selection"
 
-import { Schema, Node, ReadonlyCanvasRef } from "../interfaces.js"
+import type { Schema, Node, ReadonlyCanvasRef } from "../interfaces.js"
 import { defaultBorderColor, getBackgroundColor } from "../styles.js"
 import {
 	AttachPorts,
-	blockHeaderHeight,
-	blockWidth,
+	nodeHeaderHeight,
+	nodeWidth,
 	getKey,
 	makeClipPath,
 	portHeight,
@@ -31,15 +31,15 @@ export const appendNodes = <S extends Schema>(
 
 	groups
 		.append("path")
-		.attr("fill", getBackgroundColor(ref.blocks))
+		.attr("fill", getBackgroundColor(ref.kinds))
 		.attr("d", function ({ kind }) {
-			const { inputs, outputs } = ref.blocks[kind]
+			const { inputs, outputs } = ref.kinds[kind]
 			const { length: inputCount } = Object.keys(inputs)
 			const { length: outputCount } = Object.keys(outputs)
 
-			const w = blockWidth
+			const w = nodeWidth
 			const h =
-				blockHeaderHeight + portHeight * Math.max(inputCount, outputCount)
+				nodeHeaderHeight + portHeight * Math.max(inputCount, outputCount)
 			return makeClipPath(inputCount, [w, h])
 		})
 
@@ -50,23 +50,23 @@ export const appendNodes = <S extends Schema>(
 		.attr("x", 8)
 		.attr("y", 18)
 		.attr("font-size", 16)
-		.text(({ kind }) => ref.blocks[kind].name)
+		.text(({ kind }) => ref.kinds[kind].name)
 
 	groups
 		.append("line")
 		.attr("stroke", "dimgrey")
 		.attr("stroke-width", 1)
 		.attr("x1", 4)
-		.attr("y1", blockHeaderHeight)
-		.attr("x2", blockWidth - 4)
-		.attr("y2", blockHeaderHeight)
+		.attr("y1", nodeHeaderHeight)
+		.attr("x2", nodeWidth - 4)
+		.attr("y2", nodeHeaderHeight)
 
 	groups.append("g").classed("inputs", true).call(attachInputs)
 
 	groups
 		.append("g")
 		.classed("outputs", true)
-		.attr("transform", toTranslate(blockWidth, 0))
+		.attr("transform", toTranslate(nodeWidth, 0))
 		.call(attachOutputs)
 
 	return groups

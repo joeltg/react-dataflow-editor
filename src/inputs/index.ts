@@ -1,6 +1,6 @@
-import { BaseType, EnterElement, Selection } from "d3-selection"
+import { EnterElement, Selection } from "d3-selection"
 
-import {
+import type {
 	GetInputs,
 	Node,
 	ReadonlyCanvasRef,
@@ -43,7 +43,7 @@ export const getInputs = <S extends Schema>(
 	ref: ReadonlyCanvasRef<S>,
 	node: Node<S>
 ): Input<S>[] =>
-	Object.keys(ref.blocks[node.kind].inputs).map(
+	Object.keys(ref.kinds[node.kind].inputs).map(
 		(input: GetInputs<S, keyof S>, index) => {
 			const value: null | string = node.inputs[input]
 			const target: Target<S, keyof S> = { id: node.id, input }

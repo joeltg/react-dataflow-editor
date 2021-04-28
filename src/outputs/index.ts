@@ -1,6 +1,6 @@
 import { EnterElement, Selection } from "d3-selection"
 
-import {
+import type {
 	Schema,
 	Node,
 	Source,
@@ -39,7 +39,7 @@ export const getOutputs = <S extends Schema>(
 	ref: ReadonlyCanvasRef<S>,
 	node: Node<S>
 ) =>
-	Object.keys(ref.blocks[node.kind].outputs).map(
+	Object.keys(ref.kinds[node.kind].outputs).map(
 		(output: GetOutputs<S, keyof S>, index) => ({
 			index,
 			source: { id: node.id, output },

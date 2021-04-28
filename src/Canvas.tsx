@@ -10,9 +10,16 @@ import { useDrop } from "react-dnd"
 
 import { select, Selection } from "d3-selection"
 
-import * as actions from "./redux/actions.js"
+import * as actions from "./state/actions.js"
 
-import { Graph, CanvasRef, Blocks, Schema, Node, Edge } from "./interfaces.js"
+import type {
+	Graph,
+	CanvasRef,
+	Kinds,
+	Schema,
+	Node,
+	Edge,
+} from "./interfaces.js"
 
 import { attachPreview } from "./preview.js"
 import { updateNodes } from "./nodes/editable.js"
@@ -23,7 +30,7 @@ import { StyleContext } from "./styles.js"
 export interface CanvasProps<S extends Schema> {
 	unit: number
 	height: number
-	blocks: Blocks<S>
+	kinds: Kinds<S>
 	graph: Graph<S>
 	onFocus?: (id: string | null) => void
 	dispatch: (action: actions.EditorAction<S>) => void
@@ -43,7 +50,7 @@ export function Canvas<S extends Schema>(props: CanvasProps<S>) {
 			preview: select<SVGGElement | null, unknown>(null),
 			unit: props.unit,
 			height: props.height,
-			blocks: props.blocks,
+			kinds: props.kinds,
 			graph: props.graph,
 			dispatch: props.dispatch,
 			onFocus: props.onFocus,
@@ -82,7 +89,7 @@ export function Canvas<S extends Schema>(props: CanvasProps<S>) {
 	])
 
 	const [{}, drop] = useDrop<{ kind: keyof S }, void, {}>({
-		accept: ["block"],
+		accept: ["node"],
 		drop({ kind }, monitor) {
 			const { x, y } = monitor.getSourceClientOffset()!
 			const { left, top } = svgRef.current!.getBoundingClientRect()

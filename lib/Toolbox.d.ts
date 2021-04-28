@@ -1,13 +1,11 @@
-import React from "react";
-import { Blocks, Schema } from "./interfaces.js";
-export interface AbstractBlockViewProps<S extends Schema> {
+/// <reference types="react" />
+import type { Kinds, Schema } from "./interfaces.js";
+export interface PreviewNodeProps<S extends Schema> {
     kind: keyof S;
-    blocks: Blocks<S>;
+    kinds: Kinds<S>;
 }
-export declare function AbstractBlockView<S extends Schema>({ kind, blocks, }: AbstractBlockViewProps<S>): JSX.Element;
+export declare function PreviewNode<S extends Schema>(props: PreviewNodeProps<S>): JSX.Element;
 export interface ToolboxProps<S extends Schema> {
-    blocks: Blocks<S>;
+    kinds: Kinds<S>;
 }
-declare function renderToolbox<S extends Schema>({ blocks }: ToolboxProps<S>): JSX.Element;
-export declare const Toolbox: React.MemoExoticComponent<typeof renderToolbox>;
-export {};
+export declare function Toolbox<S extends Schema>(props: ToolboxProps<S>): JSX.Element;

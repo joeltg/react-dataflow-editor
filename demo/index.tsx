@@ -3,38 +3,37 @@ import ReactDOM from "react-dom"
 
 import {
 	Editor,
-	Factory,
 	Graph,
 	Schema,
-	Blocks,
+	Kinds,
 	GetSchema,
 	makeReducer,
 	EditorAction,
-	Viewer,
+	Node,
 } from ".."
 
 const main = document.querySelector("main")
 
-const blocks = {
-	source: Factory.block({
-		name: "Collection Export",
+const kinds = {
+	add: {
+		name: "Addition",
 		inputs: { a: null, b: null },
-		outputs: { outA: null, outB: null },
+		outputs: { sum: null },
 		backgroundColor: "lavender",
-	}),
-	fdjsalfj: Factory.block({
-		name: "CSV Import",
-		inputs: { a: null },
-		outputs: { outA: null, outB: null, outC: null },
+	},
+	div: {
+		name: "Division",
+		inputs: { dividend: null, divisor: null },
+		outputs: { quotient: null, remainder: null },
 		backgroundColor: "darksalmon",
-	}),
+	},
 }
 
 function Index<S extends Schema>({
-	blocks,
+	kinds,
 	initialState,
 }: {
-	blocks: Blocks<S>
+	kinds: Kinds<S>
 	initialState: Graph<S>
 }) {
 	const [graph, setGraph] = useState(initialState)
@@ -42,7 +41,7 @@ function Index<S extends Schema>({
 	const graphRef = useRef<Graph<S>>(graph)
 	graphRef.current = graph
 
-	const reducer = useMemo(() => makeReducer(blocks, initialState), [])
+	const reducer = useMemo(() => makeReducer(kinds, initialState), [])
 	const dispatch = useCallback(
 		(action: EditorAction<S>) => setGraph(reducer(graphRef.current, action)),
 		[]
@@ -53,51 +52,49 @@ function Index<S extends Schema>({
 		[]
 	)
 
+	const nodesRes = useRef<any>(null)
+
 	return (
 		<Editor<S>
-			blocks={blocks}
+			kinds={kinds}
 			graph={graph}
 			dispatch={dispatch}
 			onFocus={handleFocus}
-			decorateNodes={(nodes) =>
+			decorateNodes={(nodes) => {
+				console.log("decorating")
+				nodesRes.current = nodes
 				nodes
 					.filter('[data-id="b"]')
 					.attr("stroke-width", 3)
 					.attr("stroke", "firebrick")
-			}
+			}}
 		/>
 	)
 }
 
-type S = GetSchema<typeof blocks>
+type S = GetSchema<typeof kinds>
 
 ReactDOM.render(
 	<Index<S>
-		blocks={blocks}
+		kinds={kinds}
 		initialState={{
 			nodes: {
 				a: {
 					id: "a",
-					kind: "fdjsalfj",
+					kind: "add",
 					position: { x: 1, y: 1 },
-					inputs: { a: null },
-					outputs: { outA: [], outB: ["b"], outC: [] },
+					inputs: { a: null, b: null },
+					outputs: { sum: [] },
 				},
 				b: {
 					id: "b",
-					kind: "source",
+					kind: "div",
 					position: { x: 5, y: 3 },
-					inputs: { a: null, b: "c" },
-					outputs: { outA: [], outB: [] },
+					inputs: { dividend: null, divisor: null },
+					outputs: { quotient: [], remainder: [] },
 				},
 			},
-			edges: {
-				c: {
-					id: "c",
-					source: { id: "a", output: "outB" },
-					target: { id: "b", input: "b" },
-				},
-			},
+			edges: {},
 		}}
 	/>,
 	main

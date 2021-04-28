@@ -11,8 +11,8 @@ import { select, Selection } from "d3-selection"
 import { updateNodes } from "./nodes/readonly.js"
 import { updateEdges } from "./edges.js"
 
-import {
-	Blocks,
+import type {
+	Kinds,
 	Edge,
 	Graph,
 	Node,
@@ -25,7 +25,7 @@ import { StyleContext } from "./styles.js"
 export interface ViewerProps<S extends Schema> {
 	unit?: number
 	height?: number
-	blocks: Blocks<S>
+	kinds: Kinds<S>
 	graph: Graph<S>
 	onFocus?: (id: string | null) => void
 	decorateNodes?: (
@@ -46,7 +46,7 @@ export function Viewer<S extends Schema>({
 			<Canvas
 				unit={unit}
 				height={height}
-				blocks={props.blocks}
+				kinds={props.kinds}
 				graph={props.graph}
 				onFocus={props.onFocus}
 				decorateEdges={props.decorateEdges}
@@ -59,7 +59,7 @@ export function Viewer<S extends Schema>({
 interface CanvasProps<S extends Schema> {
 	unit: number
 	height: number
-	blocks: Blocks<S>
+	kinds: Kinds<S>
 	graph: Graph<S>
 	onFocus?: (id: string | null) => void
 	decorateNodes?: (
@@ -77,7 +77,7 @@ function Canvas<S extends Schema>(props: CanvasProps<S>) {
 			edges: select<SVGGElement | null, unknown>(null),
 			unit: props.unit,
 			height: props.height,
-			blocks: props.blocks,
+			kinds: props.kinds,
 			graph: props.graph,
 			onFocus: props.onFocus,
 			decorateEdges: props.decorateEdges,

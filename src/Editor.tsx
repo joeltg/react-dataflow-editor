@@ -1,20 +1,20 @@
 import React from "react"
 
+import type { Selection } from "d3-selection"
 import { DndProvider } from "react-dnd"
 import { HTML5Backend } from "react-dnd-html5-backend"
 
 import { Toolbox } from "./Toolbox.js"
 import { Canvas } from "./Canvas.js"
 
-import { Blocks, Edge, Graph, Node, Schema } from "./interfaces.js"
-import { EditorAction } from "./redux/actions.js"
+import { Kinds, Edge, Graph, Node, Schema } from "./interfaces.js"
+import { EditorAction } from "./state/actions.js"
 import { defaultCanvasUnit, defaultCanvasHeight } from "./utils.js"
-import { Selection } from "d3-selection"
 
 export interface EditorProps<S extends Schema> {
 	unit?: number
 	height?: number
-	blocks: Blocks<S>
+	kinds: Kinds<S>
 	graph: Graph<S>
 	dispatch: (action: EditorAction<S>) => void
 	onFocus?: (id: string | null) => void
@@ -37,11 +37,11 @@ export function Editor<S extends Schema>({
 				className="editor"
 				style={{ display: "flex", flexDirection: "column" }}
 			>
-				<Toolbox blocks={props.blocks} />
+				<Toolbox kinds={props.kinds} />
 				<Canvas
 					unit={unit}
 					height={height}
-					blocks={props.blocks}
+					kinds={props.kinds}
 					graph={props.graph}
 					dispatch={props.dispatch}
 					onFocus={props.onFocus}

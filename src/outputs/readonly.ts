@@ -1,4 +1,4 @@
-import { ReadonlyCanvasRef, Schema } from "../interfaces.js"
+import type { ReadonlyCanvasRef, Schema } from "../interfaces.js"
 import { AttachPorts } from "../utils.js"
 
 import { appendOutputPorts, getOutputKey, getOutputs, Output } from "./index.js"

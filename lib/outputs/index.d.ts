@@ -1,5 +1,5 @@
 import { EnterElement, Selection } from "d3-selection";
-import { Schema, Node, Source, ReadonlyCanvasRef, GetOutputs } from "../interfaces.js";
+import type { Schema, Node, Source, ReadonlyCanvasRef, GetOutputs } from "../interfaces.js";
 export declare type Output<S extends Schema> = {
     index: number;
     source: Source<S, keyof S>;

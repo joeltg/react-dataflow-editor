@@ -1,15 +1,15 @@
 import React from "react"
 
-import { Blocks, Node, Schema } from "./interfaces.js"
+import type { Kinds, Node, Schema } from "./interfaces.js"
 
 export const defaultBackgroundColor = "lightgray"
 export const defaultBorderColor = "dimgray"
 
-export const getBackgroundColor = <S extends Schema>(blocks: Blocks<S>) => ({
-	kind,
-}: Node<S>) => blocks[kind].backgroundColor || defaultBackgroundColor
+export const getBackgroundColor = <S extends Schema>(kinds: Kinds<S>) => (
+	node: Node<S>
+) => kinds[node.kind].backgroundColor || defaultBackgroundColor
 
-export const defaultBlockHeaderStyle: React.CSSProperties = {
+export const defaultNodeHeaderStyle: React.CSSProperties = {
 	paddingTop: 4,
 	cursor: "move",
 	userSelect: "none",
@@ -22,15 +22,16 @@ export type getEditorStyle = (ref: {
 	height: number
 }) => React.CSSProperties
 
-export type getBlockStyle = <S extends Schema>(
-	block: Blocks<S>[keyof S]
+export type getNodeStyle = <S extends Schema>(
+	kinds: Kinds<S>,
+	kind: keyof S
 ) => React.CSSProperties
 
 interface StyleContext {
 	getCanvasStyle: getEditorStyle
 	getSVGStyle: getEditorStyle
-	getBlockHeaderStyle: getBlockStyle
-	getBlockContentStyle: getBlockStyle
+	getNodeHeaderStyle: getNodeStyle
+	getNodeContentStyle: getNodeStyle
 }
 
 export const defaultCanvasStyle: React.CSSProperties = {
@@ -50,12 +51,15 @@ export const defaultStyleContext: StyleContext = {
 		width: "100%",
 		height: unit * height,
 	}),
-	getBlockHeaderStyle: () => defaultBlockHeaderStyle,
-	getBlockContentStyle: (block) => ({
-		position: "fixed",
-		width: "max-content",
-		backgroundColor: block.backgroundColor || defaultBackgroundColor,
-	}),
+	getNodeHeaderStyle: () => defaultNodeHeaderStyle,
+	getNodeContentStyle: (kinds, kind) => {
+		const { backgroundColor } = kinds[kind]
+		return {
+			position: "fixed",
+			width: "max-content",
+			backgroundColor: backgroundColor || defaultBackgroundColor,
+		}
+	},
 }
 
 export const StyleContext = React.createContext(defaultStyleContext)

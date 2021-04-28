@@ -3,8 +3,8 @@ import { D3DragEvent, drag } from "d3-drag"
 
 import { updateInputPorts } from "../inputs/editable.js"
 
-import * as actions from "../redux/actions.js"
-import { CanvasRef, Edge, Node, Position, Schema } from "../interfaces.js"
+import * as actions from "../state/actions.js"
+import type { CanvasRef, Edge, Node, Position, Schema } from "../interfaces.js"
 
 import { updateOutputPorts } from "../outputs/editable.js"
 
@@ -15,7 +15,7 @@ import {
 	getTargetPosition,
 	toTranslate,
 	snap,
-	blockWidth,
+	nodeWidth,
 	getTargetIndex,
 	getSourceIndex,
 } from "../utils.js"
@@ -23,23 +23,23 @@ import {
 import { appendNodes } from "./index.js"
 import { setEdgePosition } from "../edges.js"
 
-type BlockDragSubject<S extends Schema> = {
+type NodeDragSubject<S extends Schema> = {
 	x: number
 	y: number
 	incoming: Selection<SVGGElement, Edge<S>, SVGGElement | null, unknown>
 	outgoing: Selection<SVGGElement, Edge<S>, SVGGElement | null, unknown>
 }
 
-type BlockDragEvent<S extends Schema> = D3DragEvent<
+type NodeDragEvent<S extends Schema> = D3DragEvent<
 	SVGForeignObjectElement,
 	Node<S>,
-	BlockDragSubject<S>
+	NodeDragSubject<S>
 >
 
 const nodeDragBehavior = <S extends Schema>(ref: CanvasRef<S>) => {
 	function setNodePosition(
 		this: SVGGElement,
-		subject: BlockDragSubject<S>,
+		subject: NodeDragSubject<S>,
 		{ x, y }: Position
 	) {
 		this.setAttribute("transform", toTranslate(x, y))
@@ -53,7 +53,7 @@ const nodeDragBehavior = <S extends Schema>(ref: CanvasRef<S>) => {
 			setEdgePosition.call(this, sourcePosition, [x2, y2])
 		})
 
-		const x1 = x + blockWidth
+		const x1 = x + nodeWidth
 		subject.outgoing.each(function ({ source, target }) {
 			const sourceIndex = getSourceIndex(ref, source)
 			const y1 = y + getPortOffsetY(sourceIndex)
@@ -63,14 +63,14 @@ const nodeDragBehavior = <S extends Schema>(ref: CanvasRef<S>) => {
 	}
 
 	return drag<SVGGElement, Node<S>>()
-		.on("start", function onStart(event: BlockDragEvent<S>, node: Node<S>) {
+		.on("start", function onStart(event: NodeDragEvent<S>, node: Node<S>) {
 			this.style.cursor = "grabbing"
 		})
-		.on("drag", function onDrag(event: BlockDragEvent<S>, node: Node<S>) {
+		.on("drag", function onDrag(event: NodeDragEvent<S>, node: Node<S>) {
 			const { x, y, subject } = event
 			setNodePosition.call(this, subject, { x, y })
 		})
-		.on("end", function onEnd(event: BlockDragEvent<S>, node: Node<S>) {
+		.on("end", function onEnd(event: NodeDragEvent<S>, node: Node<S>) {
 			this.style.cursor = "grab"
 			const snapped = snap(ref, [event.x, event.y])
 			if (snapped.x === node.position.x && snapped.y === node.position.y) {
@@ -81,9 +81,9 @@ const nodeDragBehavior = <S extends Schema>(ref: CanvasRef<S>) => {
 			}
 		})
 		.subject(function (
-			event: BlockDragEvent<S>,
+			event: NodeDragEvent<S>,
 			node: Node<S>
-		): BlockDragSubject<S> {
+		): NodeDragSubject<S> {
 			const { x, y } = node.position
 			const incoming = ref.edges.selectAll<SVGGElement, Edge<S>>(
 				`g.edge[data-target="${node.id}"]`
@@ -157,8 +157,7 @@ export const updateNodes = <S extends Schema>(ref: CanvasRef<S>) => {
 						.on("focus", focused)
 						.on("blur", blurred)
 						.on("keydown", nodeKeyDown)
-						.call(nodeDrag)
-						.call(decorateNodes),
+						.call(nodeDrag),
 				(update) => {
 					update.attr("transform", ({ position: { x, y } }) =>
 						toTranslate(x * ref.unit, y * ref.unit)
@@ -166,11 +165,10 @@ export const updateNodes = <S extends Schema>(ref: CanvasRef<S>) => {
 
 					update.select<SVGGElement>("g.inputs").call(updateInputs)
 
-					update.call(decorateNodes)
-
 					return update
 				},
 				(exit) => exit.remove()
 			)
+			.call(decorateNodes)
 	}
 }
