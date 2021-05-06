@@ -1,5 +1,3 @@
-import { Selection } from "d3-selection";
-import { EditorAction } from "./state/actions.js";
 export declare type Position = {
     x: number;
     y: number;
@@ -51,18 +49,10 @@ export declare type Graph<S extends Schema> = {
     nodes: Record<string, Node<S>>;
     edges: Record<string, Edge<S>>;
 };
-export interface ReadonlyCanvasRef<S extends Schema> {
-    graph: Graph<S>;
-    nodes: Selection<SVGGElement | null, unknown, null, undefined>;
-    edges: Selection<SVGGElement | null, unknown, null, undefined>;
-    unit: number;
-    height: number;
-    kinds: Kinds<S>;
-    onFocus?: (id: string | null) => void;
-    decorateNodes?: (nodes: Selection<SVGGElement, Node<S>, SVGGElement | null, unknown>) => void;
-    decorateEdges?: (edges: Selection<SVGGElement, Edge<S>, SVGGElement | null, unknown>) => void;
-}
-export interface CanvasRef<S extends Schema> extends ReadonlyCanvasRef<S> {
-    preview: Selection<SVGGElement | null, unknown, null, undefined>;
-    dispatch: (action: EditorAction<S>) => void;
-}
+export declare type Focus = null | {
+    type: "node";
+    id: string;
+} | {
+    type: "edge";
+    id: string;
+};

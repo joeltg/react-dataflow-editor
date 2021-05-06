@@ -1,39 +1,23 @@
-import React, {
-	useCallback,
-	useContext,
-	useLayoutEffect,
-	useMemo,
-	useRef,
-} from "react"
+import React, { useCallback, useMemo, useRef } from "react"
 
-import { select, Selection } from "d3-selection"
+import { Canvas } from "./ReadonlyCanvas.js"
 
-import { updateNodes } from "./nodes/readonly.js"
-import { updateEdges } from "./edges.js"
+import { Kinds, EditorState, Schema, Focus } from "./state.js"
 
-import type {
-	Kinds,
-	Edge,
-	Graph,
-	Node,
-	ReadonlyCanvasRef,
-	Schema,
-} from "./interfaces.js"
-import { defaultCanvasUnit, defaultCanvasHeight, SVG_STYLE } from "./utils.js"
-import { StyleContext } from "./styles.js"
+import { EditorAction, focus, FocusAction } from "./actions.js"
+import {
+	defaultCanvasUnit,
+	defaultCanvasHeight,
+	EditorContext,
+} from "./context.js"
+import { isFocusEqual } from "./utils.js"
 
 export interface ViewerProps<S extends Schema> {
 	unit?: number
 	height?: number
 	kinds: Kinds<S>
-	graph: Graph<S>
-	onFocus?: (id: string | null) => void
-	decorateNodes?: (
-		nodes: Selection<SVGGElement, Node<S>, SVGGElement | null, unknown>
-	) => void
-	decorateEdges?: (
-		edges: Selection<SVGGElement, Edge<S>, SVGGElement | null, unknown>
-	) => void
+	state: EditorState<S>
+	dispatch: (action: FocusAction) => void
 }
 
 export function Viewer<S extends Schema>({
@@ -41,109 +25,38 @@ export function Viewer<S extends Schema>({
 	height = defaultCanvasHeight,
 	...props
 }: ViewerProps<S>) {
-	return (
-		<div className="viewer">
-			<Canvas
-				unit={unit}
-				height={height}
-				kinds={props.kinds}
-				graph={props.graph}
-				onFocus={props.onFocus}
-				decorateEdges={props.decorateEdges}
-				decorateNodes={props.decorateNodes}
-			/>
-		</div>
-	)
-}
+	const focusRef = useRef<Focus | null>(props.state.focus)
+	focusRef.current = props.state.focus
 
-interface CanvasProps<S extends Schema> {
-	unit: number
-	height: number
-	kinds: Kinds<S>
-	graph: Graph<S>
-	onFocus?: (id: string | null) => void
-	decorateNodes?: (
-		nodes: Selection<SVGGElement, Node<S>, SVGGElement | null, unknown>
-	) => void
-	decorateEdges?: (
-		edges: Selection<SVGGElement, Edge<S>, SVGGElement | null, unknown>
-	) => void
-}
-
-function Canvas<S extends Schema>(props: CanvasProps<S>) {
-	const ref = useMemo<ReadonlyCanvasRef<S>>(
-		() => ({
-			nodes: select<SVGGElement | null, unknown>(null),
-			edges: select<SVGGElement | null, unknown>(null),
-			unit: props.unit,
-			height: props.height,
-			kinds: props.kinds,
-			graph: props.graph,
-			onFocus: props.onFocus,
-			decorateEdges: props.decorateEdges,
-			decorateNodes: props.decorateNodes,
-		}),
-		[]
-	)
-
-	ref.graph = props.graph
-
-	const svgRef = useRef<SVGSVGElement | null>(null)
-
-	const nodesRef = useCallback((nodes: SVGGElement) => {
-		ref.nodes = select<SVGGElement | null, unknown>(nodes)
+	const context = useMemo<EditorContext>(() => {
+		return {
+			unit,
+			height,
+			editable: false,
+			nodesRef: { current: null },
+			edgesRef: { current: null },
+			svgRef: { current: null },
+			previewRef: { current: null },
+			onFocus: (subject) => {
+				if (!isFocusEqual(focusRef.current, subject)) {
+					props.dispatch(focus(subject))
+				}
+			},
+		}
 	}, [])
 
-	const edgesRef = useCallback((edges: SVGGElement) => {
-		ref.edges = select<SVGGElement | null, unknown>(edges)
-	}, [])
-
-	const update = useMemo(
-		() => ({ nodes: updateNodes(ref), edges: updateEdges(ref) }),
-		[]
+	const dispatch = useCallback(
+		(action: EditorAction<S>) => {
+			if (action.type === "focus") {
+				props.dispatch(action)
+			}
+		},
+		[props.dispatch]
 	)
-
-	useLayoutEffect(() => void update.nodes(), [props.graph.nodes])
-	useLayoutEffect(() => void update.edges(), [
-		props.graph.edges,
-		props.graph.nodes,
-	])
-
-	const style = useContext(StyleContext)
-
-	const { svgStyle, canvasStyle } = useMemo(
-		() => ({
-			canvasStyle: style.getCanvasStyle(props),
-			svgStyle: style.getSVGStyle(props),
-		}),
-		[props.unit]
-	)
-
-	const x = useMemo(
-		() =>
-			480 +
-			props.unit *
-				Object.values(props.graph.nodes).reduce(
-					(x, { position }) => Math.max(x, position.x),
-					0
-				),
-		[props.graph.nodes]
-	)
-
-	const height = props.unit * props.height
 
 	return (
-		<div className="canvas" style={canvasStyle}>
-			<svg
-				ref={svgRef}
-				xmlns="http://www.w3.org/2000/svg"
-				style={{ ...svgStyle, minWidth: x }}
-				height={height}
-			>
-				<style>{SVG_STYLE}</style>
-				<g className="edges" ref={edgesRef}></g>
-				<g className="nodes" ref={nodesRef}></g>
-			</svg>
-		</div>
+		<EditorContext.Provider value={context}>
+			<Canvas kinds={props.kinds} state={props.state} dispatch={dispatch} />
+		</EditorContext.Provider>
 	)
 }

@@ -1,5 +1,5 @@
 /// <reference types="react" />
-import type { Kinds, Schema } from "./interfaces.js";
+import type { Kinds, Schema } from "./state.js";
 export interface PreviewNodeProps<S extends Schema> {
     kind: keyof S;
     kinds: Kinds<S>;

@@ -1,26 +1,20 @@
 import React from "react"
 
-import type { Kinds, Node, Schema } from "./interfaces.js"
+import type { Kinds, Schema } from "./state.js"
+import type { EditorContext } from "./context.js"
 
 export const defaultBackgroundColor = "lightgray"
-export const defaultBorderColor = "dimgray"
-
-export const getBackgroundColor = <S extends Schema>(kinds: Kinds<S>) => (
-	node: Node<S>
-) => kinds[node.kind].backgroundColor || defaultBackgroundColor
+export const borderColor = "dimgray"
 
 export const defaultNodeHeaderStyle: React.CSSProperties = {
 	paddingTop: 4,
 	cursor: "move",
 	userSelect: "none",
 	WebkitUserSelect: "none",
-	borderBottom: `1px solid ${defaultBorderColor}`,
+	borderBottom: `1px solid ${borderColor}`,
 }
 
-export type getEditorStyle = (ref: {
-	unit: number
-	height: number
-}) => React.CSSProperties
+export type getEditorStyle = (context: EditorContext) => React.CSSProperties
 
 export type getNodeStyle = <S extends Schema>(
 	kinds: Kinds<S>,
@@ -35,7 +29,9 @@ interface StyleContext {
 }
 
 export const defaultCanvasStyle: React.CSSProperties = {
-	border: "1px solid dimgrey",
+	borderColor: "dimgrey",
+	borderWidth: 1,
+	borderStyle: "solid",
 	width: "100%",
 	overflowX: "scroll",
 }
@@ -43,8 +39,7 @@ export const defaultCanvasStyle: React.CSSProperties = {
 export const defaultStyleContext: StyleContext = {
 	getCanvasStyle: () => defaultCanvasStyle,
 	getSVGStyle: ({ unit, height }) => ({
-		backgroundImage:
-			"radial-gradient(circle, #000000 1px, rgba(0, 0, 0, 0) 1px)",
+		backgroundImage: `radial-gradient(circle, ${borderColor} 1px, rgba(0, 0, 0, 0) 1px)`,
 		backgroundSize: `${unit}px ${unit}px`,
 		backgroundPositionX: `-${unit / 2}px`,
 		backgroundPositionY: `-${unit / 2}px`,
@@ -54,11 +49,7 @@ export const defaultStyleContext: StyleContext = {
 	getNodeHeaderStyle: () => defaultNodeHeaderStyle,
 	getNodeContentStyle: (kinds, kind) => {
 		const { backgroundColor } = kinds[kind]
-		return {
-			position: "fixed",
-			width: "max-content",
-			backgroundColor: backgroundColor || defaultBackgroundColor,
-		}
+		return { position: "fixed", width: "max-content", backgroundColor }
 	},
 }
 

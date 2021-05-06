@@ -1,13 +1,10 @@
 import React from "react";
-import type { Kinds, Node, Schema } from "./interfaces.js";
+import type { Kinds, Schema } from "./state.js";
+import type { EditorContext } from "./context.js";
 export declare const defaultBackgroundColor = "lightgray";
-export declare const defaultBorderColor = "dimgray";
-export declare const getBackgroundColor: <S extends Schema>(kinds: Kinds<S>) => (node: Node<S, keyof S>) => string;
+export declare const borderColor = "dimgray";
 export declare const defaultNodeHeaderStyle: React.CSSProperties;
-export declare type getEditorStyle = (ref: {
-    unit: number;
-    height: number;
-}) => React.CSSProperties;
+export declare type getEditorStyle = (context: EditorContext) => React.CSSProperties;
 export declare type getNodeStyle = <S extends Schema>(kinds: Kinds<S>, kind: keyof S) => React.CSSProperties;
 interface StyleContext {
     getCanvasStyle: getEditorStyle;

@@ -1,13 +1,11 @@
 /// <reference types="react" />
-import { Selection } from "d3-selection";
-import type { Kinds, Edge, Graph, Node, Schema } from "./interfaces.js";
+import { Kinds, EditorState, Schema } from "./state.js";
+import { FocusAction } from "./actions.js";
 export interface ViewerProps<S extends Schema> {
     unit?: number;
     height?: number;
     kinds: Kinds<S>;
-    graph: Graph<S>;
-    onFocus?: (id: string | null) => void;
-    decorateNodes?: (nodes: Selection<SVGGElement, Node<S>, SVGGElement | null, unknown>) => void;
-    decorateEdges?: (edges: Selection<SVGGElement, Edge<S>, SVGGElement | null, unknown>) => void;
+    state: EditorState<S>;
+    dispatch: (action: FocusAction) => void;
 }
 export declare function Viewer<S extends Schema>({ unit, height, ...props }: ViewerProps<S>): JSX.Element;

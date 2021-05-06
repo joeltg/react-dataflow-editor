@@ -1,8 +1,8 @@
 import React from "react"
 import { useDrag } from "react-dnd"
 
-import type { Kinds, Schema } from "./interfaces.js"
-import { defaultBackgroundColor, defaultBorderColor } from "./styles.js"
+import type { Kinds, Schema } from "./state.js"
+import { borderColor } from "./styles.js"
 import { portMargin } from "./utils.js"
 
 export interface PreviewNodeProps<S extends Schema> {
@@ -25,8 +25,8 @@ export function PreviewNode<S extends Schema>(props: PreviewNodeProps<S>) {
 				padding: portMargin,
 				borderWidth: 1,
 				borderStyle: "solid",
-				borderColor: defaultBorderColor,
-				backgroundColor: backgroundColor || defaultBackgroundColor,
+				borderColor: borderColor,
+				backgroundColor: backgroundColor,
 			}}
 		>
 			<div

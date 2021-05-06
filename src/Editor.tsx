@@ -1,29 +1,27 @@
-import React from "react"
+import React, { useMemo, useRef } from "react"
 
-import type { Selection } from "d3-selection"
 import { DndProvider } from "react-dnd"
 import { HTML5Backend } from "react-dnd-html5-backend"
 
 import { Toolbox } from "./Toolbox.js"
-import { Canvas } from "./Canvas.js"
+import { Canvas } from "./EditableCanvas.js"
 
-import { Kinds, Edge, Graph, Node, Schema } from "./interfaces.js"
-import { EditorAction } from "./state/actions.js"
-import { defaultCanvasUnit, defaultCanvasHeight } from "./utils.js"
+import { Kinds, EditorState, Schema, Focus } from "./state.js"
+
+import { EditorAction, focus } from "./actions.js"
+import {
+	defaultCanvasUnit,
+	defaultCanvasHeight,
+	EditorContext,
+} from "./context.js"
+import { isFocusEqual } from "./utils.js"
 
 export interface EditorProps<S extends Schema> {
 	unit?: number
 	height?: number
 	kinds: Kinds<S>
-	graph: Graph<S>
+	state: EditorState<S>
 	dispatch: (action: EditorAction<S>) => void
-	onFocus?: (id: string | null) => void
-	decorateNodes?: (
-		nodes: Selection<SVGGElement, Node<S>, SVGGElement | null, unknown>
-	) => void
-	decorateEdges?: (
-		edges: Selection<SVGGElement, Edge<S>, SVGGElement | null, unknown>
-	) => void
 }
 
 export function Editor<S extends Schema>({
@@ -31,24 +29,42 @@ export function Editor<S extends Schema>({
 	height = defaultCanvasHeight,
 	...props
 }: EditorProps<S>) {
+	const focusRef = useRef<Focus | null>(props.state.focus)
+	focusRef.current = props.state.focus
+
+	const context = useMemo<EditorContext>(() => {
+		return {
+			unit,
+			height,
+			editable: true,
+			nodesRef: { current: null },
+			edgesRef: { current: null },
+			svgRef: { current: null },
+			previewRef: { current: null },
+			focusRef: { current: props.state.focus },
+			onFocus: (subject) => {
+				if (!isFocusEqual(focusRef.current, subject)) {
+					props.dispatch(focus(subject))
+				}
+			},
+		}
+	}, [])
+
 	return (
-		<DndProvider backend={HTML5Backend}>
-			<div
-				className="editor"
-				style={{ display: "flex", flexDirection: "column" }}
-			>
-				<Toolbox kinds={props.kinds} />
-				<Canvas
-					unit={unit}
-					height={height}
-					kinds={props.kinds}
-					graph={props.graph}
-					dispatch={props.dispatch}
-					onFocus={props.onFocus}
-					decorateEdges={props.decorateEdges}
-					decorateNodes={props.decorateNodes}
-				/>
-			</div>
-		</DndProvider>
+		<EditorContext.Provider value={context}>
+			<DndProvider backend={HTML5Backend}>
+				<div
+					className="editor"
+					style={{ display: "flex", flexDirection: "column" }}
+				>
+					<Toolbox kinds={props.kinds} />
+					<Canvas
+						kinds={props.kinds}
+						state={props.state}
+						dispatch={props.dispatch}
+					/>
+				</div>
+			</DndProvider>
+		</EditorContext.Provider>
 	)
 }
