@@ -20,6 +20,7 @@ npm i react-dataflow-editor
 ## Example
 
 ```typescript
+import React, { useCallback } from "react"
 import {
 	Editor,
 	EditorState,
