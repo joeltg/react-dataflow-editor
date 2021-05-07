@@ -57,9 +57,12 @@ function MyEditor(props: MyEditorProps) {
 	// The editor component takes a dispatch callback, not an onChange
 	// callback like most controlled react components.
 	// Use the `reduce` method to apply an action to a state.
-	const dispatch = useCallback((action: EditorAction<S>) => {
-		props.onChange(reduce(kinds, props.state, action))
-	}, [props.onChange, props.state])
+	const dispatch = useCallback(
+		(action: EditorAction<S>) => {
+			props.onChange(reduce(kinds, props.state, action))
+		},
+		[props.onChange, props.state]
+	)
 
 	return <Editor<S> kinds={kinds} state={state} dispatch={dispatch} />
 }
