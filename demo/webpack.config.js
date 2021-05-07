@@ -5,7 +5,8 @@ module.exports = {
 	devtool: "source-map",
 
 	entry: {
-		index: path.resolve(__dirname, "index.tsx"),
+		editable: path.resolve(__dirname, "editable.tsx"),
+		readonly: path.resolve(__dirname, "readonly.tsx"),
 	},
 
 	output: {

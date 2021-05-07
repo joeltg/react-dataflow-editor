@@ -1,65 +1,41 @@
-import React from "react"
+import React, { useContext, useMemo } from "react"
+import { CanvasContext } from "./context.js"
 
-import type { Kinds, Node, Schema } from "./interfaces.js"
+import { Options } from "./options.js"
 
-export const defaultBackgroundColor = "lightgray"
-export const defaultBorderColor = "dimgray"
-
-export const getBackgroundColor = <S extends Schema>(kinds: Kinds<S>) => (
-	node: Node<S>
-) => kinds[node.kind].backgroundColor || defaultBackgroundColor
-
-export const defaultNodeHeaderStyle: React.CSSProperties = {
-	paddingTop: 4,
-	cursor: "move",
-	userSelect: "none",
-	WebkitUserSelect: "none",
-	borderBottom: `1px solid ${defaultBorderColor}`,
-}
-
-export type getEditorStyle = (ref: {
-	unit: number
-	height: number
-}) => React.CSSProperties
-
-export type getNodeStyle = <S extends Schema>(
-	kinds: Kinds<S>,
-	kind: keyof S
-) => React.CSSProperties
-
-interface StyleContext {
-	getCanvasStyle: getEditorStyle
-	getSVGStyle: getEditorStyle
-	getNodeHeaderStyle: getNodeStyle
-	getNodeContentStyle: getNodeStyle
-}
-
-export const defaultCanvasStyle: React.CSSProperties = {
-	border: "1px solid dimgrey",
+export const getCanvasStyle = ({
+	borderColor,
+}: Options): React.CSSProperties => ({
+	borderColor,
+	borderWidth: 1,
+	borderStyle: "solid",
 	width: "100%",
 	overflowX: "scroll",
-}
+})
 
-export const defaultStyleContext: StyleContext = {
-	getCanvasStyle: () => defaultCanvasStyle,
-	getSVGStyle: ({ unit, height }) => ({
-		backgroundImage:
-			"radial-gradient(circle, #000000 1px, rgba(0, 0, 0, 0) 1px)",
-		backgroundSize: `${unit}px ${unit}px`,
-		backgroundPositionX: `-${unit / 2}px`,
-		backgroundPositionY: `-${unit / 2}px`,
-		width: "100%",
-		height: unit * height,
-	}),
-	getNodeHeaderStyle: () => defaultNodeHeaderStyle,
-	getNodeContentStyle: (kinds, kind) => {
-		const { backgroundColor } = kinds[kind]
-		return {
-			position: "fixed",
-			width: "max-content",
-			backgroundColor: backgroundColor || defaultBackgroundColor,
-		}
-	},
-}
+export const getSVGStyle = ({
+	borderColor,
+	unit,
+	height,
+}: Options): React.CSSProperties => ({
+	backgroundImage: `radial-gradient(circle, ${borderColor} 1px, rgba(0, 0, 0, 0) 1px)`,
+	backgroundSize: `${unit}px ${unit}px`,
+	backgroundPositionX: `-${unit / 2}px`,
+	backgroundPositionY: `-${unit / 2}px`,
+	width: "100%",
+	height: unit * height,
+	userSelect: "none",
+})
+
+export const defaultStyleContext = { getCanvasStyle, getSVGStyle }
 
 export const StyleContext = React.createContext(defaultStyleContext)
+
+export function useStyles() {
+	const { options } = useContext(CanvasContext)
+	const { getCanvasStyle, getSVGStyle } = useContext(StyleContext)
+	return useMemo(
+		() => ({ canvas: getCanvasStyle(options), svg: getSVGStyle(options) }),
+		[]
+	)
+}
