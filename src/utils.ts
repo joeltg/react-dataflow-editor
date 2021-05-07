@@ -10,8 +10,20 @@ import type {
 	Target,
 	Source,
 	Focus,
+	Node,
 } from "./state.js"
-import type { EditorContext } from "./context.js"
+import type { CanvasContext } from "./context.js"
+
+export const nodeWidth = 156
+export const nodeMarginX = 4
+export const nodeHeaderHeight = 24
+export const portRadius = 12
+export const portMargin = 12
+export const portHeight = portRadius * 2 + portMargin * 2
+export const canvasPaddingRight = 480
+
+const inputPortArc = `a ${portRadius} ${portRadius} 0 0 1 0 ${2 * portRadius}`
+const inputPort = `v ${portMargin} ${inputPortArc} v ${portMargin}`
 
 export function signalInvalidType(type: never): never {
 	console.error(type)
@@ -23,16 +35,6 @@ export const initialEditorState = <S extends Schema>(): EditorState<S> => ({
 	edges: {},
 	focus: null,
 })
-
-export const nodeWidth = 156
-export const nodeMarginX = 4
-export const nodeHeaderHeight = 24
-export const portRadius = 12
-export const portMargin = 12
-export const portHeight = portRadius * 2 + portMargin * 2
-
-const inputPortArc = `a ${portRadius} ${portRadius} 0 0 1 0 ${2 * portRadius}`
-const inputPort = `v ${portMargin} ${inputPortArc} v ${portMargin}`
 
 export function makeClipPath<S extends Schema>(
 	kinds: Kinds<S>,
@@ -57,15 +59,15 @@ export function makeClipPath<S extends Schema>(
 }
 
 export function place(
-	context: EditorContext,
+	{ options }: CanvasContext,
 	{ x, y }: Position,
 	offset?: [number, number]
 ): [number, number] {
 	if (offset === undefined) {
-		return [x * context.unit, y * context.unit]
+		return [x * options.unit, y * options.unit]
 	} else {
 		const [dx, dy] = offset
-		return [x * context.unit + dx, y * context.unit + dy]
+		return [x * options.unit + dx, y * options.unit + dy]
 	}
 }
 
@@ -112,7 +114,7 @@ export function getInputOffset<S extends Schema, K extends keyof S>(
 	kind: K,
 	input: GetInputs<S, K>
 ): [number, number] {
-	const index = Object.keys(kinds[kind].inputs).indexOf(input)
+	const index = getInputIndex(kinds, kind, input)
 	return [0, getPortOffsetY(index)]
 }
 
@@ -121,12 +123,12 @@ export function getOutputOffset<S extends Schema, K extends keyof S>(
 	kind: K,
 	output: GetOutputs<S, K>
 ): [number, number] {
-	const index = Object.keys(kinds[kind].outputs).indexOf(output)
+	const index = getOutputIndex(kinds, kind, output)
 	return [nodeWidth, getPortOffsetY(index)]
 }
 
 export function getSourcePosition<S extends Schema>(
-	context: EditorContext,
+	context: CanvasContext,
 	kinds: Kinds<S>,
 	{ id, output }: Source<S>
 ) {
@@ -138,7 +140,7 @@ export function getSourcePosition<S extends Schema>(
 }
 
 export function getTargetPosition<S extends Schema>(
-	context: EditorContext,
+	context: CanvasContext,
 	kinds: Kinds<S>,
 	{ id, input }: Target<S>
 ) {
@@ -168,11 +170,11 @@ export function* forOutputs<S extends Schema, K extends keyof S>(
 }
 
 export const snap = (
-	{ unit, height }: EditorContext,
+	{ options }: CanvasContext,
 	[x, y]: [number, number]
 ): Position => ({
-	x: Math.max(0, Math.round(x / unit)),
-	y: Math.min(height - 1, Math.max(0, Math.round(y / unit))),
+	x: Math.max(0, Math.round(x / options.unit)),
+	y: Math.min(options.height - 1, Math.max(0, Math.round(y / options.unit))),
 })
 
 const minCurveExtent = 104
@@ -227,4 +229,15 @@ export function isFocusEqual(a: Focus | null, b: Focus | null): boolean {
 	} else {
 		return a.element === b.element && a.id === b.id
 	}
+}
+
+export function getCanvasWidth<S extends Schema>(
+	{ options }: CanvasContext,
+	nodes: Record<string, Node<S>>
+) {
+	const max = Object.values(nodes).reduce(
+		(x, { position }) => Math.max(x, position.x),
+		0
+	)
+	return canvasPaddingRight + options.unit * max
 }

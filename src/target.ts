@@ -2,7 +2,7 @@ import { quadtree } from "d3-quadtree"
 import { select } from "d3-selection"
 
 import type { Kinds, Schema, Target } from "./state.js"
-import type { EditorContext } from "./context.js"
+import type { CanvasContext } from "./context.js"
 import { getInputOffset, getNodeAttributes, place } from "./utils.js"
 
 export type DragTarget<S extends Schema> = {
@@ -12,7 +12,7 @@ export type DragTarget<S extends Schema> = {
 }
 
 export function getTargets<S extends Schema>(
-	context: EditorContext,
+	context: CanvasContext,
 	kinds: Kinds<S>,
 	target?: Target<S>
 ) {

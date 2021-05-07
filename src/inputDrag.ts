@@ -4,7 +4,7 @@ import { select, Selection } from "d3-selection"
 
 import type { Kinds, Schema, Target } from "./state.js"
 import { deleteEdge, EditorAction, moveEdge } from "./actions.js"
-import { EditorContext } from "./context.js"
+import { CanvasContext } from "./context.js"
 import { DragTarget, getTargets } from "./target.js"
 import {
 	getEdgeSource,
@@ -33,7 +33,7 @@ type InputDragEvent<S extends Schema> = D3DragEvent<
 >
 
 export function makeInputDragBehavior<S extends Schema>(
-	context: EditorContext,
+	context: CanvasContext,
 	kinds: Kinds<S>,
 	dispatch: (action: EditorAction<S>) => void
 ): DragBehavior<SVGCircleElement, unknown, InputDragSubject<S>> {

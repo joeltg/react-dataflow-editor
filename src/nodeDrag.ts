@@ -15,7 +15,7 @@ import {
 	snap,
 	toTranslate,
 } from "./utils.js"
-import { EditorContext } from "./context.js"
+import { CanvasContext } from "./context.js"
 
 import { EditorAction, moveNode } from "./actions.js"
 
@@ -41,7 +41,7 @@ export type NodeDragSubject = {
 type NodeDragEvent = D3DragEvent<SVGGElement, undefined, NodeDragSubject>
 
 export function makeNodeDragBehavior<S extends Schema>(
-	context: EditorContext,
+	context: CanvasContext,
 	kinds: Kinds<S>,
 	dispatch: (action: EditorAction<S>) => void
 ): DragBehavior<SVGGElement, undefined, NodeDragSubject> {

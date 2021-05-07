@@ -1,13 +1,10 @@
 import React, { createContext } from "react"
-import { Focus } from "./state"
 
-export const defaultCanvasUnit = 52
-export const defaultCanvasHeight = 12
+import type { Focus } from "./state.js"
+import { Options, defaultOptions } from "./options.js"
 
-export interface EditorContext {
-	unit: number
-	height: number
-	editable: boolean
+export interface CanvasContext {
+	options: Options
 	svgRef: React.MutableRefObject<SVGSVGElement | null>
 	nodesRef: React.MutableRefObject<SVGGElement | null>
 	edgesRef: React.MutableRefObject<SVGGElement | null>
@@ -15,10 +12,8 @@ export interface EditorContext {
 	onFocus: (subject: Focus | null) => void
 }
 
-export const EditorContext = createContext<EditorContext>({
-	unit: defaultCanvasUnit,
-	height: defaultCanvasHeight,
-	editable: false,
+export const CanvasContext = createContext<CanvasContext>({
+	options: defaultOptions,
 	svgRef: { current: null },
 	nodesRef: { current: null },
 	edgesRef: { current: null },

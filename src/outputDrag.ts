@@ -5,7 +5,7 @@ import { Quadtree } from "d3-quadtree"
 import type { Schema, Source, Kinds } from "./state.js"
 
 import { getSourcePosition, makeCurvePath, portRadius } from "./utils.js"
-import { EditorContext } from "./context.js"
+import { CanvasContext } from "./context.js"
 import { DragTarget, getTargets } from "./target.js"
 import { createEdge, EditorAction } from "./actions.js"
 
@@ -24,7 +24,7 @@ type OutputDragEvent<S extends Schema> = D3DragEvent<
 >
 
 export function makeOutputDragBehavior<S extends Schema>(
-	context: EditorContext,
+	context: CanvasContext,
 	kinds: Kinds<S>,
 	dispatch: (action: EditorAction<S>) => void
 ): DragBehavior<SVGCircleElement, unknown, OutputDragSubject<S>> {

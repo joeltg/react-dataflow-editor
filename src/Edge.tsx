@@ -1,14 +1,13 @@
 import React, { useCallback, useContext, useMemo } from "react"
 import type { Schema, Kinds, Node, Edge, Focus } from "./state.js"
 
-import { borderColor, defaultBackgroundColor } from "./styles.js"
 import {
 	getInputOffset,
 	getOutputOffset,
 	makeCurvePath,
 	place,
 } from "./utils.js"
-import { EditorContext } from "./context.js"
+import { CanvasContext } from "./context.js"
 
 export interface GraphEdgeProps<S extends Schema> {
 	kinds: Kinds<S>
@@ -22,7 +21,7 @@ export function GraphEdge<S extends Schema>(props: GraphEdgeProps<S>) {
 	const source = nodes[edge.source.id]
 	const target = nodes[edge.target.id]
 
-	const context = useContext(EditorContext)
+	const context = useContext(CanvasContext)
 
 	const sourcePosition = useMemo(() => {
 		const offset = getOutputOffset(kinds, source.kind, edge.source.output)
@@ -43,6 +42,8 @@ export function GraphEdge<S extends Schema>(props: GraphEdgeProps<S>) {
 		context.onFocus({ element: "edge", id: props.edge.id })
 	}, [])
 
+	const { borderColor, backgroundColor } = context.options
+
 	const isFocused =
 		props.focus !== null &&
 		props.focus.element === "edge" &&
@@ -60,16 +61,10 @@ export function GraphEdge<S extends Schema>(props: GraphEdgeProps<S>) {
 			data-target-kind={target.kind}
 			data-target-input={edge.target.input}
 			cursor="pointer"
-			style={{ outline: "none" }}
 			onClick={handleClick}
 		>
 			<path stroke={borderColor} fill="none" d={path} />
-			<path
-				strokeWidth={6}
-				stroke={defaultBackgroundColor}
-				fill="none"
-				d={path}
-			/>
+			<path strokeWidth={6} stroke={backgroundColor} fill="none" d={path} />
 		</g>
 	)
 }
