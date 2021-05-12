@@ -13,7 +13,7 @@ import { makeNodeDragBehavior } from "../nodeDrag.js"
 
 import { getCanvasWidth, nodeWidth, portRadius, snap } from "../utils.js"
 import { CanvasContext } from "../context.js"
-import { StyleContext, useStyles } from "../styles.js"
+import { useStyles } from "../styles.js"
 
 export interface CanvasProps<S extends Schema> {
 	kinds: Kinds<S>
@@ -61,7 +61,7 @@ export function Canvas<S extends Schema>(props: CanvasProps<S>) {
 
 	const { borderColor, backgroundColor, unit, height } = context.options
 	const borderWidth = props.state.focus === null ? 1 : 0
-	const boxShadow = `inset 0 0 0 ${borderWidth}px ${borderColor}`
+	const boxShadow = `0 0 0 ${borderWidth}px ${borderColor}`
 
 	return (
 		<div ref={drop} className="canvas" style={{ ...styles.canvas, boxShadow }}>

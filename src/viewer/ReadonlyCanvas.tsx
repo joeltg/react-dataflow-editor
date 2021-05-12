@@ -7,7 +7,7 @@ import { GraphNode } from "../Node.js"
 import { GraphEdge } from "../Edge.js"
 
 import { CanvasContext } from "../context.js"
-import { StyleContext, useStyles } from "../styles.js"
+import { useStyles } from "../styles.js"
 import { getCanvasWidth } from "../utils.js"
 
 export interface ReadonlyCanvasProps<S extends Schema> {
@@ -26,7 +26,7 @@ export function Canvas<S extends Schema>(props: ReadonlyCanvasProps<S>) {
 	}, [props.state.nodes])
 
 	const handleBackgroundClick = useCallback(
-		(event: React.MouseEvent<SVGRectElement>) => {
+		(_: React.MouseEvent<SVGRectElement>) => {
 			context.onFocus(null)
 		},
 		[]
@@ -34,7 +34,7 @@ export function Canvas<S extends Schema>(props: ReadonlyCanvasProps<S>) {
 
 	const { borderColor, unit, height } = context.options
 	const borderWidth = props.state.focus === null ? 1 : 0
-	const boxShadow = `inset 0 0 0 ${borderWidth}px ${borderColor}`
+	const boxShadow = `0 0 0 ${borderWidth}px ${borderColor}`
 
 	return (
 		<div className="canvas" style={{ ...styles.canvas, boxShadow }}>
