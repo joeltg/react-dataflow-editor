@@ -11,6 +11,8 @@
 - [Editable demo](https://joeltg.github.io/react-dataflow-editor/demo/editable.html) ([source](./demo/editable.tsx))
 - [Read-only demo](https://joeltg.github.io/react-dataflow-editor/demo/readonly.html) ([source](./demo/readonly.tsx))
 
+![](./static/example-action-delete-edge.gif)
+
 ## Installation
 
 ```
