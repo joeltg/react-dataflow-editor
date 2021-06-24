@@ -1,5 +1,7 @@
 # react-dataflow-editor
 
+> ✨ You can read about the design of this component in [this blog post](https://research.protocol.ai/blog/2021/designing-a-dataflow-editor-with-typescript-and-react/)!
+
 ## Table of Contents
 
 - [Demo](#demo)
