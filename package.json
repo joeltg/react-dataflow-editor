@@ -12,7 +12,7 @@
 		"@types/react-dom": "^17.0.9",
 		"esbuild": "^0.12.23",
 		"react": "^17.0.2",
-		"react-dataflow-editor": "^0.1.2",
+		"react-dataflow-editor": "^0.1.4",
 		"react-dom": "^17.0.2"
 	}
 }
