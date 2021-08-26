@@ -23013,6 +23013,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
   }
 
   // node_modules/react-dnd/dist/esm/core/DndProvider.js
+  var _excluded = ["children"];
   function _slicedToArray2(arr, i) {
     return _arrayWithHoles2(arr) || _iterableToArrayLimit2(arr, i) || _unsupportedIterableToArray2(arr, i) || _nonIterableRest2();
   }
@@ -23041,14 +23042,15 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     return arr2;
   }
   function _iterableToArrayLimit2(arr, i) {
-    if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr)))
+    var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"];
+    if (_i == null)
       return;
     var _arr = [];
     var _n = true;
     var _d = false;
-    var _e = void 0;
+    var _s, _e;
     try {
-      for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+      for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) {
         _arr.push(_s.value);
         if (i && _arr.length === i)
           break;
@@ -23106,7 +23108,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
   var refCount = 0;
   var INSTANCE_SYM = Symbol.for("__REACT_DND_CONTEXT_INSTANCE__");
   var DndProvider = (0, import_react2.memo)(function DndProvider2(_ref) {
-    var children2 = _ref.children, props = _objectWithoutProperties(_ref, ["children"]);
+    var children2 = _ref.children, props = _objectWithoutProperties(_ref, _excluded);
     var _getDndContextValue = getDndContextValue(props), _getDndContextValue2 = _slicedToArray2(_getDndContextValue, 2), manager = _getDndContextValue2[0], isGlobalInstance = _getDndContextValue2[1];
     (0, import_react2.useEffect)(function() {
       if (isGlobalInstance) {
@@ -23175,12 +23177,21 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       _defineProperties4(Constructor, staticProps);
     return Constructor;
   }
+  function _defineProperty6(obj, key, value) {
+    if (key in obj) {
+      Object.defineProperty(obj, key, { value, enumerable: true, configurable: true, writable: true });
+    } else {
+      obj[key] = value;
+    }
+    return obj;
+  }
   var isCallingCanDrag = false;
   var isCallingIsDragging = false;
   var DragSourceMonitorImpl = /* @__PURE__ */ function() {
     function DragSourceMonitorImpl2(manager) {
       _classCallCheck4(this, DragSourceMonitorImpl2);
-      this.sourceId = null;
+      _defineProperty6(this, "internalMonitor", void 0);
+      _defineProperty6(this, "sourceId", null);
       this.internalMonitor = manager.getMonitor();
     }
     _createClass4(DragSourceMonitorImpl2, [{
@@ -23335,11 +23346,20 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       _defineProperties5(Constructor, staticProps);
     return Constructor;
   }
+  function _defineProperty7(obj, key, value) {
+    if (key in obj) {
+      Object.defineProperty(obj, key, { value, enumerable: true, configurable: true, writable: true });
+    } else {
+      obj[key] = value;
+    }
+    return obj;
+  }
   var isCallingCanDrop = false;
   var DropTargetMonitorImpl = /* @__PURE__ */ function() {
     function DropTargetMonitorImpl2(manager) {
       _classCallCheck5(this, DropTargetMonitorImpl2);
-      this.targetId = null;
+      _defineProperty7(this, "internalMonitor", void 0);
+      _defineProperty7(this, "targetId", null);
       this.internalMonitor = manager.getMonitor();
     }
     _createClass5(DropTargetMonitorImpl2, [{
@@ -23567,11 +23587,19 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       _defineProperties6(Constructor, staticProps);
     return Constructor;
   }
+  function _defineProperty8(obj, key, value) {
+    if (key in obj) {
+      Object.defineProperty(obj, key, { value, enumerable: true, configurable: true, writable: true });
+    } else {
+      obj[key] = value;
+    }
+    return obj;
+  }
   var SourceConnector = /* @__PURE__ */ function() {
     function SourceConnector2(backend) {
       var _this = this;
       _classCallCheck6(this, SourceConnector2);
-      this.hooks = wrapConnectorHooks({
+      _defineProperty8(this, "hooks", wrapConnectorHooks({
         dragSource: function dragSource(node, options) {
           _this.clearDragSource();
           _this.dragSourceOptions = options || null;
@@ -23592,17 +23620,22 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
           }
           _this.reconnectDragPreview();
         }
-      });
-      this.handlerId = null;
-      this.dragSourceRef = null;
-      this.dragSourceOptionsInternal = null;
-      this.dragPreviewRef = null;
-      this.dragPreviewOptionsInternal = null;
-      this.lastConnectedHandlerId = null;
-      this.lastConnectedDragSource = null;
-      this.lastConnectedDragSourceOptions = null;
-      this.lastConnectedDragPreview = null;
-      this.lastConnectedDragPreviewOptions = null;
+      }));
+      _defineProperty8(this, "handlerId", null);
+      _defineProperty8(this, "dragSourceRef", null);
+      _defineProperty8(this, "dragSourceNode", void 0);
+      _defineProperty8(this, "dragSourceOptionsInternal", null);
+      _defineProperty8(this, "dragSourceUnsubscribe", void 0);
+      _defineProperty8(this, "dragPreviewRef", null);
+      _defineProperty8(this, "dragPreviewNode", void 0);
+      _defineProperty8(this, "dragPreviewOptionsInternal", null);
+      _defineProperty8(this, "dragPreviewUnsubscribe", void 0);
+      _defineProperty8(this, "lastConnectedHandlerId", null);
+      _defineProperty8(this, "lastConnectedDragSource", null);
+      _defineProperty8(this, "lastConnectedDragSourceOptions", null);
+      _defineProperty8(this, "lastConnectedDragPreview", null);
+      _defineProperty8(this, "lastConnectedDragPreviewOptions", null);
+      _defineProperty8(this, "backend", void 0);
       this.backend = backend;
     }
     _createClass6(SourceConnector2, [{
@@ -23777,11 +23810,19 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       _defineProperties7(Constructor, staticProps);
     return Constructor;
   }
+  function _defineProperty9(obj, key, value) {
+    if (key in obj) {
+      Object.defineProperty(obj, key, { value, enumerable: true, configurable: true, writable: true });
+    } else {
+      obj[key] = value;
+    }
+    return obj;
+  }
   var TargetConnector = /* @__PURE__ */ function() {
     function TargetConnector2(backend) {
       var _this = this;
       _classCallCheck7(this, TargetConnector2);
-      this.hooks = wrapConnectorHooks({
+      _defineProperty9(this, "hooks", wrapConnectorHooks({
         dropTarget: function dropTarget(node, options) {
           _this.clearDropTarget();
           _this.dropTargetOptions = options;
@@ -23792,13 +23833,16 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
           }
           _this.reconnect();
         }
-      });
-      this.handlerId = null;
-      this.dropTargetRef = null;
-      this.dropTargetOptionsInternal = null;
-      this.lastConnectedHandlerId = null;
-      this.lastConnectedDropTarget = null;
-      this.lastConnectedDropTargetOptions = null;
+      }));
+      _defineProperty9(this, "handlerId", null);
+      _defineProperty9(this, "dropTargetRef", null);
+      _defineProperty9(this, "dropTargetNode", void 0);
+      _defineProperty9(this, "dropTargetOptionsInternal", null);
+      _defineProperty9(this, "unsubscribeDropTarget", void 0);
+      _defineProperty9(this, "lastConnectedHandlerId", null);
+      _defineProperty9(this, "lastConnectedDropTarget", null);
+      _defineProperty9(this, "lastConnectedDropTargetOptions", null);
+      _defineProperty9(this, "backend", void 0);
       this.backend = backend;
     }
     _createClass7(TargetConnector2, [{
@@ -23942,9 +23986,20 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       _defineProperties8(Constructor, staticProps);
     return Constructor;
   }
+  function _defineProperty10(obj, key, value) {
+    if (key in obj) {
+      Object.defineProperty(obj, key, { value, enumerable: true, configurable: true, writable: true });
+    } else {
+      obj[key] = value;
+    }
+    return obj;
+  }
   var DragSourceImpl = /* @__PURE__ */ function() {
     function DragSourceImpl2(spec, monitor, connector) {
       _classCallCheck8(this, DragSourceImpl2);
+      _defineProperty10(this, "spec", void 0);
+      _defineProperty10(this, "monitor", void 0);
+      _defineProperty10(this, "connector", void 0);
       this.spec = spec;
       this.monitor = monitor;
       this.connector = connector;
@@ -24060,14 +24115,15 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     return arr2;
   }
   function _iterableToArrayLimit3(arr, i) {
-    if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr)))
+    var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"];
+    if (_i == null)
       return;
     var _arr = [];
     var _n = true;
     var _d = false;
-    var _e = void 0;
+    var _s, _e;
     try {
-      for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+      for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) {
         _arr.push(_s.value);
         if (i && _arr.length === i)
           break;
@@ -24126,7 +24182,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       return _arrayLikeToArray4(o, minLen);
   }
   function _iterableToArray(iter) {
-    if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter))
+    if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null)
       return Array.from(iter);
   }
   function _arrayWithoutHoles(arr) {
@@ -24170,10 +24226,16 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     useIsomorphicLayoutEffect(function() {
       connector.dragSourceOptions = dragSourceOptions || null;
       connector.reconnect();
+      return function() {
+        return connector.disconnectDragSource();
+      };
     }, [connector, dragSourceOptions]);
     useIsomorphicLayoutEffect(function() {
       connector.dragPreviewOptions = dragPreviewOptions || null;
       connector.reconnect();
+      return function() {
+        return connector.disconnectDragPreview();
+      };
     }, [connector, dragPreviewOptions]);
     return connector;
   }
@@ -24209,14 +24271,15 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     return arr2;
   }
   function _iterableToArrayLimit4(arr, i) {
-    if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr)))
+    var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"];
+    if (_i == null)
       return;
     var _arr = [];
     var _n = true;
     var _d = false;
-    var _e = void 0;
+    var _s, _e;
     try {
-      for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+      for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) {
         _arr.push(_s.value);
         if (i && _arr.length === i)
           break;
@@ -24285,14 +24348,15 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     return arr2;
   }
   function _iterableToArrayLimit5(arr, i) {
-    if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr)))
+    var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"];
+    if (_i == null)
       return;
     var _arr = [];
     var _n = true;
     var _d = false;
-    var _e = void 0;
+    var _s, _e;
     try {
-      for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+      for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) {
         _arr.push(_s.value);
         if (i && _arr.length === i)
           break;
@@ -24397,9 +24461,19 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       _defineProperties9(Constructor, staticProps);
     return Constructor;
   }
+  function _defineProperty11(obj, key, value) {
+    if (key in obj) {
+      Object.defineProperty(obj, key, { value, enumerable: true, configurable: true, writable: true });
+    } else {
+      obj[key] = value;
+    }
+    return obj;
+  }
   var DropTargetImpl = /* @__PURE__ */ function() {
     function DropTargetImpl2(spec, monitor) {
       _classCallCheck9(this, DropTargetImpl2);
+      _defineProperty11(this, "spec", void 0);
+      _defineProperty11(this, "monitor", void 0);
       this.spec = spec;
       this.monitor = monitor;
     }
@@ -24472,14 +24546,15 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     return arr2;
   }
   function _iterableToArrayLimit6(arr, i) {
-    if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr)))
+    var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"];
+    if (_i == null)
       return;
     var _arr = [];
     var _n = true;
     var _d = false;
-    var _e = void 0;
+    var _s, _e;
     try {
-      for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+      for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) {
         _arr.push(_s.value);
         if (i && _arr.length === i)
           break;
@@ -24535,6 +24610,9 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     useIsomorphicLayoutEffect(function() {
       connector.dropTargetOptions = options || null;
       connector.reconnect();
+      return function() {
+        return connector.disconnectDropTarget();
+      };
     }, [options]);
     return connector;
   }
@@ -24609,10 +24687,19 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       _defineProperties10(Constructor, staticProps);
     return Constructor;
   }
+  function _defineProperty12(obj, key, value) {
+    if (key in obj) {
+      Object.defineProperty(obj, key, { value, enumerable: true, configurable: true, writable: true });
+    } else {
+      obj[key] = value;
+    }
+    return obj;
+  }
   var EnterLeaveCounter = /* @__PURE__ */ function() {
     function EnterLeaveCounter2(isNodeInDocument) {
       _classCallCheck10(this, EnterLeaveCounter2);
-      this.entered = [];
+      _defineProperty12(this, "entered", []);
+      _defineProperty12(this, "isNodeInDocument", void 0);
       this.isNodeInDocument = isNodeInDocument;
     }
     _createClass10(EnterLeaveCounter2, [{
@@ -24673,9 +24760,22 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       _defineProperties11(Constructor, staticProps);
     return Constructor;
   }
+  function _defineProperty13(obj, key, value) {
+    if (key in obj) {
+      Object.defineProperty(obj, key, { value, enumerable: true, configurable: true, writable: true });
+    } else {
+      obj[key] = value;
+    }
+    return obj;
+  }
   var MonotonicInterpolant = /* @__PURE__ */ function() {
     function MonotonicInterpolant2(xs, ys) {
       _classCallCheck11(this, MonotonicInterpolant2);
+      _defineProperty13(this, "xs", void 0);
+      _defineProperty13(this, "ys", void 0);
+      _defineProperty13(this, "c1s", void 0);
+      _defineProperty13(this, "c2s", void 0);
+      _defineProperty13(this, "c3s", void 0);
       var length = xs.length;
       var indexes = [];
       for (var i = 0; i < length; i++) {
@@ -24856,7 +24956,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
 
   // node_modules/react-dnd-html5-backend/dist/esm/NativeDragSources/nativeTypesConfig.js
   var _nativeTypesConfig;
-  function _defineProperty6(obj, key, value) {
+  function _defineProperty14(obj, key, value) {
     if (key in obj) {
       Object.defineProperty(obj, key, { value, enumerable: true, configurable: true, writable: true });
     } else {
@@ -24864,7 +24964,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     }
     return obj;
   }
-  var nativeTypesConfig = (_nativeTypesConfig = {}, _defineProperty6(_nativeTypesConfig, FILE, {
+  var nativeTypesConfig = (_nativeTypesConfig = {}, _defineProperty14(_nativeTypesConfig, FILE, {
     exposeProperties: {
       files: function files(dataTransfer) {
         return Array.prototype.slice.call(dataTransfer.files);
@@ -24874,21 +24974,21 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       }
     },
     matchesTypes: ["Files"]
-  }), _defineProperty6(_nativeTypesConfig, HTML, {
+  }), _defineProperty14(_nativeTypesConfig, HTML, {
     exposeProperties: {
       html: function html(dataTransfer, matchesTypes) {
         return getDataFromDataTransfer(dataTransfer, matchesTypes, "");
       }
     },
     matchesTypes: ["Html", "text/html"]
-  }), _defineProperty6(_nativeTypesConfig, URL, {
+  }), _defineProperty14(_nativeTypesConfig, URL, {
     exposeProperties: {
       urls: function urls(dataTransfer, matchesTypes) {
         return getDataFromDataTransfer(dataTransfer, matchesTypes, "").split("\n");
       }
     },
     matchesTypes: ["Url", "text/uri-list"]
-  }), _defineProperty6(_nativeTypesConfig, TEXT, {
+  }), _defineProperty14(_nativeTypesConfig, TEXT, {
     exposeProperties: {
       text: function text(dataTransfer, matchesTypes) {
         return getDataFromDataTransfer(dataTransfer, matchesTypes, "");
@@ -24920,9 +25020,19 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       _defineProperties12(Constructor, staticProps);
     return Constructor;
   }
+  function _defineProperty15(obj, key, value) {
+    if (key in obj) {
+      Object.defineProperty(obj, key, { value, enumerable: true, configurable: true, writable: true });
+    } else {
+      obj[key] = value;
+    }
+    return obj;
+  }
   var NativeDragSource = /* @__PURE__ */ function() {
     function NativeDragSource2(config) {
       _classCallCheck12(this, NativeDragSource2);
+      _defineProperty15(this, "item", void 0);
+      _defineProperty15(this, "config", void 0);
       this.config = config;
       this.item = {};
       this.initializeExposedProperties();
@@ -25023,10 +25133,20 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       _defineProperties13(Constructor, staticProps);
     return Constructor;
   }
+  function _defineProperty16(obj, key, value) {
+    if (key in obj) {
+      Object.defineProperty(obj, key, { value, enumerable: true, configurable: true, writable: true });
+    } else {
+      obj[key] = value;
+    }
+    return obj;
+  }
   var OptionsReader = /* @__PURE__ */ function() {
     function OptionsReader2(globalContext, options) {
       _classCallCheck13(this, OptionsReader2);
-      this.ownerDocument = null;
+      _defineProperty16(this, "ownerDocument", null);
+      _defineProperty16(this, "globalContext", void 0);
+      _defineProperty16(this, "optionsArgs", void 0);
       this.globalContext = globalContext;
       this.optionsArgs = options;
     }
@@ -25067,10 +25187,11 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     var keys = Object.keys(object);
     if (Object.getOwnPropertySymbols) {
       var symbols = Object.getOwnPropertySymbols(object);
-      if (enumerableOnly)
+      if (enumerableOnly) {
         symbols = symbols.filter(function(sym) {
           return Object.getOwnPropertyDescriptor(object, sym).enumerable;
         });
+      }
       keys.push.apply(keys, symbols);
     }
     return keys;
@@ -25080,7 +25201,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       var source = arguments[i] != null ? arguments[i] : {};
       if (i % 2) {
         ownKeys5(Object(source), true).forEach(function(key) {
-          _defineProperty7(target, key, source[key]);
+          _defineProperty17(target, key, source[key]);
         });
       } else if (Object.getOwnPropertyDescriptors) {
         Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
@@ -25091,14 +25212,6 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       }
     }
     return target;
-  }
-  function _defineProperty7(obj, key, value) {
-    if (key in obj) {
-      Object.defineProperty(obj, key, { value, enumerable: true, configurable: true, writable: true });
-    } else {
-      obj[key] = value;
-    }
-    return obj;
   }
   function _classCallCheck14(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -25122,29 +25235,42 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       _defineProperties14(Constructor, staticProps);
     return Constructor;
   }
+  function _defineProperty17(obj, key, value) {
+    if (key in obj) {
+      Object.defineProperty(obj, key, { value, enumerable: true, configurable: true, writable: true });
+    } else {
+      obj[key] = value;
+    }
+    return obj;
+  }
   var HTML5BackendImpl = /* @__PURE__ */ function() {
     function HTML5BackendImpl2(manager, globalContext, options) {
       var _this = this;
       _classCallCheck14(this, HTML5BackendImpl2);
-      this.sourcePreviewNodes = new Map();
-      this.sourcePreviewNodeOptions = new Map();
-      this.sourceNodes = new Map();
-      this.sourceNodeOptions = new Map();
-      this.dragStartSourceIds = null;
-      this.dropTargetIds = [];
-      this.dragEnterTargetIds = [];
-      this.currentNativeSource = null;
-      this.currentNativeHandle = null;
-      this.currentDragSourceNode = null;
-      this.altKeyPressed = false;
-      this.mouseMoveTimeoutTimer = null;
-      this.asyncEndDragFrameId = null;
-      this.dragOverTargetIds = null;
-      this.getSourceClientOffset = function(sourceId) {
+      _defineProperty17(this, "options", void 0);
+      _defineProperty17(this, "actions", void 0);
+      _defineProperty17(this, "monitor", void 0);
+      _defineProperty17(this, "registry", void 0);
+      _defineProperty17(this, "enterLeaveCounter", void 0);
+      _defineProperty17(this, "sourcePreviewNodes", new Map());
+      _defineProperty17(this, "sourcePreviewNodeOptions", new Map());
+      _defineProperty17(this, "sourceNodes", new Map());
+      _defineProperty17(this, "sourceNodeOptions", new Map());
+      _defineProperty17(this, "dragStartSourceIds", null);
+      _defineProperty17(this, "dropTargetIds", []);
+      _defineProperty17(this, "dragEnterTargetIds", []);
+      _defineProperty17(this, "currentNativeSource", null);
+      _defineProperty17(this, "currentNativeHandle", null);
+      _defineProperty17(this, "currentDragSourceNode", null);
+      _defineProperty17(this, "altKeyPressed", false);
+      _defineProperty17(this, "mouseMoveTimeoutTimer", null);
+      _defineProperty17(this, "asyncEndDragFrameId", null);
+      _defineProperty17(this, "dragOverTargetIds", null);
+      _defineProperty17(this, "getSourceClientOffset", function(sourceId) {
         var source = _this.sourceNodes.get(sourceId);
         return source && getNodeClientOffset(source) || null;
-      };
-      this.endDragNativeItem = function() {
+      });
+      _defineProperty17(this, "endDragNativeItem", function() {
         if (!_this.isDraggingNativeItem()) {
           return;
         }
@@ -25154,11 +25280,11 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         }
         _this.currentNativeHandle = null;
         _this.currentNativeSource = null;
-      };
-      this.isNodeInDocument = function(node) {
-        return Boolean(node && _this.document && _this.document.body && document.body.contains(node));
-      };
-      this.endDragIfSourceWasRemovedFromDOM = function() {
+      });
+      _defineProperty17(this, "isNodeInDocument", function(node) {
+        return Boolean(node && _this.document && _this.document.body && _this.document.body.contains(node));
+      });
+      _defineProperty17(this, "endDragIfSourceWasRemovedFromDOM", function() {
         var node = _this.currentDragSourceNode;
         if (node == null || _this.isNodeInDocument(node)) {
           return;
@@ -25166,12 +25292,12 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         if (_this.clearCurrentDragSourceNode() && _this.monitor.isDragging()) {
           _this.actions.endDrag();
         }
-      };
-      this.handleTopDragStartCapture = function() {
+      });
+      _defineProperty17(this, "handleTopDragStartCapture", function() {
         _this.clearCurrentDragSourceNode();
         _this.dragStartSourceIds = [];
-      };
-      this.handleTopDragStart = function(e) {
+      });
+      _defineProperty17(this, "handleTopDragStart", function(e) {
         if (e.defaultPrevented) {
           return;
         }
@@ -25227,13 +25353,13 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         } else {
           e.preventDefault();
         }
-      };
-      this.handleTopDragEndCapture = function() {
+      });
+      _defineProperty17(this, "handleTopDragEndCapture", function() {
         if (_this.clearCurrentDragSourceNode() && _this.monitor.isDragging()) {
           _this.actions.endDrag();
         }
-      };
-      this.handleTopDragEnterCapture = function(e) {
+      });
+      _defineProperty17(this, "handleTopDragEnterCapture", function(e) {
         _this.dragEnterTargetIds = [];
         var isFirstEnter = _this.enterLeaveCounter.enter(e.target);
         if (!isFirstEnter || _this.monitor.isDragging()) {
@@ -25244,8 +25370,8 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         if (nativeType) {
           _this.beginDragNativeItem(nativeType, dataTransfer);
         }
-      };
-      this.handleTopDragEnter = function(e) {
+      });
+      _defineProperty17(this, "handleTopDragEnter", function(e) {
         var dragEnterTargetIds = _this.dragEnterTargetIds;
         _this.dragEnterTargetIds = [];
         if (!_this.monitor.isDragging()) {
@@ -25266,11 +25392,11 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
             e.dataTransfer.dropEffect = _this.getCurrentDropEffect();
           }
         }
-      };
-      this.handleTopDragOverCapture = function() {
+      });
+      _defineProperty17(this, "handleTopDragOverCapture", function() {
         _this.dragOverTargetIds = [];
-      };
-      this.handleTopDragOver = function(e) {
+      });
+      _defineProperty17(this, "handleTopDragOver", function(e) {
         var dragOverTargetIds = _this.dragOverTargetIds;
         _this.dragOverTargetIds = [];
         if (!_this.monitor.isDragging()) {
@@ -25300,8 +25426,8 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
             e.dataTransfer.dropEffect = "none";
           }
         }
-      };
-      this.handleTopDragLeaveCapture = function(e) {
+      });
+      _defineProperty17(this, "handleTopDragLeaveCapture", function(e) {
         if (_this.isDraggingNativeItem()) {
           e.preventDefault();
         }
@@ -25314,17 +25440,19 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
             return _this.endDragNativeItem();
           }, 0);
         }
-      };
-      this.handleTopDropCapture = function(e) {
+      });
+      _defineProperty17(this, "handleTopDropCapture", function(e) {
         _this.dropTargetIds = [];
         if (_this.isDraggingNativeItem()) {
           var _this$currentNativeSo;
           e.preventDefault();
           (_this$currentNativeSo = _this.currentNativeSource) === null || _this$currentNativeSo === void 0 ? void 0 : _this$currentNativeSo.loadDataTransfer(e.dataTransfer);
+        } else if (matchNativeItemType(e.dataTransfer)) {
+          e.preventDefault();
         }
         _this.enterLeaveCounter.reset();
-      };
-      this.handleTopDrop = function(e) {
+      });
+      _defineProperty17(this, "handleTopDrop", function(e) {
         var dropTargetIds = _this.dropTargetIds;
         _this.dropTargetIds = [];
         _this.actions.hover(dropTargetIds, {
@@ -25338,8 +25466,8 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         } else if (_this.monitor.isDragging()) {
           _this.actions.endDrag();
         }
-      };
-      this.handleSelectStart = function(e) {
+      });
+      _defineProperty17(this, "handleSelectStart", function(e) {
         var target = e.target;
         if (typeof target.dragDrop !== "function") {
           return;
@@ -25349,7 +25477,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         }
         e.preventDefault();
         target.dragDrop();
-      };
+      });
       this.options = new OptionsReader(globalContext, options);
       this.actions = manager.getActions();
       this.monitor = manager.getMonitor();
