@@ -10,8 +10,8 @@
 
 ## Demo
 
-- [Editable demo](https://joeltg.github.io/react-dataflow-editor/demo/editable.html) ([source](./demo/editable.tsx))
-- [Read-only demo](https://joeltg.github.io/react-dataflow-editor/demo/readonly.html) ([source](./demo/readonly.tsx))
+- [Editable demo](https://joeltg.github.io/react-dataflow-editor/editable.html)
+- [Read-only demo](https://joeltg.github.io/react-dataflow-editor/readonly.html)
 
 ![](./static/example-action-delete-edge.gif)
 
