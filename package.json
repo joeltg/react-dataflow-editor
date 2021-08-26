@@ -1,42 +1,18 @@
 {
-	"name": "react-dataflow-editor",
-	"version": "0.1.3",
-	"description": "A generic drag-and-drop dataflow editor for React",
-	"main": "lib/index.js",
-	"files": [
-		"lib"
-	],
+	"name": "react-dataflow-editor-demo",
+	"private": true,
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
-		"build": "tsc"
+		"build-editable": "esbuild editable.tsx --bundle --minify --outfile=editable.min.js",
+		"build-readonly": "esbuild readonly.tsx --bundle --minify --outfile=readonly.min.js",
+		"build": "npm run build-readonly && npm run build-editable"
 	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/joeltg/react-dataflow-editor.git"
-	},
-	"author": "Joel Gustafson",
-	"license": "MIT",
-	"bugs": {
-		"url": "https://github.com/joeltg/react-dataflow-editor/issues"
-	},
-	"homepage": "https://github.com/joeltg/react-dataflow-editor#readme",
 	"dependencies": {
-		"d3-drag": "^3.0.0",
-		"d3-quadtree": "^3.0.1",
-		"d3-selection": "^3.0.0",
-		"nanoid": "^3.1.23",
-		"react-dnd": "^14.0.2",
-		"react-dnd-html5-backend": "^14.0.0"
-	},
-	"devDependencies": {
-		"@types/d3-drag": "^3.0.1",
-		"@types/d3-quadtree": "^3.0.2",
-		"@types/d3-selection": "^3.0.1",
-		"@types/react": "^17.0.11",
+		"@types/react": "^17.0.19",
+		"@types/react-dom": "^17.0.9",
+		"esbuild": "^0.12.23",
 		"react": "^17.0.2",
-		"typescript": "^4.3.2"
-	},
-	"peerDependencies": {
-		"react": "^17.0.1"
+		"react-dataflow-editor": "^0.1.2",
+		"react-dom": "^17.0.2"
 	}
 }

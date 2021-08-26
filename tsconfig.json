@@ -1,15 +1,9 @@
 {
-	"include": ["src"],
-	"exclude": ["demo"],
 	"compilerOptions": {
-		"outDir": "lib",
 		"strict": true,
-		"module": "ES6",
 		"target": "ES2020",
-		"sourceMap": false,
-		"declaration": true,
-		"alwaysStrict": true,
 		"jsx": "react",
+		"noEmit": true,
 		"moduleResolution": "node",
 		"esModuleInterop": true
 	}
