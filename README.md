@@ -1,6 +1,6 @@
 # react-dataflow-editor
 
-[![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg)](https://github.com/RichardLitt/standard-readme) [![license](https://img.shields.io/github/license/joeltg/react-dataflow-editor)](https://opensource.org/licenses/MIT) [![NPM version](https://img.shields.io/npm/v/react-dataflow-editor)](https://www.npmjs.com/package/react-dataflow-editor) ![TypeScript types](https://img.shields.io/npm/types/react-dataflow-editor)
+[![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg)](https://github.com/RichardLitt/standard-readme) [![license](https://img.shields.io/github/license/joeltg/react-dataflow-editor)](https://opensource.org/licenses/MIT) [![NPM version](https://img.shields.io/npm/v/react-dataflow-editor)](https://www.npmjs.com/package/react-dataflow-editor) ![TypeScript types](https://img.shields.io/npm/types/react-dataflow-editor) ![lines of code](https://img.shields.io/tokei/lines/github/joeltg/react-dataflow-editor)
 
 A generic drag-and-drop dataflow editor for React.
 
