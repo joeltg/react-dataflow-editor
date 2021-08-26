@@ -21,6 +21,10 @@
 	},
 	"homepage": "https://github.com/joeltg/react-dataflow-editor#readme",
 	"dependencies": {
+		"@types/react": "^17.0.11",
+		"@types/d3-drag": "^3.0.1",
+		"@types/d3-quadtree": "^3.0.2",
+		"@types/d3-selection": "^3.0.1",
 		"d3-drag": "^3.0.0",
 		"d3-quadtree": "^3.0.1",
 		"d3-selection": "^3.0.0",
@@ -29,10 +33,6 @@
 		"react-dnd-html5-backend": "^14.0.0"
 	},
 	"devDependencies": {
-		"@types/d3-drag": "^3.0.1",
-		"@types/d3-quadtree": "^3.0.2",
-		"@types/d3-selection": "^3.0.1",
-		"@types/react": "^17.0.11",
 		"react": "^17.0.2",
 		"typescript": "^4.3.2"
 	},
