@@ -1,27 +1,25 @@
 # react-dataflow-editor
 
+[![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg)](https://github.com/RichardLitt/standard-readme) [![license](https://img.shields.io/github/license/joeltg/react-dataflow-editor)](https://opensource.org/licenses/MIT) [![NPM version](https://img.shields.io/npm/v/react-dataflow-editor)](https://www.npmjs.com/package/react-dataflow-editor) ![TypeScript types](https://img.shields.io/npm/types/react-dataflow-editor)
+
+A generic drag-and-drop dataflow editor for React.
+
 > ✨ You can read about the design of this component in [this blog post](https://research.protocol.ai/blog/2021/designing-a-dataflow-editor-with-typescript-and-react/)!
 
 ## Table of Contents
 
+- [Install](#install)
+- [Usage](#usage)
 - [Demo](#demo)
-- [Installation](#installation)
-- [Example](#example)
+- [Contributing](#contributing)
 
-## Demo
-
-- [Editable demo](https://joeltg.github.io/react-dataflow-editor/demo/editable.html) ([source](./demo/editable.tsx))
-- [Read-only demo](https://joeltg.github.io/react-dataflow-editor/demo/readonly.html) ([source](./demo/readonly.tsx))
-
-![](./static/example-action-delete-edge.gif)
-
-## Installation
+## Install
 
 ```
 npm i react-dataflow-editor
 ```
 
-## Example
+## Usage
 
 ```typescript
 import React, { useCallback } from "react"
@@ -71,3 +69,18 @@ function MyEditor(props: MyEditorProps) {
 	return <Editor<S> kinds={kinds} state={state} dispatch={dispatch} />
 }
 ```
+
+## Demo
+
+- [Editable demo](https://joeltg.github.io/react-dataflow-editor/editable.html) ([source](./editable.tsx))
+- [Read-only demo](https://joeltg.github.io/react-dataflow-editor/readonly.html) ([source](./readonly.tsx))
+
+![](./static/example-action-delete-edge.gif)
+
+## Contributing
+
+PRs accepted!
+
+## License
+
+MIT © 2021 Joel Gustafson
