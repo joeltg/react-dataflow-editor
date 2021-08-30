@@ -3,8 +3,8 @@
 	"private": true,
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
-		"build-editable": "esbuild editable.tsx --bundle --minify --outfile=editable.min.js",
-		"build-readonly": "esbuild readonly.tsx --bundle --minify --outfile=readonly.min.js",
+		"build-editable": "esbuild demo/editable.tsx --bundle --minify --outfile=demo/editable.min.js",
+		"build-readonly": "esbuild demo/readonly.tsx --bundle --minify --outfile=demo/readonly.min.js",
 		"build": "npm run build-readonly && npm run build-editable"
 	},
 	"dependencies": {
