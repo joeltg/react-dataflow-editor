@@ -72,8 +72,8 @@ function MyEditor(props: MyEditorProps) {
 
 ## Demo
 
-- [Editable demo](https://joeltg.github.io/react-dataflow-editor/demo/editable.html) ([source](./editable.tsx))
-- [Read-only demo](https://joeltg.github.io/react-dataflow-editor/demo/readonly.html) ([source](./readonly.tsx))
+- [Editable demo](https://joeltg.github.io/react-dataflow-editor/demo/editable.html) ([source](https://github.com/joeltg/react-dataflow-editor/blob/gh-pages/demo/editable.tsx))
+- [Read-only demo](https://joeltg.github.io/react-dataflow-editor/demo/readonly.html) ([source](https://github.com/joeltg/react-dataflow-editor/blob/gh-pages/demo/readonly.tsx))
 
 ![](./static/example-action-delete-edge.gif)
 
