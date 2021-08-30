@@ -21,10 +21,11 @@
 	},
 	"homepage": "https://github.com/joeltg/react-dataflow-editor#readme",
 	"dependencies": {
-		"@types/react": "^17.0.11",
 		"@types/d3-drag": "^3.0.1",
 		"@types/d3-quadtree": "^3.0.2",
 		"@types/d3-selection": "^3.0.1",
+		"@types/hoist-non-react-statics": "^3.3.1",
+		"@types/react": "^17.0.11",
 		"d3-drag": "^3.0.0",
 		"d3-quadtree": "^3.0.1",
 		"d3-selection": "^3.0.0",
