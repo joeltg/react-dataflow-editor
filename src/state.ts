@@ -1,7 +1,12 @@
-export type Position = { x: number; y: number }
+import React from "react"
 
+export type Position = { x: number; y: number }
+interface ChildComponentProps {
+	items: string
+}
 export type Kind<I extends string, O extends string> = Readonly<{
 	name: string
+	Footer?: React.FC<ChildComponentProps>
 	inputs: Readonly<Record<I, null>>
 	outputs: Readonly<Record<O, null>>
 	backgroundColor: string
@@ -12,12 +17,12 @@ export type Schema = Record<string, { inputs: string; outputs: string }>
 export type GetInputs<
 	S extends Schema,
 	K extends keyof S = keyof S
-> = S[K]["inputs"]
+	> = S[K]["inputs"]
 
 export type GetOutputs<
 	S extends Schema,
 	K extends keyof S = keyof S
-> = S[K]["outputs"]
+	> = S[K]["outputs"]
 
 export type Kinds<S extends Schema> = {
 	readonly [K in keyof S]: Kind<GetInputs<S, K>, GetOutputs<S, K>>
@@ -25,8 +30,8 @@ export type Kinds<S extends Schema> = {
 
 export type GetSchema<B extends Kinds<Schema>> = {
 	[k in keyof B]: B[k] extends Kind<infer I, infer O>
-		? { inputs: I; outputs: O }
-		: never
+	? { inputs: I; outputs: O }
+	: never
 }
 
 export type Node<S extends Schema, K extends keyof S = keyof S> = {
@@ -53,11 +58,11 @@ export type Edge<
 	S extends Schema,
 	SK extends keyof S = keyof S,
 	TK extends keyof S = keyof S
-> = {
-	id: string
-	source: Source<S, SK>
-	target: Target<S, TK>
-}
+	> = {
+		id: string
+		source: Source<S, SK>
+		target: Target<S, TK>
+	}
 
 export type Focus =
 	| { element: "node"; id: string }

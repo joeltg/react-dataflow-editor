@@ -9,6 +9,7 @@ import {
 	nodeMarginX,
 	nodeWidth,
 	place,
+	calculNodeHeight,
 	toTranslate,
 } from "./utils.js"
 import { CanvasContext } from "./context.js"
@@ -30,11 +31,13 @@ export interface GraphNodeProps<S extends Schema> {
 }
 
 export function GraphNode<S extends Schema>(props: GraphNodeProps<S>) {
-	const { name, backgroundColor, inputs, outputs } = props.kinds[
+	const { name, Footer, backgroundColor, inputs, outputs } = props.kinds[
 		props.node.kind
 	]
 
 	const clipPath = useMemo(() => makeClipPath(props.kinds, props.node.kind), [])
+
+	const nodeHeight = useMemo(() => calculNodeHeight(props.kinds, props.node.kind), [])
 
 	const context = useContext(CanvasContext)
 
@@ -55,7 +58,6 @@ export function GraphNode<S extends Schema>(props: GraphNodeProps<S>) {
 		props.focus.id === props.node.id
 
 	const { borderColor } = context.options
-
 	return (
 		<g
 			ref={ref}
@@ -83,6 +85,10 @@ export function GraphNode<S extends Schema>(props: GraphNodeProps<S>) {
 				x2={nodeWidth - nodeMarginX}
 				y2={nodeHeaderHeight}
 			/>
+
+			<foreignObject x={0} y={nodeHeight} width={nodeWidth} height="100px">
+				{Footer ? <Footer items={props.node.id} /> : null}
+			</foreignObject>
 			<g className="inputs">
 				{Object.keys(inputs).map((input) => (
 					<GraphInput<S, keyof S>
@@ -95,7 +101,7 @@ export function GraphNode<S extends Schema>(props: GraphNodeProps<S>) {
 					/>
 				))}
 			</g>
-			<g className="outputs" transform="translate(156, 0)">
+			<g className="outputs" transform={`translate(${nodeWidth}, 0)`}>
 				{Object.keys(outputs).map((output) => (
 					<GraphOutput<S, keyof S>
 						key={output}
@@ -107,6 +113,6 @@ export function GraphNode<S extends Schema>(props: GraphNodeProps<S>) {
 					/>
 				))}
 			</g>
-		</g>
+		</g >
 	)
 }

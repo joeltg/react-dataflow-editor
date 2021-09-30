@@ -14,7 +14,7 @@ import type {
 } from "./state.js"
 import type { CanvasContext } from "./context.js"
 
-export const nodeWidth = 156
+export const nodeWidth = 206
 export const nodeMarginX = 4
 export const nodeHeaderHeight = 24
 export const portRadius = 12
@@ -36,16 +36,25 @@ export const initialEditorState = <S extends Schema>(): EditorState<S> => ({
 	focus: null,
 })
 
-export function makeClipPath<S extends Schema>(
+
+export function calculNodeHeight<S extends Schema>(
 	kinds: Kinds<S>,
 	kind: keyof S
-): string {
+): number {
 	const { inputs, outputs } = kinds[kind]
 	const { length: inputCount } = Object.keys(inputs)
 	const { length: outputCount } = Object.keys(outputs)
+	return nodeHeaderHeight + portHeight * Math.max(inputCount, outputCount)
+}
 
-	const nodeHeight =
-		nodeHeaderHeight + portHeight * Math.max(inputCount, outputCount)
+export function makeClipPath<S extends Schema>(
+	kinds: Kinds<S>,
+	kind: keyof S,
+): string {
+	const { inputs, outputs } = kinds[kind]
+	const { length: inputCount } = Object.keys(inputs)
+
+	const nodeHeight = calculNodeHeight(kinds, kind)
 
 	const path = [`M 0 0 V ${nodeHeaderHeight}`]
 

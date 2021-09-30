@@ -25,17 +25,17 @@
 		"@types/d3-quadtree": "^3.0.2",
 		"@types/d3-selection": "^3.0.1",
 		"@types/hoist-non-react-statics": "^3.3.1",
-		"@types/react": "^17.0.11",
+		"@types/react": "^17.0.24",
 		"d3-drag": "^3.0.0",
 		"d3-quadtree": "^3.0.1",
 		"d3-selection": "^3.0.0",
-		"nanoid": "^3.1.23",
-		"react-dnd": "^14.0.2",
-		"react-dnd-html5-backend": "^14.0.0"
+		"nanoid": "^3.1.28",
+		"react-dnd": "^14.0.4",
+		"react-dnd-html5-backend": "^14.0.2"
 	},
 	"devDependencies": {
 		"react": "^17.0.2",
-		"typescript": "^4.3.2"
+		"typescript": "^4.4.3"
 	},
 	"peerDependencies": {
 		"react": "^17.0.1"
