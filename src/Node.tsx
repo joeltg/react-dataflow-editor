@@ -58,6 +58,7 @@ export function GraphNode<S extends Schema>(props: GraphNodeProps<S>) {
 		props.focus.id === props.node.id
 
 	const { borderColor } = context.options
+
 	return (
 		<g
 			ref={ref}
@@ -85,7 +86,6 @@ export function GraphNode<S extends Schema>(props: GraphNodeProps<S>) {
 				x2={nodeWidth - nodeMarginX}
 				y2={nodeHeaderHeight}
 			/>
-
 			<foreignObject x={0} y={nodeHeight} width={nodeWidth} height="100px">
 				{Footer ? <Footer id={props.node.id} /> : null}
 			</foreignObject>
