@@ -87,7 +87,7 @@ export function GraphNode<S extends Schema>(props: GraphNodeProps<S>) {
 			/>
 
 			<foreignObject x={0} y={nodeHeight} width={nodeWidth} height="100px">
-				{Footer ? <Footer items={props.node.id} /> : null}
+				{Footer ? <Footer id={props.node.id} /> : null}
 			</foreignObject>
 			<g className="inputs">
 				{Object.keys(inputs).map((input) => (
