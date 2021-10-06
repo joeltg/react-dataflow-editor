@@ -1,6 +1,6 @@
 {
 	"name": "react-dataflow-editor",
-	"version": "0.1.5",
+	"version": "0.1.6",
 	"description": "A generic drag-and-drop dataflow editor for React",
 	"main": "lib/index.js",
 	"files": [
