@@ -108,6 +108,8 @@ If you want to render a read-only version of the editor, use the separate `Viewe
 
 PRs accepted!
 
+I'm very interested in improving the real-world usability of the library. In particular I don't really know how to expose control over styling and layout in a useful way, so if you're trying to use this component I'd love to hear what kind of interface you'd like to have. Please open an issue to discuss this!
+
 ## License
 
 MIT © 2021 Joel Gustafson
