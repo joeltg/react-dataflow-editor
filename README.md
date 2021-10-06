@@ -10,6 +10,9 @@ A generic drag-and-drop dataflow editor for React.
 
 - [Install](#install)
 - [Usage](#usage)
+  - [Schema](#schema)
+  - [Editor](#editor)
+- [API](#api)
 - [Demo](#demo)
 - [Contributing](#contributing)
 
@@ -21,17 +24,11 @@ npm i react-dataflow-editor
 
 ## Usage
 
-```typescript
-import React, { useCallback } from "react"
-import {
-	Editor,
-	EditorState,
-	GetSchema,
-	EditorAction,
-	reduce,
-} from "react-dataflow-editor"
+### Schema
 
-// Define a catalog of node *kinds* in this format
+To use the editor, you must first define a static _schema_ listing the kinds of nodes you want to use. Here's an example schema:
+
+```typescript
 const kinds = {
 	add: {
 		name: "Addition",
@@ -46,29 +43,59 @@ const kinds = {
 		backgroundColor: "darksalmon",
 	},
 }
+```
+
+This schema declares two kinds of nodes - an `add` node with two inputs `a` and `b` and one output `sum`, and a `div` node with two inputs `dividend` and `divisor` and two outputs `quotient` and `remainder`.
+
+A schema is an object assignable to the type `Record<string, { name: string; inputs: Record<string, null>; outputs: Record<string, null>; backgroundColor: string }>`. However the schema **must be defined without type annotations** (and with TypeScript's strict mode enabled); this is because the editor is designed to leverage TypeScript's default type assignment rules to derive a more specific concrete typing of each schema that it will use to paramerize the editor component.
+
+### Editor
+
+Once you've defined your schema (with no type annotations), you can pass it into the `Editor` component, along with a state value and a dispatch method. `Editor` is a controlled component - meaning the editor always renders the value of the current state prop, no matter what - but it doesn't use an `onChange: (newState) => void` callback like most controlled React components. Instead, it uses a `dispatch` callback that gets invoked with individual actions when the user tries to create/delete/move nodes or edges.
+
+If all you want is to get the new state value on every change, you should use the exported `makeReducer` method in conjunction with React's `useReducer` hook, like in this example:
+
+```typescript
+import React, { useReducer } from "react"
+import {
+	Editor,
+	EditorState,
+	GetSchema,
+	EditorAction,
+	makeReducer,
+} from "react-dataflow-editor"
 
 // Derive a concrete type-level schema from the kinds catalog
 type S = GetSchema<typeof kinds>
 
 interface MyEditorProps {
-	state: EditorState<S>
-	onChange: (state: EditorState<S>) => void
+	initialValue?: EditorState<S>
+}
+
+const defaultInitialValue: EditorState<S> = {
+	nodes: {},
+	edges: {},
+	focus: null,
 }
 
 function MyEditor(props: MyEditorProps) {
-	// The editor component takes a dispatch callback, not an onChange
-	// callback like most controlled react components.
-	// Use the `reduce` method to apply an action to a state.
-	const dispatch = useCallback(
-		(action: EditorAction<S>) => {
-			props.onChange(reduce(kinds, props.state, action))
-		},
-		[props.onChange, props.state]
+	const reducer = makeReducer(kinds)
+	const [state, dispatch] = useReducer(
+		reducer,
+		props.initialValue || defaultInitialValue
 	)
 
 	return <Editor<S> kinds={kinds} state={state} dispatch={dispatch} />
 }
 ```
+
+If you want to take more fine-grained control over the editor actions - for example, if you wanted to prevent the user from deleting certain nodes - you can write you own `dispatch` method with your own logic inside it. In that case, you'll probably want to make use of the exported `reduce` method instead.
+
+The `kinds`, `dispatch`, and `options` props provided to the `Editor` component **must not change** - the editor will not update to reflect new values of these props. Only their initial values will be used.
+
+### Viewer
+
+If you want to render a read-only version of the editor, use the separate `Viewer` component. The viewer component takes all the same props as the editor component, including a `dispatch` callback, but the only actions that it will get invoked with are `Focus` actions. If you want users to be able to and deselect nodes and edges (and if you want to use the currently-selected node or edge in your application), you still need to use the `useReducer` hook the same way.
 
 ## Demo
 

@@ -8,6 +8,8 @@ import type {
 	Position,
 } from "./state.js"
 
+import type { EditorAction } from "./actions.js"
+
 import {
 	forInputs,
 	forOutputs,
@@ -15,7 +17,10 @@ import {
 	signalInvalidType,
 } from "./utils.js"
 
-import { EditorAction } from "./actions.js"
+export const makeReducer =
+	<S extends Schema>(kinds: Kinds<S>) =>
+	(state: EditorState<S>, action: EditorAction<S>) =>
+		reduce(kinds, state, action)
 
 export function reduce<S extends Schema>(
 	kinds: Kinds<S>,

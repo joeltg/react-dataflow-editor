@@ -6,7 +6,7 @@ import { HTML5Backend } from "react-dnd-html5-backend"
 import { Toolbox } from "./Toolbox.js"
 import { Canvas } from "./EditableCanvas.js"
 
-import { Kinds, EditorState, Schema, Focus } from "../state.js"
+import type { Kinds, EditorState, Schema } from "../state.js"
 
 import { EditorAction, focus } from "../actions.js"
 import { CanvasContext } from "../context.js"
@@ -21,16 +21,13 @@ export interface EditorProps<S extends Schema> {
 }
 
 export function Editor<S extends Schema>(props: EditorProps<S>) {
-	const dispatchRef = useRef(props.dispatch)
-	dispatchRef.current = props.dispatch
+	const stateRef = useRef(props.state)
+	stateRef.current = props.state
 
 	const dispatch = useCallback(
-		(action: EditorAction<S>) => dispatchRef.current(action),
+		(action: EditorAction<S>) => props.dispatch(action),
 		[]
 	)
-
-	const focusRef = useRef<Focus | null>(props.state.focus)
-	focusRef.current = props.state.focus
 
 	const context = useMemo<CanvasContext>(() => {
 		return {
@@ -40,7 +37,7 @@ export function Editor<S extends Schema>(props: EditorProps<S>) {
 			svgRef: { current: null },
 			previewRef: { current: null },
 			onFocus: (subject) => {
-				if (!isFocusEqual(focusRef.current, subject)) {
+				if (!isFocusEqual(stateRef.current.focus, subject)) {
 					dispatch(focus(subject))
 				}
 			},

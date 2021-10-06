@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useRef } from "react"
 
 import { Canvas } from "./ReadonlyCanvas.js"
 
-import { Kinds, EditorState, Schema, Focus } from "../state.js"
+import type { Kinds, EditorState, Schema } from "../state.js"
 
 import { focus, FocusAction } from "../actions.js"
 import { CanvasContext } from "../context.js"
@@ -17,16 +17,13 @@ export interface ViewerProps<S extends Schema> {
 }
 
 export function Viewer<S extends Schema>(props: ViewerProps<S>) {
-	const dispatchRef = useRef(props.dispatch)
-	dispatchRef.current = props.dispatch
+	const stateRef = useRef(props.state)
+	stateRef.current = props.state
 
 	const dispatch = useCallback(
-		(action: FocusAction) => dispatchRef.current(action),
+		(action: FocusAction) => props.dispatch(action),
 		[]
 	)
-
-	const focusRef = useRef<Focus | null>(props.state.focus)
-	focusRef.current = props.state.focus
 
 	const context = useMemo<CanvasContext>(() => {
 		return {
@@ -36,7 +33,7 @@ export function Viewer<S extends Schema>(props: ViewerProps<S>) {
 			svgRef: { current: null },
 			previewRef: { current: null },
 			onFocus: (subject) => {
-				if (!isFocusEqual(focusRef.current, subject)) {
+				if (!isFocusEqual(stateRef.current.focus, subject)) {
 					dispatch(focus(subject))
 				}
 			},
